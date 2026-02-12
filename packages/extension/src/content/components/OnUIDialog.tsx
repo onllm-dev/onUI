@@ -244,6 +244,7 @@ export function OnUIDialog({
         )}
 
         {/* Comment Input */}
+        <span class="onui-textarea-label">Comment</span>
         <div class="onui-textarea-wrap">
           <textarea
             ref={textareaRef}

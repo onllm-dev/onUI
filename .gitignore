@@ -6,6 +6,7 @@ node_modules/
 dist/
 build/
 *.tsbuildinfo
+artifacts/
 
 # Extension
 packages/extension/dist/
@@ -30,6 +31,8 @@ pids/
 *.swp
 *.swo
 *~
+.claude/
+.playwright-mcp/
 
 # OS
 .DS_Store

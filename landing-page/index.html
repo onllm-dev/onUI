@@ -52,7 +52,7 @@
   <main id="top">
     <section class="hero">
       <div class="hero-badges">
-        <span class="badge badge-beta">Beta — Early Development</span>
+        <span class="badge badge-beta">Stable — Public Release</span>
         <span class="badge badge-store">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19 4H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2zm0 14H5V8h14v10z"/></svg>
           Chrome Web Store — Coming Soon
@@ -202,23 +202,23 @@
       </div>
 
       <div class="install-steps">
-        <!-- Step 1: Clone & Build -->
+        <!-- Step 1: One-command installer -->
         <div class="install-step-card">
           <div class="install-step-header">
             <span class="install-num">1</span>
-            <h3>Clone &amp; build the extension</h3>
+            <h3>Run one install command</h3>
           </div>
           <div class="install-commands">
             <div class="command-block">
-              <code>git clone https://github.com/onllm-dev/onUI.git</code>
-              <button type="button" class="copy-btn" data-copy="git clone https://github.com/onllm-dev/onUI.git" aria-label="Copy command">
+              <code>curl -fsSL https://github.com/onllm-dev/onUI/releases/latest/download/install.sh | bash</code>
+              <button type="button" class="copy-btn" data-copy="curl -fsSL https://github.com/onllm-dev/onUI/releases/latest/download/install.sh | bash" aria-label="Copy command">
                 <svg viewBox="0 0 24 24" class="icon-copy"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
                 <svg viewBox="0 0 24 24" class="icon-check"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </button>
             </div>
             <div class="command-block">
-              <code>cd onUI && pnpm install && pnpm build</code>
-              <button type="button" class="copy-btn" data-copy="cd onUI && pnpm install && pnpm build" aria-label="Copy command">
+              <code>irm https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 | iex</code>
+              <button type="button" class="copy-btn" data-copy="irm https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 | iex" aria-label="Copy command">
                 <svg viewBox="0 0 24 24" class="icon-copy"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
                 <svg viewBox="0 0 24 24" class="icon-check"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </button>
@@ -247,7 +247,7 @@
             </div>
             <div class="chrome-step">
               <span class="chrome-step-num">d</span>
-              <span>Select the <code>packages/extension/dist</code> folder</span>
+              <span>Select <code>~/onUI/extensions/current</code> (or <code>%USERPROFILE%\onUI\extensions\current</code> on Windows)</span>
             </div>
           </div>
         </div>
@@ -263,15 +263,15 @@
           </div>
           <div class="install-commands">
             <div class="command-block">
-              <code>pnpm build:mcp && pnpm setup:mcp</code>
-              <button type="button" class="copy-btn" data-copy="pnpm build:mcp && pnpm setup:mcp" aria-label="Copy command">
+              <code>curl -fsSL https://github.com/onllm-dev/onUI/releases/latest/download/install.sh | bash -s -- --mcp</code>
+              <button type="button" class="copy-btn" data-copy="curl -fsSL https://github.com/onllm-dev/onUI/releases/latest/download/install.sh | bash -s -- --mcp" aria-label="Copy command">
                 <svg viewBox="0 0 24 24" class="icon-copy"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
                 <svg viewBox="0 0 24 24" class="icon-check"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </button>
             </div>
             <div class="command-block">
-              <code>pnpm doctor:mcp</code>
-              <button type="button" class="copy-btn" data-copy="pnpm doctor:mcp" aria-label="Copy command">
+              <code>$env:ONUI_INSTALL_MCP=1; irm https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 | iex</code>
+              <button type="button" class="copy-btn" data-copy="$env:ONUI_INSTALL_MCP=1; irm https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 | iex" aria-label="Copy command">
                 <svg viewBox="0 0 24 24" class="icon-copy"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
                 <svg viewBox="0 0 24 24" class="icon-check"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               </button>

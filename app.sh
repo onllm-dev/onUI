@@ -109,8 +109,12 @@ package_artifacts() {
   local version="$1"
   local artifacts_dir="artifacts/v${version}"
   local ext_dist_dir="packages/extension/dist"
+  local sh_template="scripts/install/install.sh.template"
+  local ps_template="scripts/install/install.ps1.template"
 
   [ -d "$ext_dist_dir" ] || fail "Missing extension dist at $ext_dist_dir"
+  [ -f "$sh_template" ] || fail "Missing installer template: $sh_template"
+  [ -f "$ps_template" ] || fail "Missing installer template: $ps_template"
 
   log "Packaging artifacts into $artifacts_dir"
   rm -rf "$artifacts_dir"
@@ -118,6 +122,8 @@ package_artifacts() {
 
   local unpacked_zip="$artifacts_dir/onui-extension-unpacked-v${version}.zip"
   local cws_zip="$artifacts_dir/onui-chrome-web-store-v${version}.zip"
+  local install_sh="$artifacts_dir/install.sh"
+  local install_ps1="$artifacts_dir/install.ps1"
 
   (
     cd "$ext_dist_dir"
@@ -140,9 +146,15 @@ package_artifacts() {
   )
   rm -rf "$tmp_dir"
 
+  sed "s/__VERSION__/${version}/g" "$sh_template" > "$install_sh"
+  sed "s/__VERSION__/${version}/g" "$ps_template" > "$install_ps1"
+  chmod +x "$install_sh"
+
   {
     sha256_file "$unpacked_zip"
     sha256_file "$cws_zip"
+    sha256_file "$install_sh"
+    sha256_file "$install_ps1"
   } > "$artifacts_dir/checksums.txt"
 
   log "Artifacts created:"
@@ -177,6 +189,8 @@ release_to_github() {
   gh release create "$tag" \
     "$artifacts_dir/onui-extension-unpacked-v${version}.zip" \
     "$artifacts_dir/onui-chrome-web-store-v${version}.zip" \
+    "$artifacts_dir/install.sh" \
+    "$artifacts_dir/install.ps1" \
     "$artifacts_dir/checksums.txt" \
     --title "$tag" \
     --generate-notes

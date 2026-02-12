@@ -1,0 +1,136 @@
+param(
+  [switch]$Mcp
+)
+
+$ErrorActionPreference = "Stop"
+
+$Version = "__VERSION__"
+$Repo = "onllm-dev/onUI"
+$BaseUrl = if ($env:ONUI_RELEASE_BASE_URL) { $env:ONUI_RELEASE_BASE_URL } else { "https://github.com/$Repo" }
+$OnuiHome = if ($env:ONUI_HOME) { $env:ONUI_HOME } else { Join-Path $HOME "onUI" }
+$ExtRoot = Join-Path $OnuiHome "extensions"
+$ExtDir = Join-Path $ExtRoot "v$Version"
+$CurrentDir = Join-Path $ExtRoot "current"
+$ExtUrl = "$BaseUrl/releases/download/v$Version/onui-extension-unpacked-v$Version.zip"
+$SrcUrl = "https://codeload.github.com/$Repo/tar.gz/refs/tags/v$Version"
+$McpSrcDir = Join-Path (Join-Path $OnuiHome "mcp-src") "v$Version"
+$mcpEnv = if ($env:ONUI_INSTALL_MCP) { $env:ONUI_INSTALL_MCP.ToLowerInvariant() } else { "" }
+$InstallMcp = $Mcp -or (@("1", "true", "yes", "y") -contains $mcpEnv)
+
+function Write-Log($Message) {
+  Write-Host "[onui-install] $Message"
+}
+
+function Require-Command($CommandName) {
+  if (-not (Get-Command $CommandName -ErrorAction SilentlyContinue)) {
+    throw "Missing required command: $CommandName"
+  }
+}
+
+function Install-Extension {
+  Require-Command "Invoke-WebRequest"
+  Require-Command "Expand-Archive"
+
+  New-Item -ItemType Directory -Path $ExtRoot -Force | Out-Null
+  $tmpZip = Join-Path $env:TEMP "onui-extension-$Version.zip"
+
+  Write-Log "Downloading extension release artifact v$Version"
+  Invoke-WebRequest -Uri $ExtUrl -OutFile $tmpZip
+
+  if (Test-Path $ExtDir) {
+    Remove-Item -Path $ExtDir -Recurse -Force
+  }
+  New-Item -ItemType Directory -Path $ExtDir -Force | Out-Null
+  Expand-Archive -Path $tmpZip -DestinationPath $ExtDir -Force
+  Remove-Item -Path $tmpZip -Force
+
+  if (Test-Path $CurrentDir) {
+    Remove-Item -Path $CurrentDir -Recurse -Force
+  }
+
+  try {
+    New-Item -ItemType SymbolicLink -Path $CurrentDir -Target $ExtDir -Force | Out-Null
+  } catch {
+    New-Item -ItemType Directory -Path $CurrentDir -Force | Out-Null
+    Copy-Item -Path (Join-Path $ExtDir "*") -Destination $CurrentDir -Recurse -Force
+  }
+
+  Write-Log "Extension installed."
+  Write-Host "Load unpacked path: $CurrentDir"
+}
+
+function Should-InstallMcp {
+  if ($InstallMcp) {
+    return $true
+  }
+
+  $answer = Read-Host "Set up local MCP bridge now? [y/N]"
+  return ($answer -match "^(y|yes)$")
+}
+
+function Install-Mcp {
+  Require-Command "node"
+  Require-Command "pnpm"
+  Require-Command "tar"
+
+  $nodeMajor = [int](node -p "process.versions.node.split('.')[0]")
+  if ($nodeMajor -lt 20) {
+    throw "Node 20+ required for MCP setup."
+  }
+
+  $tmpTgz = Join-Path $env:TEMP "onui-src-$Version.tgz"
+
+  Write-Log "Downloading source bundle for MCP setup"
+  Invoke-WebRequest -Uri $SrcUrl -OutFile $tmpTgz
+
+  if (Test-Path $McpSrcDir) {
+    Remove-Item -Path $McpSrcDir -Recurse -Force
+  }
+  New-Item -ItemType Directory -Path $McpSrcDir -Force | Out-Null
+  tar -xzf $tmpTgz --strip-components=1 -C $McpSrcDir
+  Remove-Item -Path $tmpTgz -Force
+
+  Push-Location $McpSrcDir
+  try {
+    pnpm install --frozen-lockfile
+    pnpm --filter @onui/core run build
+    pnpm --filter @onui/mcp-server run build
+    pnpm --filter @onui/mcp-server run setup
+    try {
+      pnpm --filter @onui/mcp-server run doctor
+    } catch {
+      Write-Log "Doctor returned warnings. Continuing."
+    }
+  } finally {
+    Pop-Location
+  }
+
+  Write-Log "MCP setup complete."
+}
+
+function Print-FinalSteps {
+  Write-Host ""
+  Write-Host "Final Chrome step (still required):"
+  Write-Host "1) Open chrome://extensions"
+  Write-Host "2) Enable Developer mode"
+  Write-Host "3) Click Load unpacked"
+  Write-Host "4) Select: $CurrentDir"
+  Write-Host ""
+  try {
+    Start-Process "chrome://extensions" | Out-Null
+  } catch {
+  }
+}
+
+Install-Extension
+
+if (Should-InstallMcp) {
+  try {
+    Install-Mcp
+  } catch {
+    Write-Log "MCP setup failed. Extension install is complete; run MCP setup manually later."
+    Write-Log $_.Exception.Message
+  }
+}
+
+Print-FinalSteps

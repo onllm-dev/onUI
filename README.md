@@ -30,13 +30,16 @@ Install directly from Chrome Web Store when listed.
 
 > Chrome Web Store extension listing is coming soon.
 
-### Option B: Load unpacked from source (available now)
+### Option B: One-command installer from latest GitHub release
 
+macOS/Linux:
 ```bash
-git clone https://github.com/onllm-dev/onUI.git
-cd onUI
-pnpm install
-pnpm build
+curl -fsSL https://github.com/onllm-dev/onUI/releases/latest/download/install.sh | bash
+```
+
+Windows (PowerShell):
+```powershell
+irm https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 | iex
 ```
 
 Then load it in Chrome:
@@ -44,7 +47,7 @@ Then load it in Chrome:
 1. Open `chrome://extensions`
 2. Enable **Developer mode**
 3. Click **Load unpacked**
-4. Select `packages/extension/dist`
+4. Select `~/onUI/extensions/current` (or `%USERPROFILE%\onUI\extensions\current` on Windows)
 
 > Chrome requires this final manual step for unpacked extensions.
 
@@ -58,7 +61,19 @@ Then load it in Chrome:
 
 ## 🔌 Local MCP Setup (Optional)
 
-onUI ships with a local MCP server and Native Messaging bridge to sync extension annotations into a local store.
+The installers can also set up local MCP:
+
+macOS/Linux:
+```bash
+curl -fsSL https://github.com/onllm-dev/onUI/releases/latest/download/install.sh | bash -s -- --mcp
+```
+
+Windows (PowerShell):
+```powershell
+$env:ONUI_INSTALL_MCP=1; irm https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 | iex
+```
+
+Manual MCP setup from source is still supported:
 
 ```bash
 pnpm build:mcp
@@ -95,7 +110,9 @@ This runs:
 Artifacts:
 1. `onui-extension-unpacked-vX.Y.Z.zip`
 2. `onui-chrome-web-store-vX.Y.Z.zip` (manifest `key` stripped for CWS)
-3. `checksums.txt`
+3. `install.sh`
+4. `install.ps1`
+5. `checksums.txt`
 
 ### Local release + GitHub publish
 

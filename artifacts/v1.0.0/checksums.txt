@@ -1,2 +1,0 @@
-88888ef757288d353867efc7075e94ead1f47f8394fd766dd74567ff7b37f7b8  artifacts/v1.0.0/onui-extension-unpacked-v1.0.0.zip
-1aade7969ae6684ebabc8d40b35616a3589d08134b0b7cc6de37b553a3fb2724  artifacts/v1.0.0/onui-chrome-web-store-v1.0.0.zip

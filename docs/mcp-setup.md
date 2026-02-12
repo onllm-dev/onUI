@@ -11,8 +11,20 @@ Browser support in this release: **Chrome stable only**.
 
 ## One-Command Setup
 
+macOS/Linux:
 ```bash
-pnpm --filter @onui/mcp-server setup
+curl -fsSL https://github.com/onllm-dev/onUI/releases/latest/download/install.sh | bash -s -- --mcp
+```
+
+Windows (PowerShell):
+```powershell
+$env:ONUI_INSTALL_MCP=1; irm https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 | iex
+```
+
+Manual source setup is also supported:
+
+```bash
+pnpm --filter @onui/mcp-server run setup
 ```
 
 What setup does:
@@ -25,13 +37,13 @@ What setup does:
 ## Verify Installation
 
 ```bash
-pnpm --filter @onui/mcp-server doctor
+pnpm --filter @onui/mcp-server run doctor
 ```
 
 Use deep mode for V2 sync readiness checks:
 
 ```bash
-pnpm --filter @onui/mcp-server doctor -- --deep
+pnpm --filter @onui/mcp-server run doctor -- --deep
 ```
 
 ## MCP Tooling

@@ -17,7 +17,9 @@
 Outputs in `artifacts/vX.Y.Z/`:
 1. `onui-extension-unpacked-vX.Y.Z.zip`
 2. `onui-chrome-web-store-vX.Y.Z.zip`
-3. `checksums.txt`
+3. `install.sh`
+4. `install.ps1`
+5. `checksums.txt`
 
 ## Publish a Release
 
@@ -38,3 +40,8 @@ This command:
 
 Upload `onui-chrome-web-store-vX.Y.Z.zip` from `artifacts/vX.Y.Z/`.
 The CWS zip strips the `manifest.key` field automatically.
+
+## Public Installer URLs
+
+1. `https://github.com/onllm-dev/onUI/releases/latest/download/install.sh`
+2. `https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1`

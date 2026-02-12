@@ -96,10 +96,30 @@ function Install-Mcp {
     pnpm --filter @onui/core run build
     pnpm --filter @onui/mcp-server run build
     pnpm --filter @onui/mcp-server run setup
+    $doctorJson = ""
     try {
-      pnpm --filter @onui/mcp-server run doctor
+      $doctorJson = pnpm --filter @onui/mcp-server run doctor -- --json 2>$null
     } catch {
-      Write-Log "Doctor returned warnings. Continuing."
+      $doctorJson = $_.Exception.Message
+    }
+
+    $doctorStatus = "unknown"
+    try {
+      $doctorReport = $doctorJson | ConvertFrom-Json
+      if ($doctorReport.status) {
+        $doctorStatus = [string]$doctorReport.status
+      }
+    } catch {
+      $doctorStatus = "unknown"
+    }
+
+    if ($doctorStatus -eq "error") {
+      Write-Log "MCP doctor reported errors. Extension install is complete; fix MCP with: pnpm --filter @onui/mcp-server run doctor"
+      return
+    }
+
+    if ($doctorStatus -eq "warning") {
+      Write-Log "MCP doctor reported warnings (non-fatal)."
     }
   } finally {
     Pop-Location

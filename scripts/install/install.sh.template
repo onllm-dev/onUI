@@ -159,10 +159,36 @@ install_mcp() {
     pnpm --filter @onui/core run build
     pnpm --filter @onui/mcp-server run build
     pnpm --filter @onui/mcp-server run setup
-    pnpm --filter @onui/mcp-server run doctor || true
   ); then
     warn "MCP setup failed. Extension install is complete; run MCP setup manually later."
     return 0
+  fi
+
+  local doctor_report
+  doctor_report="$(
+    cd "$MCP_SRC_DIR"
+    pnpm --filter @onui/mcp-server run doctor -- --json 2>/dev/null || true
+  )"
+
+  local doctor_status
+  doctor_status="$(printf '%s\n' "$doctor_report" | node -e '
+    const fs = require("node:fs");
+    const text = fs.readFileSync(0, "utf8").trim();
+    try {
+      const report = JSON.parse(text);
+      process.stdout.write(String(report.status || "unknown"));
+    } catch {
+      process.stdout.write("unknown");
+    }
+  ')"
+
+  if [ "$doctor_status" = "error" ]; then
+    warn "MCP doctor reported errors. Extension install is complete; fix MCP with: pnpm --filter @onui/mcp-server run doctor"
+    return 0
+  fi
+
+  if [ "$doctor_status" = "warning" ]; then
+    warn "MCP doctor reported warnings (non-fatal)."
   fi
 
   log "MCP setup complete."

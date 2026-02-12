@@ -2,6 +2,7 @@ import { useState, useCallback } from 'preact/hooks';
 import type { Annotation, AnnotationIntent, AnnotationSeverity, OutputLevel } from '@/types';
 import { ElementHighlight } from './ElementHighlight';
 import { AnnotationMarkers } from './AnnotationMarkers';
+import { OnUIToolbar } from './OnUIToolbar';
 import { OnUIDialog } from './OnUIDialog';
 import { useElementHover } from '../hooks/useElementHover';
 import { useAnnotations } from '../hooks/useAnnotations';
@@ -153,7 +154,19 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
         </div>
       )}
 
-      {/* Toolbar integration lands in a follow-up commit */}
+      {/* OnUI Toolbar - hidden when dialog is open */}
+      {!isDialogOpen && (
+        <OnUIToolbar
+          isAnnotateMode={annotateMode}
+          onToggleAnnotateMode={() => {
+            void onToggleAnnotateMode();
+          }}
+          annotations={annotations}
+          outputLevel={outputLevel}
+          onOutputLevelChange={setOutputLevel}
+          onClearAnnotations={handleClearAnnotations}
+        />
+      )}
 
       {/* Element highlight when hovering */}
       {annotateMode && hoveredElement && !selectedElement && !editingAnnotation && (

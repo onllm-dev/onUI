@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>onUI — Annotate Any UI for AI Agents</title>
+  <meta name="description" content="onUI is a lightweight Chrome extension to annotate UI elements for AI agents with zero code integration. Built by onLLM.">
+  <link rel="icon" type="image/svg+xml" href="./assets/onui-mark.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="bg-orb orb-a" aria-hidden="true"></div>
+  <div class="bg-orb orb-b" aria-hidden="true"></div>
+  <div class="bg-orb orb-c" aria-hidden="true"></div>
+
+  <header class="nav-wrap">
+    <nav class="nav">
+      <a class="brand" href="#top" aria-label="onUI home">
+        <img src="./assets/onui-mark.svg" alt="onUI logo">
+        <span>onUI</span>
+      </a>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#demo">Demo</a>
+        <a href="#install">Install</a>
+        <a href="#faq">FAQ</a>
+        <a class="nav-github" href="https://github.com/onllm-dev/onUI" target="_blank" rel="noreferrer">GitHub</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero section">
+      <div class="hero-copy">
+        <div class="badges">
+          <a class="badge badge-open" href="https://github.com/onllm-dev/onUI" target="_blank" rel="noreferrer">Free & Open Source</a>
+          <a class="badge badge-powered" href="https://onllm.dev" target="_blank" rel="noreferrer">Powered by onLLM</a>
+        </div>
+
+        <p class="beta-pill">Beta - currently in active development</p>
+        <h1>Ship cleaner AI edits by annotating any UI directly in the browser.</h1>
+        <p class="hero-sub">
+          onUI adds a visual annotation layer to any web app, then exports structured context your agents can use immediately. No app code changes. No backend.
+        </p>
+
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#install">Get Started</a>
+          <a class="btn btn-secondary" href="https://github.com/onllm-dev/onUI" target="_blank" rel="noreferrer">View on GitHub</a>
+        </div>
+
+        <div class="command-block">
+          <p>Quick start</p>
+          <div class="command-row">
+            <code>git clone https://github.com/onllm-dev/onUI.git && cd onUI && pnpm install</code>
+            <button type="button" class="copy-btn" data-copy="git clone https://github.com/onllm-dev/onUI.git && cd onUI && pnpm install">Copy</button>
+          </div>
+          <small>v0.0.1 · Chrome extension · Local MCP bridge · Zero cloud backend</small>
+        </div>
+      </div>
+
+      <aside class="hero-panel" aria-label="onUI value summary">
+        <div class="panel-header">
+          <img src="./assets/onui-mark.svg" alt="onUI mark">
+          <div>
+            <strong>onUI workflow</strong>
+            <span>Turn on -> Annotate -> Export -> Agent</span>
+          </div>
+        </div>
+        <div class="panel-stats" aria-label="onUI at a glance">
+          <div class="panel-stat">
+            <strong>4</strong>
+            <span>Export Formats</span>
+          </div>
+          <div class="panel-stat">
+            <strong>6</strong>
+            <span>Local MCP Tools</span>
+          </div>
+          <div class="panel-stat">
+            <strong>0</strong>
+            <span>Cloud Dependencies</span>
+          </div>
+          <div class="panel-stat">
+            <strong>1 Click</strong>
+            <span>Per-Tab Enable</span>
+          </div>
+        </div>
+        <ul>
+          <li>Tab-scoped ON/OFF control</li>
+          <li>Intent + severity metadata</li>
+          <li>Compact / standard / detailed / forensic exports</li>
+          <li>MCP tools for Claude Code and Codex</li>
+        </ul>
+      </aside>
+    </section>
+
+    <section id="demo" class="section">
+      <div class="section-head">
+        <p>Demo</p>
+        <h2>See onUI in real usage</h2>
+      </div>
+      <div class="video-shell">
+        <video controls preload="metadata" poster="./assets/onui-demo-poster.jpg">
+          <source src="./assets/onui-demo.mp4" type="video/mp4">
+          Your browser does not support the demo video.
+        </video>
+      </div>
+    </section>
+
+    <section id="features" class="section">
+      <div class="section-head">
+        <p>Features</p>
+        <h2>Built for annotation-first agent workflows</h2>
+      </div>
+      <div class="feature-grid">
+        <article class="card">
+          <h3>No integration work</h3>
+          <p>Run on any supported webpage where content scripts can execute. No app instrumentation required.</p>
+        </article>
+        <article class="card">
+          <h3>Precision context</h3>
+          <p>Capture intent and severity directly on UI elements so agents understand what to fix and how urgent it is.</p>
+        </article>
+        <article class="card">
+          <h3>Multiple output formats</h3>
+          <p>Export compact, standard, detailed, or forensic reports depending on your debugging depth.</p>
+        </article>
+        <article class="card">
+          <h3>Shadow DOM isolation</h3>
+          <p>Stable styling that avoids clashes with host app CSS while keeping overlays visually consistent.</p>
+        </article>
+        <article class="card">
+          <h3>Local MCP server</h3>
+          <p>Sync and query annotations locally using tools like <code>onui_get_report</code> and <code>onui_search_annotations</code>.</p>
+        </article>
+        <article class="card">
+          <h3>Private by design</h3>
+          <p>Your data stays local through native messaging plus a local store. No SaaS dependency required.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="install" class="section install">
+      <div class="section-head">
+        <p>Install</p>
+        <h2>Get up and running in minutes</h2>
+      </div>
+      <div class="install-grid">
+        <article class="install-card">
+          <h3>1. Build extension</h3>
+          <div class="command-row">
+            <code>pnpm install && pnpm --filter @onui/extension build</code>
+            <button type="button" class="copy-btn" data-copy="pnpm install && pnpm --filter @onui/extension build">Copy</button>
+          </div>
+        </article>
+        <article class="install-card">
+          <h3>2. Load in Chrome</h3>
+          <ol>
+            <li>Open <code>chrome://extensions</code></li>
+            <li>Enable <strong>Developer mode</strong></li>
+            <li>Click <strong>Load unpacked</strong></li>
+            <li>Select <code>packages/extension/dist</code></li>
+          </ol>
+        </article>
+        <article class="install-card">
+          <h3>3. Optional MCP setup</h3>
+          <div class="command-row">
+            <code>pnpm setup:mcp && pnpm doctor:mcp</code>
+            <button type="button" class="copy-btn" data-copy="pnpm setup:mcp && pnpm doctor:mcp">Copy</button>
+          </div>
+          <p>Registers local <code>onui-local</code> MCP for Claude Code and Codex when available.</p>
+        </article>
+      </div>
+      <div class="repo-links">
+        <a href="https://github.com/onllm-dev/onUI" target="_blank" rel="noreferrer">Repository</a>
+        <a href="https://github.com/onllm-dev/onUI/issues" target="_blank" rel="noreferrer">Issues</a>
+        <a href="https://github.com/onllm-dev/onUI/blob/main/docs/mcp-setup.md" target="_blank" rel="noreferrer">MCP Setup Docs</a>
+      </div>
+    </section>
+
+    <section id="faq" class="section faq">
+      <div class="section-head">
+        <p>FAQ</p>
+        <h2>Quick answers</h2>
+      </div>
+      <div class="faq-list">
+        <details>
+          <summary>Which browsers are supported in this release?</summary>
+          <p>Chrome stable only.</p>
+        </details>
+        <details>
+          <summary>Can I enable onUI globally?</summary>
+          <p>onUI is tab-scoped by design. New tabs start with onUI off.</p>
+        </details>
+        <details>
+          <summary>Does onUI require a cloud backend?</summary>
+          <p>No. The extension, native host, and MCP server run locally.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-brand">
+      <img src="./assets/onui-mark.svg" alt="onUI brand mark">
+      <span>onUI</span>
+    </div>
+    <p>
+      An <a href="https://onllm.dev" target="_blank" rel="noreferrer">onllm.dev</a> product · Created with ❤️ by
+      <a href="https://tushar.best" target="_blank" rel="noreferrer">Tushar</a>
+    </p>
+  </footer>
+
+  <script src="./script.js"></script>
+</body>
+</html>

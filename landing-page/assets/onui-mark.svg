@@ -1,0 +1,31 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="32" y1="20" x2="228" y2="236" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#14B8A6"/>
+      <stop offset="1" stop-color="#0B1020"/>
+    </linearGradient>
+    <linearGradient id="ink" x1="58" y1="60" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D7FEF8"/>
+      <stop offset="1" stop-color="#8EF8EA"/>
+    </linearGradient>
+    <filter id="glow" x="0" y="0" width="256" height="256" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+  </defs>
+
+  <rect x="20" y="20" width="216" height="216" rx="56" fill="url(#bg)"/>
+  <rect x="28" y="28" width="200" height="200" rx="48" stroke="rgba(230,255,251,0.35)" stroke-width="2"/>
+
+  <circle cx="128" cy="128" r="70" fill="rgba(9, 15, 30, 0.32)"/>
+  <circle cx="128" cy="128" r="66" stroke="rgba(173, 255, 244, 0.45)" stroke-width="2"/>
+
+  <path d="M94 88L64 128L94 168" stroke="url(#ink)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M162 88L192 128L162 168" stroke="url(#ink)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <circle cx="128" cy="128" r="17" fill="#BFFFF7"/>
+  <circle cx="128" cy="128" r="8" fill="#0B1020"/>
+  <circle cx="128" cy="128" r="30" stroke="rgba(191, 255, 247, 0.45)" stroke-width="2"/>
+
+  <path d="M157 146L183 174L169 177L175 194L165 198L159 181L147 191L157 146Z" fill="#EAFFFC"/>
+  <path d="M157 146L183 174L169 177L175 194L165 198L159 181L147 191L157 146Z" fill="#EAFFFC" filter="url(#glow)" opacity="0.18"/>
+</svg>

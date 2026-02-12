@@ -18,6 +18,12 @@ onUI works on any web page where content scripts can run. Turn it on per tab, an
 
 onUI was built from hands-on exploration of annotation-first agent workflows and adapted into a frictionless browser-extension model.
 
+## Support
+
+If onUI is useful to you, please star the repo: https://github.com/onllm-dev/onUI
+
+It helps other users discover the product.
+
 ## Quick Start
 
 ```bash

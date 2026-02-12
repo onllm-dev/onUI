@@ -9,8 +9,8 @@ EXT_ROOT="${ONUI_HOME}/extensions"
 EXT_DIR="${EXT_ROOT}/v${VERSION}"
 CURRENT_LINK="${EXT_ROOT}/current"
 EXT_URL="${BASE_URL}/releases/download/v${VERSION}/onui-extension-unpacked-v${VERSION}.zip"
-SRC_URL="https://codeload.github.com/${REPO}/tar.gz/refs/tags/v${VERSION}"
-MCP_SRC_DIR="${ONUI_HOME}/mcp-src/v${VERSION}"
+MCP_URL="${BASE_URL}/releases/download/v${VERSION}/onui-mcp-bundle-v${VERSION}.zip"
+MCP_DIR="${ONUI_HOME}/mcp/v${VERSION}"
 
 INSTALL_MCP=0
 
@@ -123,52 +123,53 @@ prompt_for_mcp() {
 install_mcp() {
   [ "$INSTALL_MCP" -eq 1 ] || return 0
 
-  require_cmd node
-  require_cmd pnpm
-  require_cmd tar
+  if ! command -v node >/dev/null 2>&1; then
+    warn "Node is required for MCP setup but is not installed. Install Node 20+ and rerun installer."
+    return 0
+  fi
+
   require_cmd curl
+  require_cmd unzip
 
   local node_major
   node_major="$(node -p "process.versions.node.split('.')[0]")"
   if [ "$node_major" -lt 20 ]; then
-    fail "Node 20+ required for MCP setup. Found $(node -v)"
-  fi
-
-  local tmp_tgz
-  tmp_tgz="$(mktemp)"
-
-  log "Downloading source bundle for MCP setup"
-  if ! curl -fsSL "$SRC_URL" -o "$tmp_tgz"; then
-    warn "Could not download MCP source bundle for v${VERSION}. Skipping MCP setup."
+    warn "Node 20+ required for MCP setup. Found $(node -v). Skipping MCP setup."
     return 0
   fi
 
-  rm -rf "$MCP_SRC_DIR"
-  mkdir -p "$MCP_SRC_DIR"
-  if ! tar -xzf "$tmp_tgz" --strip-components=1 -C "$MCP_SRC_DIR"; then
-    warn "Could not extract MCP source bundle. Skipping MCP setup."
-    rm -f "$tmp_tgz"
+  local tmp_zip
+  tmp_zip="$(mktemp)"
+
+  log "Downloading prebuilt MCP bundle v${VERSION}"
+  if ! curl -fsSL "$MCP_URL" -o "$tmp_zip"; then
+    warn "Could not download MCP bundle for v${VERSION}. Skipping MCP setup."
     return 0
   fi
-  rm -f "$tmp_tgz"
+
+  rm -rf "$MCP_DIR"
+  mkdir -p "$MCP_DIR"
+  if ! unzip -oq "$tmp_zip" -d "$MCP_DIR"; then
+    warn "Could not extract MCP bundle. Skipping MCP setup."
+    rm -f "$tmp_zip"
+    return 0
+  fi
+  rm -f "$tmp_zip"
 
   log "Running MCP setup"
-  if ! (
-    cd "$MCP_SRC_DIR"
-    pnpm install --frozen-lockfile
-    pnpm --filter @onui/core run build
-    pnpm --filter @onui/mcp-server run build
-    pnpm --filter @onui/mcp-server run setup
-  ); then
+  local cli_path="$MCP_DIR/dist/bin/onui-cli.js"
+  if [ ! -f "$cli_path" ]; then
+    warn "MCP CLI not found in bundle. Skipping MCP setup."
+    return 0
+  fi
+
+  if ! node "$cli_path" setup; then
     warn "MCP setup failed. Extension install is complete; run MCP setup manually later."
     return 0
   fi
 
   local doctor_report
-  doctor_report="$(
-    cd "$MCP_SRC_DIR"
-    pnpm --filter @onui/mcp-server run doctor -- --json 2>/dev/null || true
-  )"
+  doctor_report="$(node "$cli_path" doctor --json 2>/dev/null || true)"
 
   local doctor_status
   doctor_status="$(printf '%s\n' "$doctor_report" | node -e '
@@ -183,7 +184,7 @@ install_mcp() {
   ')"
 
   if [ "$doctor_status" = "error" ]; then
-    warn "MCP doctor reported errors. Extension install is complete; fix MCP with: pnpm --filter @onui/mcp-server run doctor"
+    warn "MCP doctor reported errors. Extension install is complete; rerun MCP doctor manually later."
     return 0
   fi
 

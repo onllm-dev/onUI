@@ -198,7 +198,7 @@
     <section id="install" class="section">
       <div class="section-header">
         <h2>Get up and running</h2>
-        <p>Install in minutes with these simple steps</p>
+        <p>Install in minutes with one command, then load unpacked in Chrome</p>
       </div>
 
       <div class="install-steps">
@@ -224,6 +224,9 @@
               </button>
             </div>
           </div>
+          <p class="install-step-desc">
+            The installer handles extension setup and will ask if you want MCP setup too. Enter <code>y</code> at the prompt to register <code>onui-local</code> (Node 20+ required).
+          </p>
         </div>
 
         <!-- Step 2: Load in Chrome -->
@@ -252,36 +255,6 @@
           </div>
         </div>
 
-        <!-- Optional: MCP Setup -->
-        <div class="install-step-card install-step-optional">
-          <div class="install-step-header">
-            <span class="install-num install-num-optional">+</span>
-            <div>
-              <h3>Optional: Enable MCP for AI agents</h3>
-              <p class="install-step-desc">Connect to Claude Code or Codex for continuous annotation-driven workflows</p>
-            </div>
-          </div>
-          <div class="install-commands">
-            <div class="command-block">
-              <code>curl -fsSL https://github.com/onllm-dev/onUI/releases/latest/download/install.sh | bash -s -- --mcp</code>
-              <button type="button" class="copy-btn" data-copy="curl -fsSL https://github.com/onllm-dev/onUI/releases/latest/download/install.sh | bash -s -- --mcp" aria-label="Copy command">
-                <svg viewBox="0 0 24 24" class="icon-copy"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                <svg viewBox="0 0 24 24" class="icon-check"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-              </button>
-            </div>
-            <div class="command-block">
-              <code>irm https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 | iex</code>
-              <button type="button" class="copy-btn" data-copy="irm https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 | iex" aria-label="Copy command">
-                <svg viewBox="0 0 24 24" class="icon-copy"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                <svg viewBox="0 0 24 24" class="icon-check"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-              </button>
-            </div>
-          </div>
-          <p class="install-mcp-note">
-            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-            Registers <code>onui-local</code> MCP server. See <a href="https://github.com/onllm-dev/onUI/blob/main/docs/mcp-setup.md" target="_blank" rel="noreferrer">MCP docs</a> for details.
-          </p>
-        </div>
       </div>
 
       <div class="install-links">

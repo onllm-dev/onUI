@@ -109,6 +109,7 @@ package_artifacts() {
   local version="$1"
   local artifacts_dir="artifacts/v${version}"
   local ext_dist_dir="packages/extension/dist"
+  local mcp_bundle_dir
   local sh_template="scripts/install/install.sh.template"
   local ps_template="scripts/install/install.ps1.template"
 
@@ -122,6 +123,7 @@ package_artifacts() {
 
   local unpacked_zip="$artifacts_dir/onui-extension-unpacked-v${version}.zip"
   local cws_zip="$artifacts_dir/onui-chrome-web-store-v${version}.zip"
+  local mcp_bundle_zip="$artifacts_dir/onui-mcp-bundle-v${version}.zip"
   local install_sh="$artifacts_dir/install.sh"
   local install_ps1="$artifacts_dir/install.ps1"
 
@@ -146,6 +148,20 @@ package_artifacts() {
   )
   rm -rf "$tmp_dir"
 
+  mcp_bundle_dir="$(mktemp -d)"
+  pnpm --filter @onui/mcp-server --prod deploy "$mcp_bundle_dir/mcp"
+  if [ -d "$mcp_bundle_dir/mcp/node_modules/.pnpm/node_modules" ]; then
+    mkdir -p "$mcp_bundle_dir/mcp/node_modules_flat"
+    cp -RL "$mcp_bundle_dir/mcp/node_modules/.pnpm/node_modules/." "$mcp_bundle_dir/mcp/node_modules_flat/" 2>/dev/null || true
+    rm -rf "$mcp_bundle_dir/mcp/node_modules"
+    mv "$mcp_bundle_dir/mcp/node_modules_flat" "$mcp_bundle_dir/mcp/node_modules"
+  fi
+  (
+    cd "$mcp_bundle_dir/mcp"
+    zip -qr "$ROOT_DIR/$mcp_bundle_zip" .
+  )
+  rm -rf "$mcp_bundle_dir"
+
   sed "s/__VERSION__/${version}/g" "$sh_template" > "$install_sh"
   sed "s/__VERSION__/${version}/g" "$ps_template" > "$install_ps1"
   chmod +x "$install_sh"
@@ -153,6 +169,7 @@ package_artifacts() {
   {
     sha256_file "$unpacked_zip"
     sha256_file "$cws_zip"
+    sha256_file "$mcp_bundle_zip"
     sha256_file "$install_sh"
     sha256_file "$install_ps1"
   } > "$artifacts_dir/checksums.txt"
@@ -189,6 +206,7 @@ release_to_github() {
   gh release create "$tag" \
     "$artifacts_dir/onui-extension-unpacked-v${version}.zip" \
     "$artifacts_dir/onui-chrome-web-store-v${version}.zip" \
+    "$artifacts_dir/onui-mcp-bundle-v${version}.zip" \
     "$artifacts_dir/install.sh" \
     "$artifacts_dir/install.ps1" \
     "$artifacts_dir/checksums.txt" \

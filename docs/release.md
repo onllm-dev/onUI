@@ -17,9 +17,10 @@
 Outputs in `artifacts/vX.Y.Z/`:
 1. `onui-extension-unpacked-vX.Y.Z.zip`
 2. `onui-chrome-web-store-vX.Y.Z.zip`
-3. `install.sh`
-4. `install.ps1`
-5. `checksums.txt`
+3. `onui-mcp-bundle-vX.Y.Z.zip`
+4. `install.sh`
+5. `install.ps1`
+6. `checksums.txt`
 
 ## Publish a Release
 

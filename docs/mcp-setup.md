@@ -22,6 +22,7 @@ irm https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 | iex
 ```
 
 When prompted, enter `y` to enable MCP setup.
+Installer-based MCP setup uses a prebuilt release bundle and requires Node 20+.
 
 Manual source setup is also supported:
 

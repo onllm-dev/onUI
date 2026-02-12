@@ -12,8 +12,8 @@ $ExtRoot = Join-Path $OnuiHome "extensions"
 $ExtDir = Join-Path $ExtRoot "v$Version"
 $CurrentDir = Join-Path $ExtRoot "current"
 $ExtUrl = "$BaseUrl/releases/download/v$Version/onui-extension-unpacked-v$Version.zip"
-$SrcUrl = "https://codeload.github.com/$Repo/tar.gz/refs/tags/v$Version"
-$McpSrcDir = Join-Path (Join-Path $OnuiHome "mcp-src") "v$Version"
+$McpUrl = "$BaseUrl/releases/download/v$Version/onui-mcp-bundle-v$Version.zip"
+$McpDir = Join-Path (Join-Path $OnuiHome "mcp") "v$Version"
 $mcpEnv = if ($env:ONUI_INSTALL_MCP) { $env:ONUI_INSTALL_MCP.ToLowerInvariant() } else { "" }
 $InstallMcp = $Mcp -or (@("1", "true", "yes", "y") -contains $mcpEnv)
 
@@ -69,68 +69,73 @@ function Should-InstallMcp {
 }
 
 function Install-Mcp {
-  Require-Command "node"
-  Require-Command "pnpm"
-  Require-Command "tar"
+  if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+    Write-Log "Node is required for MCP setup but is not installed. Install Node 20+ and rerun installer."
+    return
+  }
+  Require-Command "Expand-Archive"
 
   $nodeMajor = [int](node -p "process.versions.node.split('.')[0]")
   if ($nodeMajor -lt 20) {
-    throw "Node 20+ required for MCP setup."
+    Write-Log "Node 20+ required for MCP setup. Skipping MCP setup."
+    return
   }
 
-  $tmpTgz = Join-Path $env:TEMP "onui-src-$Version.tgz"
+  $tmpZip = Join-Path $env:TEMP "onui-mcp-$Version.zip"
 
-  Write-Log "Downloading source bundle for MCP setup"
-  Invoke-WebRequest -Uri $SrcUrl -OutFile $tmpTgz
-
-  if (Test-Path $McpSrcDir) {
-    Remove-Item -Path $McpSrcDir -Recurse -Force
-  }
-  New-Item -ItemType Directory -Path $McpSrcDir -Force | Out-Null
-  tar -xzf $tmpTgz --strip-components=1 -C $McpSrcDir
-  Remove-Item -Path $tmpTgz -Force
-
-  Push-Location $McpSrcDir
+  Write-Log "Downloading prebuilt MCP bundle v$Version"
   try {
-    pnpm install --frozen-lockfile
-    pnpm --filter @onui/core run build
-    pnpm --filter @onui/mcp-server run build
-    pnpm --filter @onui/mcp-server run setup
-    $doctorCliPath = Join-Path $McpSrcDir "packages/mcp-server/dist/bin/onui-cli.js"
-    if (-not (Test-Path $doctorCliPath)) {
-      Write-Log "MCP doctor CLI not found at $doctorCliPath; skipping doctor validation."
-      return
-    }
+    Invoke-WebRequest -Uri $McpUrl -OutFile $tmpZip
+  } catch {
+    Write-Log "Could not download MCP bundle for v$Version. Skipping MCP setup."
+    return
+  }
 
+  if (Test-Path $McpDir) {
+    Remove-Item -Path $McpDir -Recurse -Force
+  }
+  New-Item -ItemType Directory -Path $McpDir -Force | Out-Null
+  Expand-Archive -Path $tmpZip -DestinationPath $McpDir -Force
+  Remove-Item -Path $tmpZip -Force
+
+  $doctorCliPath = Join-Path $McpDir "dist/bin/onui-cli.js"
+  if (-not (Test-Path $doctorCliPath)) {
+    Write-Log "MCP CLI not found in bundle; skipping MCP setup."
+    return
+  }
+
+  & node $doctorCliPath setup
+  if ($LASTEXITCODE -ne 0) {
+    Write-Log "MCP setup command failed. Extension install is complete; run MCP setup manually later."
+    return
+  }
+
+  $doctorJson = ""
+  try {
+    $doctorJson = & node $doctorCliPath doctor --json 2>$null
+  } catch {
     $doctorJson = ""
+  }
+
+  $doctorStatus = "unknown"
+  if ($doctorJson) {
     try {
-      $doctorJson = & node $doctorCliPath doctor --json 2>$null
-    } catch {
-      $doctorJson = ""
-    }
-
-    $doctorStatus = "unknown"
-    if ($doctorJson) {
-      try {
-        $doctorReport = $doctorJson | ConvertFrom-Json
-        if ($doctorReport.status) {
-          $doctorStatus = [string]$doctorReport.status
-        }
-      } catch {
-        $doctorStatus = "unknown"
+      $doctorReport = $doctorJson | ConvertFrom-Json
+      if ($doctorReport.status) {
+        $doctorStatus = [string]$doctorReport.status
       }
+    } catch {
+      $doctorStatus = "unknown"
     }
+  }
 
-    if ($doctorStatus -eq "error") {
-      Write-Log "MCP doctor reported errors. Extension install is complete; fix MCP with: pnpm --filter @onui/mcp-server run doctor"
-      return
-    }
+  if ($doctorStatus -eq "error") {
+    Write-Log "MCP doctor reported errors. Extension install is complete; rerun MCP doctor manually later."
+    return
+  }
 
-    if ($doctorStatus -eq "warning") {
-      Write-Log "MCP doctor reported warnings (non-fatal)."
-    }
-  } finally {
-    Pop-Location
+  if ($doctorStatus -eq "warning") {
+    Write-Log "MCP doctor reported warnings (non-fatal)."
   }
 
   Write-Log "MCP setup complete."

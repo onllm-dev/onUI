@@ -42,6 +42,9 @@ Windows (PowerShell):
 irm https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 | iex
 ```
 
+The installer handles extension install and can set up MCP in the same run.
+When prompted with `Set up local MCP bridge now? [y/N]`, enter `y` to enable MCP.
+
 Then load it in Chrome:
 
 1. Open `chrome://extensions`
@@ -59,21 +62,23 @@ Then load it in Chrome:
 4. Use the on-page launcher to annotate and manage notes.
 5. Copy exported output from the toolbar.
 
-## 🔌 Local MCP Setup (Optional)
+## 🔌 Local MCP Setup
 
-The installers can also set up local MCP:
+Recommended path: use the same installer command above and answer `y` when prompted.
 
-macOS/Linux:
+If you want to force MCP setup in non-interactive mode:
+
+macOS/Linux (`--mcp`):
 ```bash
 curl -fsSL https://github.com/onllm-dev/onUI/releases/latest/download/install.sh | bash -s -- --mcp
 ```
 
-Windows (PowerShell):
+Windows (PowerShell, set env var before running installer):
 ```powershell
-irm https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 | iex
+$env:ONUI_INSTALL_MCP=1; irm https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 | iex
 ```
 
-When prompted, enter `y` to enable MCP setup.
+MCP setup now uses a prebuilt release bundle (no local build required), but still needs Node 20+.
 
 Manual MCP setup from source is still supported:
 
@@ -112,9 +117,10 @@ This runs:
 Artifacts:
 1. `onui-extension-unpacked-vX.Y.Z.zip`
 2. `onui-chrome-web-store-vX.Y.Z.zip` (manifest `key` stripped for CWS)
-3. `install.sh`
-4. `install.ps1`
-5. `checksums.txt`
+3. `onui-mcp-bundle-vX.Y.Z.zip`
+4. `install.sh`
+5. `install.ps1`
+6. `checksums.txt`
 
 ### Local release + GitHub publish
 

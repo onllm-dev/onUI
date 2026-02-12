@@ -260,3 +260,33 @@ body {
   color: var(--popup-text-secondary);
   padding: 0 4px;
 }
+
+.popup-sync-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--popup-border);
+  border-radius: var(--popup-radius);
+  background: var(--popup-bg-secondary);
+  font-weight: 500;
+}
+
+.popup-sync-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--popup-text-secondary);
+}
+
+.popup-sync-ok .popup-sync-dot {
+  background: #16a34a;
+}
+
+.popup-sync-error .popup-sync-dot {
+  background: var(--popup-error);
+}
+
+.popup-sync-unavailable .popup-sync-dot {
+  background: #f59e0b;
+}

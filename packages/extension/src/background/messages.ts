@@ -1,5 +1,6 @@
 import type { Message, MessageResponse } from '@/types';
 import { annotationManager } from './annotations';
+import { getNativeSyncStatus } from './native-sync';
 import { storageService } from './storage';
 import { stateManager } from './state';
 
@@ -168,6 +169,15 @@ async function handleMessage(
         durationMs: Date.now() - receivedAt,
       });
       return { success: true, data: settings };
+    }
+
+    case 'GET_SYNC_STATUS': {
+      const status = getNativeSyncStatus();
+      console.log(`${LOG_PREFIX} ${requestId} GET_SYNC_STATUS completed`, {
+        durationMs: Date.now() - receivedAt,
+        status: status.status,
+      });
+      return { success: true, data: status };
     }
 
     case 'UPDATE_SETTINGS': {

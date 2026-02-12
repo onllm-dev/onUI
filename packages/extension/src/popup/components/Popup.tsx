@@ -9,6 +9,8 @@ export function Popup() {
   const [tabEnabled, setTabEnabled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSupportedPage, setIsSupportedPage] = useState(true);
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'ok' | 'error' | 'unavailable'>('idle');
+  const [syncError, setSyncError] = useState<string | null>(null);
 
   // Load state from current tab
   useEffect(() => {
@@ -34,6 +36,15 @@ export function Popup() {
         if (stateResponse?.success) {
           setTabEnabled(stateResponse.data?.enabled || false);
         }
+
+        const syncResponse = await chrome.runtime.sendMessage({
+          type: 'GET_SYNC_STATUS',
+        });
+
+        if (syncResponse?.success && syncResponse.data) {
+          setSyncStatus(syncResponse.data.status ?? 'idle');
+          setSyncError(syncResponse.data.lastError ?? null);
+        }
       } catch (error) {
         console.error('[onUI Popup] Failed to load state:', error);
       } finally {
@@ -42,6 +53,24 @@ export function Popup() {
     };
 
     loadState();
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(async () => {
+      try {
+        const syncResponse = await chrome.runtime.sendMessage({
+          type: 'GET_SYNC_STATUS',
+        });
+        if (syncResponse?.success && syncResponse.data) {
+          setSyncStatus(syncResponse.data.status ?? 'idle');
+          setSyncError(syncResponse.data.lastError ?? null);
+        }
+      } catch {
+        // Ignore while popup is open.
+      }
+    }, 3000);
+
+    return () => clearInterval(timer);
   }, []);
 
   // Keep popup state synced if background pushes runtime state updates
@@ -140,6 +169,17 @@ export function Popup() {
         )}
         {isSupportedPage && !tabEnabled && (
           <div class="popup-helper-text">Turn on for this tab to annotate.</div>
+        )}
+      </div>
+
+      <div class="popup-section">
+        <div class="popup-section-title">MCP Sync</div>
+        <div class={`popup-sync-status popup-sync-${syncStatus}`}>
+          <span class="popup-sync-dot" />
+          <span>Local bridge: {syncStatus}</span>
+        </div>
+        {syncError && (
+          <div class="popup-helper-text">{syncError}</div>
         )}
       </div>
 

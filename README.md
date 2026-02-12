@@ -94,4 +94,4 @@ It helps other users discover the product.
 
 ## 📄 License
 
-MIT
+GPL-3.0

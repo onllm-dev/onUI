@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "onUI",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmZocy7Cv5HzmJY61PrGmAGjJ4jy71+WiZlQ8yL6+52TEPigKRH0IlsoAteTv3TMIlP9TtIBroh07xobFPjp2b4OXDCe72UHmzupqr0QQpOZ5KdLtolRgHDAaVKcbu6XlzMU7417RmUJKewZDT1zDcQf/fjdksASWjg7sGuj1a0GOrid7860HURhQCXCziaEf9YxE53m3lHVkCZnKkuPAr+k7YxZ8j/B/NNEwTzDWbpJ3RVupqqjElXgIZeVBGCMn3CYi2WgNHNAq3OWUK3fEqIuOjlD1vzKZ3bfHA1apGwu9H67ly21RB37XiJu/+7YNwYyNrA5zEvfAAhqAUurXEQIDAQAB",
   "description": "Annotate UI elements for AI agents - no code integration required",
   "icons": {

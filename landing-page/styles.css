@@ -378,6 +378,14 @@ h1 {
   border-radius: var(--radius-md);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  cursor: default;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.stat:hover {
+  border-color: var(--accent-border);
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-2px);
 }
 
 .stat strong {
@@ -406,6 +414,13 @@ h1 {
   border-radius: var(--radius-full);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  cursor: default;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.chip:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .chip-teal {
@@ -457,6 +472,13 @@ h1 {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow: var(--shadow-lg);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.video-container:hover {
+  border-color: var(--accent-border);
+  box-shadow: var(--shadow-glow), var(--shadow-lg);
+  transform: translateY(-2px);
 }
 
 .video-container video {
@@ -561,6 +583,12 @@ h1 {
   -webkit-backdrop-filter: blur(12px);
   margin: clamp(1rem, 3vw, 2rem) 0;
   padding: clamp(2rem, 5vw, 3rem) clamp(1.5rem, 4vw, 2.5rem);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.workflow-section:hover {
+  border-color: var(--accent-border);
+  box-shadow: var(--shadow-glow);
 }
 
 .workflow-grid {
@@ -575,6 +603,13 @@ h1 {
   background: var(--surface);
   border-radius: var(--radius-md);
   border: 1px solid var(--glass-border);
+  cursor: default;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.workflow-step:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .workflow-step-teal { border-color: var(--accent-border); }
@@ -646,6 +681,13 @@ h1 {
   border-radius: var(--radius-lg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.install-step-card:hover {
+  border-color: var(--accent-border);
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-2px);
 }
 
 .install-step-optional {
@@ -715,6 +757,14 @@ h1 {
   border-radius: var(--radius-md);
   font-size: clamp(0.8rem, 1.75vw, 0.875rem);
   color: var(--text-secondary);
+  cursor: default;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.chrome-step:hover {
+  border-color: var(--blue-border);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .chrome-step-num {
@@ -894,6 +944,13 @@ h1 {
   border-radius: var(--radius-md);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.faq-list details:hover {
+  border-color: var(--accent-border);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .faq-list summary {

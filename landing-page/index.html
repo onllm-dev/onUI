@@ -27,7 +27,12 @@
         <a href="#demo">Demo</a>
         <a href="#install">Install</a>
         <a href="#faq">FAQ</a>
-        <a class="nav-github" href="https://github.com/onllm-dev/onUI" target="_blank" rel="noreferrer">GitHub</a>
+        <a class="nav-github with-icon" href="https://github.com/onllm-dev/onUI" target="_blank" rel="noreferrer">
+          <svg class="gh-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M12 0C5.37 0 0 5.5 0 12.3c0 5.45 3.44 10.08 8.2 11.72.6.11.82-.27.82-.6 0-.29-.01-1.06-.02-2.08-3.34.75-4.05-1.65-4.05-1.65-.55-1.43-1.33-1.8-1.33-1.8-1.09-.76.08-.74.08-.74 1.2.09 1.84 1.27 1.84 1.27 1.07 1.88 2.8 1.34 3.48 1.02.11-.8.42-1.34.76-1.64-2.66-.31-5.47-1.36-5.47-6.06 0-1.34.47-2.43 1.24-3.29-.12-.31-.54-1.55.12-3.23 0 0 1.01-.33 3.3 1.26A11.2 11.2 0 0 1 12 5.9c1.02 0 2.05.14 3.01.42 2.29-1.59 3.29-1.26 3.29-1.26.66 1.68.24 2.92.12 3.23.77.86 1.24 1.95 1.24 3.29 0 4.71-2.81 5.74-5.49 6.04.43.38.81 1.14.81 2.3 0 1.66-.01 3-.01 3.41 0 .33.21.72.83.6A12.33 12.33 0 0 0 24 12.3C24 5.5 18.63 0 12 0Z"/>
+          </svg>
+          <span>GitHub</span>
+        </a>
       </div>
     </nav>
   </header>
@@ -41,59 +46,100 @@
         </div>
 
         <p class="beta-pill">Beta - currently in active development</p>
-        <h1>Ship cleaner AI edits by annotating any UI directly in the browser.</h1>
+        <h1>Ship cleaner UI products by annotating any UI directly in the browser.</h1>
         <p class="hero-sub">
-          onUI adds a visual annotation layer to any web app, then exports structured context your agents can use immediately. No app code changes. No backend.
+          onUI adds a visual annotation layer to any web app, then exports structured context your agents can use immediately. With <code>onui-local</code> MCP connected, your agent can continuously read fresh annotations and keep applying fixes - like UI pair programming. No app code changes. No backend.
         </p>
 
         <div class="hero-cta">
           <a class="btn btn-primary" href="#install">Get Started</a>
-          <a class="btn btn-secondary" href="https://github.com/onllm-dev/onUI" target="_blank" rel="noreferrer">View on GitHub</a>
+          <a class="btn btn-secondary with-icon" href="https://github.com/onllm-dev/onUI" target="_blank" rel="noreferrer">
+            <svg class="gh-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M12 0C5.37 0 0 5.5 0 12.3c0 5.45 3.44 10.08 8.2 11.72.6.11.82-.27.82-.6 0-.29-.01-1.06-.02-2.08-3.34.75-4.05-1.65-4.05-1.65-.55-1.43-1.33-1.8-1.33-1.8-1.09-.76.08-.74.08-.74 1.2.09 1.84 1.27 1.84 1.27 1.07 1.88 2.8 1.34 3.48 1.02.11-.8.42-1.34.76-1.64-2.66-.31-5.47-1.36-5.47-6.06 0-1.34.47-2.43 1.24-3.29-.12-.31-.54-1.55.12-3.23 0 0 1.01-.33 3.3 1.26A11.2 11.2 0 0 1 12 5.9c1.02 0 2.05.14 3.01.42 2.29-1.59 3.29-1.26 3.29-1.26.66 1.68.24 2.92.12 3.23.77.86 1.24 1.95 1.24 3.29 0 4.71-2.81 5.74-5.49 6.04.43.38.81 1.14.81 2.3 0 1.66-.01 3-.01 3.41 0 .33.21.72.83.6A12.33 12.33 0 0 0 24 12.3C24 5.5 18.63 0 12 0Z"/>
+            </svg>
+            <span>View on GitHub</span>
+          </a>
         </div>
 
         <div class="command-block">
           <p>Quick start</p>
           <div class="command-row">
-            <code>git clone https://github.com/onllm-dev/onUI.git && cd onUI && pnpm install</code>
-            <button type="button" class="copy-btn" data-copy="git clone https://github.com/onllm-dev/onUI.git && cd onUI && pnpm install">Copy</button>
+            <code>git clone https://github.com/onllm-dev/onUI.git && cd onUI && pnpm install && pnpm build</code>
+            <button type="button" class="copy-btn" data-copy="git clone https://github.com/onllm-dev/onUI.git && cd onUI && pnpm install && pnpm build">Copy</button>
           </div>
-          <small>v0.0.1 · Chrome extension · Local MCP bridge · Zero cloud backend</small>
+          <small>
+            Load <code>packages/extension/dist</code> in <code>chrome://extensions</code> -> Developer mode -> Load unpacked.
+            Optional local MCP setup: <code>pnpm build:mcp && pnpm setup:mcp && pnpm doctor:mcp</code>.
+          </small>
         </div>
       </div>
 
-      <aside class="hero-panel" aria-label="onUI value summary">
-        <div class="panel-header">
-          <img src="./assets/onui-mark.svg" alt="onUI mark">
-          <div>
-            <strong>onUI workflow</strong>
-            <span>Turn on -> Annotate -> Export -> Agent</span>
+      <div class="hero-side">
+        <aside class="hero-panel" aria-label="onUI value summary">
+          <div class="panel-main">
+            <div class="panel-header">
+              <img src="./assets/onui-mark.svg" alt="onUI mark">
+              <div>
+                <strong>onUI workflow</strong>
+                <span>Turn on -> Annotate -> Agent fixes -> Iterate</span>
+              </div>
+            </div>
+            <div class="panel-stats" aria-label="onUI at a glance">
+              <div class="panel-stat">
+                <strong>4</strong>
+                <span>Export Formats</span>
+              </div>
+              <div class="panel-stat">
+                <strong>6</strong>
+                <span>Local MCP Tools</span>
+              </div>
+              <div class="panel-stat">
+                <strong>0</strong>
+                <span>Cloud Dependencies</span>
+              </div>
+              <div class="panel-stat">
+                <strong>1 Click</strong>
+                <span>Per-Tab Enable</span>
+              </div>
+            </div>
+            <div class="panel-chips" aria-label="platform summary">
+              <span class="panel-chip panel-chip-teal">Chrome Stable</span>
+              <span class="panel-chip panel-chip-blue">Local MCP</span>
+              <span class="panel-chip panel-chip-amber">Zero Backend</span>
+            </div>
+            <ul>
+              <li>Tab-scoped ON/OFF control</li>
+              <li>Intent + severity metadata</li>
+              <li>Compact / standard / detailed / forensic exports</li>
+              <li>Continuous MCP loop for Claude Code and Codex</li>
+            </ul>
           </div>
-        </div>
-        <div class="panel-stats" aria-label="onUI at a glance">
-          <div class="panel-stat">
-            <strong>4</strong>
-            <span>Export Formats</span>
+        </aside>
+
+        <article class="hero-side-card" aria-label="AI pair programming loop">
+          <div class="side-card-head">
+            <p>AI Pair Programming</p>
+            <h3>You annotate once. Your agent keeps fixing in a loop.</h3>
           </div>
-          <div class="panel-stat">
-            <strong>6</strong>
-            <span>Local MCP Tools</span>
+          <div class="side-loop">
+            <div class="loop-step loop-step-teal">
+              <span>01</span>
+              <p>Mark UI issues with intent and severity.</p>
+            </div>
+            <div class="loop-step loop-step-blue">
+              <span>02</span>
+              <p>Agent reads fresh annotations from local MCP tools.</p>
+            </div>
+            <div class="loop-step loop-step-amber">
+              <span>03</span>
+              <p>Fix, verify, and iterate until the UI is production-clean.</p>
+            </div>
           </div>
-          <div class="panel-stat">
-            <strong>0</strong>
-            <span>Cloud Dependencies</span>
-          </div>
-          <div class="panel-stat">
-            <strong>1 Click</strong>
-            <span>Per-Tab Enable</span>
-          </div>
-        </div>
-        <ul>
-          <li>Tab-scoped ON/OFF control</li>
-          <li>Intent + severity metadata</li>
-          <li>Compact / standard / detailed / forensic exports</li>
-          <li>MCP tools for Claude Code and Codex</li>
-        </ul>
-      </aside>
+          <p class="side-card-foot">
+            Works with Claude Code and Codex as a continuous, annotation-driven UI workflow.
+          </p>
+        </article>
+      </div>
     </section>
 
     <section id="demo" class="section">
@@ -133,7 +179,7 @@
         </article>
         <article class="card">
           <h3>Local MCP server</h3>
-          <p>Sync and query annotations locally using tools like <code>onui_get_report</code> and <code>onui_search_annotations</code>.</p>
+          <p>Your agent can keep checking annotations via <code>onui_get_report</code> and <code>onui_search_annotations</code>, apply fixes, and repeat in a pair-programming loop.</p>
         </article>
         <article class="card">
           <h3>Private by design</h3>
@@ -149,14 +195,21 @@
       </div>
       <div class="install-grid">
         <article class="install-card">
-          <h3>1. Build extension</h3>
+          <h3>1. Clone repository</h3>
           <div class="command-row">
-            <code>pnpm install && pnpm --filter @onui/extension build</code>
-            <button type="button" class="copy-btn" data-copy="pnpm install && pnpm --filter @onui/extension build">Copy</button>
+            <code>git clone https://github.com/onllm-dev/onUI.git && cd onUI</code>
+            <button type="button" class="copy-btn" data-copy="git clone https://github.com/onllm-dev/onUI.git && cd onUI">Copy</button>
           </div>
         </article>
         <article class="install-card">
-          <h3>2. Load in Chrome</h3>
+          <h3>2. Install deps + build extension</h3>
+          <div class="command-row">
+            <code>pnpm install && pnpm build</code>
+            <button type="button" class="copy-btn" data-copy="pnpm install && pnpm build">Copy</button>
+          </div>
+        </article>
+        <article class="install-card">
+          <h3>3. Load extension in Chrome</h3>
           <ol>
             <li>Open <code>chrome://extensions</code></li>
             <li>Enable <strong>Developer mode</strong></li>
@@ -165,12 +218,12 @@
           </ol>
         </article>
         <article class="install-card">
-          <h3>3. Optional MCP setup</h3>
+          <h3>4. Optional local MCP setup</h3>
           <div class="command-row">
-            <code>pnpm setup:mcp && pnpm doctor:mcp</code>
-            <button type="button" class="copy-btn" data-copy="pnpm setup:mcp && pnpm doctor:mcp">Copy</button>
+            <code>pnpm build:mcp && pnpm setup:mcp && pnpm doctor:mcp</code>
+            <button type="button" class="copy-btn" data-copy="pnpm build:mcp && pnpm setup:mcp && pnpm doctor:mcp">Copy</button>
           </div>
-          <p>Registers local <code>onui-local</code> MCP for Claude Code and Codex when available.</p>
+          <p>Builds and registers local <code>onui-local</code> MCP for Claude Code and Codex when available.</p>
         </article>
       </div>
       <div class="repo-links">

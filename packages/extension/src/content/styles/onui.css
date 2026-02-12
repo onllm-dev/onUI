@@ -235,8 +235,8 @@
   width: 100%;
   min-width: 0;
   padding: 6px 8px;
-  background: var(--onui-bg-glass);
-  border: 1px solid var(--onui-border);
+  background: rgba(20, 22, 29, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 6px;
   color: var(--onui-text);
   font-family: inherit;
@@ -260,8 +260,8 @@
 .onui-dialog-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.58);
+  backdrop-filter: blur(6px);
   z-index: 2147483646;
   animation: onui-fade-in 150ms ease;
   pointer-events: auto; /* Required because shadow host has pointer-events: none */
@@ -280,10 +280,10 @@
   width: 360px;
   max-height: 500px;
   padding: 16px;
-  background: var(--onui-bg);
+  background: linear-gradient(165deg, rgba(14, 15, 20, 0.985), rgba(21, 24, 36, 0.985));
   backdrop-filter: blur(var(--onui-blur));
   -webkit-backdrop-filter: blur(var(--onui-blur));
-  border: 1px solid var(--onui-border);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 16px;
   box-shadow: var(--onui-shadow);
   font-family: var(--onui-font-family);
@@ -352,8 +352,8 @@
   width: 100%;
   min-height: 80px;
   padding: 12px;
-  background: var(--onui-bg-glass);
-  border: 1px solid var(--onui-border);
+  background: rgba(20, 22, 29, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 10px;
   color: var(--onui-text);
   font-family: inherit;

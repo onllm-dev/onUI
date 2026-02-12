@@ -31,17 +31,14 @@ function Show-NodeInstallHelp {
   Write-Log "Install Node 20+ and rerun this installer."
   if (Get-Command winget -ErrorAction SilentlyContinue) {
     Write-Host "Install command: winget install OpenJS.NodeJS.LTS"
-    return
-  }
-  if (Get-Command choco -ErrorAction SilentlyContinue) {
+  } elseif (Get-Command choco -ErrorAction SilentlyContinue) {
     Write-Host "Install command: choco install nodejs-lts -y"
-    return
-  }
-  if (Get-Command scoop -ErrorAction SilentlyContinue) {
+  } elseif (Get-Command scoop -ErrorAction SilentlyContinue) {
     Write-Host "Install command: scoop install nodejs-lts"
-    return
+  } else {
+    Write-Host "Install Node 20+ from: https://nodejs.org/en/download"
   }
-  Write-Host "Install Node 20+ from: https://nodejs.org/en/download"
+  Write-Host "After installation, open a new PowerShell window and rerun this installer command."
 }
 
 function Install-Extension {

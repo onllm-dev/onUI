@@ -4,7 +4,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.5);
   z-index: 2147483645;
   pointer-events: auto;
 }
@@ -13,7 +13,7 @@
   position: absolute;
   min-width: 280px;
   max-width: 400px;
-  background: var(--onui-bg);
+  background: rgba(18, 20, 28, 0.98);
   border: 1px solid var(--onui-border);
   border-radius: var(--onui-radius-lg);
   box-shadow: var(--onui-shadow-lg);

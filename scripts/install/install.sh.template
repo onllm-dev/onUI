@@ -52,6 +52,7 @@ print_node_install_help() {
       printf 'Install Node 20+ from: https://nodejs.org/en/download\n' >&2
       ;;
   esac
+  printf 'After installation, open a new terminal shell and rerun this installer command.\n' >&2
 }
 
 require_cmd() {

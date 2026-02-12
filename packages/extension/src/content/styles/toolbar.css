@@ -1,0 +1,217 @@
+.onui-toolbar {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  gap: var(--onui-spacing-xs);
+  padding: var(--onui-spacing-xs);
+  background: var(--onui-bg);
+  border: 1px solid var(--onui-border);
+  border-radius: var(--onui-radius-lg);
+  box-shadow: var(--onui-shadow-lg);
+  font-family: var(--onui-font-family);
+  font-size: var(--onui-font-size-sm);
+  z-index: 2147483647;
+  pointer-events: auto;
+  user-select: none;
+}
+
+.onui-toolbar-draggable {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 32px;
+  cursor: grab;
+  color: var(--onui-text-tertiary);
+  flex-shrink: 0;
+}
+
+.onui-toolbar-draggable:active {
+  cursor: grabbing;
+}
+
+.onui-toolbar-draggable svg {
+  width: 12px;
+  height: 12px;
+}
+
+.onui-toolbar-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--onui-border);
+  flex-shrink: 0;
+}
+
+.onui-toolbar-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--onui-radius);
+  background: transparent;
+  color: var(--onui-text-secondary);
+  cursor: pointer;
+  transition: all var(--onui-transition-fast);
+}
+
+.onui-toolbar-button:hover {
+  background: var(--onui-bg-tertiary);
+  color: var(--onui-text);
+}
+
+.onui-toolbar-button:active {
+  background: var(--onui-border);
+}
+
+.onui-toolbar-button.active {
+  background: var(--onui-primary);
+  color: white;
+}
+
+.onui-toolbar-button.active:hover {
+  background: var(--onui-primary-hover);
+}
+
+.onui-toolbar-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.onui-toolbar-button-label {
+  display: flex;
+  align-items: center;
+  gap: var(--onui-spacing-xs);
+  padding: 0 var(--onui-spacing-sm);
+  height: 32px;
+  font-size: var(--onui-font-size-sm);
+  font-weight: 500;
+  color: var(--onui-text);
+  white-space: nowrap;
+}
+
+.onui-toolbar-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  margin-left: var(--onui-spacing-xs);
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  background: var(--onui-primary);
+  border-radius: 10px;
+}
+
+/* Loading Spinner */
+@keyframes onui-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.onui-loading-spinner {
+  border: 2px solid var(--onui-border);
+  border-top-color: var(--onui-primary);
+  border-radius: 50%;
+  animation: onui-spin 0.6s linear infinite;
+}
+
+/* Error Toast */
+.onui-error-toast {
+  position: fixed;
+  bottom: var(--onui-spacing-lg);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--onui-spacing-sm);
+  padding: var(--onui-spacing-sm) var(--onui-spacing-md);
+  background: var(--onui-error);
+  color: white;
+  border-radius: var(--onui-radius);
+  box-shadow: var(--onui-shadow-lg);
+  font-family: var(--onui-font-family);
+  font-size: var(--onui-font-size-sm);
+  z-index: 2147483647;
+  animation: onui-toast-in 0.2s ease;
+}
+
+@keyframes onui-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.onui-error-toast-content {
+  display: flex;
+  align-items: center;
+  gap: var(--onui-spacing-sm);
+}
+
+.onui-error-toast-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.onui-error-toast-message {
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.onui-error-toast-dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  margin-left: var(--onui-spacing-xs);
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: var(--onui-radius-sm);
+  color: white;
+  cursor: pointer;
+  transition: background var(--onui-transition-fast);
+}
+
+.onui-error-toast-dismiss:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.onui-error-toast-dismiss svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* Toolbar polish */
+.onui-toolbar-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.onui-toolbar-button:disabled:hover {
+  background: transparent;
+  color: var(--onui-text-secondary);
+}
+
+.onui-toolbar-button.success {
+  background: var(--onui-success);
+  color: white;
+}
+
+.onui-toolbar-button.success:hover {
+  background: #059669;
+}

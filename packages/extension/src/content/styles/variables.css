@@ -1,0 +1,52 @@
+:root {
+  /* Colors */
+  --onui-primary: #6366f1;
+  --onui-primary-hover: #4f46e5;
+  --onui-primary-active: #4338ca;
+
+  --onui-bg: #ffffff;
+  --onui-bg-secondary: #f9fafb;
+  --onui-bg-tertiary: #f3f4f6;
+
+  --onui-text: #111827;
+  --onui-text-secondary: #6b7280;
+  --onui-text-tertiary: #9ca3af;
+
+  --onui-border: #e5e7eb;
+  --onui-border-hover: #d1d5db;
+
+  --onui-success: #10b981;
+  --onui-warning: #f59e0b;
+  --onui-error: #ef4444;
+
+  /* Shadows */
+  --onui-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --onui-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --onui-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --onui-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* Spacing */
+  --onui-spacing-xs: 4px;
+  --onui-spacing-sm: 8px;
+  --onui-spacing-md: 12px;
+  --onui-spacing-lg: 16px;
+  --onui-spacing-xl: 24px;
+
+  /* Border radius */
+  --onui-radius-sm: 4px;
+  --onui-radius: 6px;
+  --onui-radius-md: 8px;
+  --onui-radius-lg: 12px;
+  --onui-radius-full: 9999px;
+
+  /* Typography */
+  --onui-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --onui-font-size-xs: 11px;
+  --onui-font-size-sm: 12px;
+  --onui-font-size: 14px;
+  --onui-font-size-lg: 16px;
+
+  /* Transitions */
+  --onui-transition: 150ms ease;
+  --onui-transition-fast: 100ms ease;
+}

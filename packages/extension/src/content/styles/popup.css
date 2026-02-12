@@ -1,0 +1,162 @@
+.onui-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  z-index: 2147483645;
+  pointer-events: auto;
+}
+
+.onui-popup {
+  position: absolute;
+  min-width: 280px;
+  max-width: 400px;
+  background: var(--onui-bg);
+  border: 1px solid var(--onui-border);
+  border-radius: var(--onui-radius-lg);
+  box-shadow: var(--onui-shadow-lg);
+  font-family: var(--onui-font-family);
+  font-size: var(--onui-font-size);
+  z-index: 2147483647;
+  pointer-events: auto;
+  overflow: hidden;
+}
+
+.onui-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--onui-spacing-sm) var(--onui-spacing-md);
+  border-bottom: 1px solid var(--onui-border);
+  background: var(--onui-bg-secondary);
+}
+
+.onui-popup-title {
+  font-size: var(--onui-font-size-sm);
+  font-weight: 600;
+  color: var(--onui-text);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.onui-popup-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: var(--onui-radius-sm);
+  background: transparent;
+  color: var(--onui-text-secondary);
+  cursor: pointer;
+  transition: all var(--onui-transition-fast);
+}
+
+.onui-popup-close:hover {
+  background: var(--onui-bg-tertiary);
+  color: var(--onui-text);
+}
+
+.onui-popup-body {
+  padding: var(--onui-spacing-md);
+}
+
+.onui-popup-textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: var(--onui-spacing-sm);
+  border: 1px solid var(--onui-border);
+  border-radius: var(--onui-radius);
+  font-family: var(--onui-font-family);
+  font-size: var(--onui-font-size);
+  color: var(--onui-text);
+  background: var(--onui-bg);
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.onui-popup-textarea:focus {
+  outline: none;
+  border-color: var(--onui-primary);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.onui-popup-textarea::placeholder {
+  color: var(--onui-text-tertiary);
+}
+
+.onui-popup-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--onui-spacing-sm);
+  padding: var(--onui-spacing-sm) var(--onui-spacing-md);
+  border-top: 1px solid var(--onui-border);
+  background: var(--onui-bg-secondary);
+}
+
+.onui-popup-actions {
+  display: flex;
+  gap: var(--onui-spacing-sm);
+}
+
+.onui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--onui-spacing-xs);
+  height: 32px;
+  padding: 0 var(--onui-spacing-md);
+  border: 1px solid var(--onui-border);
+  border-radius: var(--onui-radius);
+  font-family: var(--onui-font-family);
+  font-size: var(--onui-font-size-sm);
+  font-weight: 500;
+  color: var(--onui-text);
+  background: var(--onui-bg);
+  cursor: pointer;
+  transition: all var(--onui-transition-fast);
+  white-space: nowrap;
+}
+
+.onui-btn:hover {
+  background: var(--onui-bg-tertiary);
+  border-color: var(--onui-border-hover);
+}
+
+.onui-btn-primary {
+  background: var(--onui-primary);
+  border-color: var(--onui-primary);
+  color: white;
+}
+
+.onui-btn-primary:hover {
+  background: var(--onui-primary-hover);
+  border-color: var(--onui-primary-hover);
+}
+
+.onui-btn-danger {
+  color: var(--onui-error);
+  border-color: var(--onui-error);
+}
+
+.onui-btn-danger:hover {
+  background: var(--onui-error);
+  color: white;
+}
+
+.onui-btn-icon {
+  width: 32px;
+  padding: 0;
+}
+
+.onui-btn svg {
+  width: 16px;
+  height: 16px;
+}

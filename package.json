@@ -1,0 +1,18 @@
+{
+  "name": "onui",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Browser extension for annotating UI elements for AI agents",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @onui/extension dev",
+    "build": "pnpm --filter @onui/extension build",
+    "lint": "eslint packages/*/src --ext .ts,.tsx"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}

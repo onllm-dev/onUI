@@ -12,6 +12,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
+      '@onui/core': resolve(__dirname, '../core/src/index.ts'),
     },
   },
   build: {

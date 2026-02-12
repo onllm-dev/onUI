@@ -12,7 +12,13 @@ importers:
         specifier: ^5.4.0
         version: 5.9.3
 
+  packages/core: {}
+
   packages/extension:
+    dependencies:
+      '@onui/core':
+        specifier: workspace:*
+        version: link:../core
     devDependencies:
       '@crxjs/vite-plugin':
         specifier: ^2.0.0-beta.25

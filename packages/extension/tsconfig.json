@@ -6,7 +6,8 @@
     "jsxImportSource": "preact",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@onui/core": ["../core/src/index.ts"]
     }
   },
   "include": ["src/**/*"],

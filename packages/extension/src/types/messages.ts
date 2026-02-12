@@ -16,6 +16,7 @@ export type MessageType =
   | 'SET_TAB_ENABLED'
   | 'SET_ANNOTATE_MODE'
   | 'TAB_RUNTIME_STATE_CHANGED'
+  | 'GET_SYNC_STATUS'
   | 'GET_STATE'
   | 'SET_STATE';
 
@@ -168,6 +169,13 @@ export interface TabRuntimeStateChangedMessage extends BaseMessage {
 }
 
 /**
+ * Get local native sync status
+ */
+export interface GetSyncStatusMessage extends BaseMessage {
+  type: 'GET_SYNC_STATUS';
+}
+
+/**
  * Union of all message types
  */
 export type Message =
@@ -181,6 +189,7 @@ export type Message =
   | GetTabRuntimeStateMessage
   | SetTabEnabledMessage
   | SetAnnotateModeMessage
+  | GetSyncStatusMessage
   | TabRuntimeStateChangedMessage
   | GetStateMessage
   | SetStateMessage;
@@ -209,3 +218,10 @@ export type SetStateResponse = MessageResponse<void>;
 export type GetTabRuntimeStateResponse = MessageResponse<TabRuntimeState>;
 export type SetTabEnabledResponse = MessageResponse<TabRuntimeState>;
 export type SetAnnotateModeResponse = MessageResponse<TabRuntimeState>;
+export type GetSyncStatusResponse = MessageResponse<{
+  status: 'idle' | 'ok' | 'error' | 'unavailable';
+  lastSyncAt?: number;
+  lastPullAt?: number;
+  lastError?: string;
+  cursor: number;
+}>;

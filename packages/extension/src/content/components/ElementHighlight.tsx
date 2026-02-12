@@ -1,4 +1,4 @@
-import { useMemo } from 'preact/hooks';
+import { useLayoutEffect, useMemo, useState } from 'preact/hooks';
 
 interface ElementHighlightProps {
   element: Element;
@@ -6,55 +6,71 @@ interface ElementHighlightProps {
   selected?: boolean;
 }
 
-// WeakMap cache for isFixedPosition to avoid repeated DOM walks
-const fixedPositionCache = new WeakMap<Element, boolean>();
+interface ElementRect {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
 
-/**
- * Check if element or any ancestor has fixed/sticky positioning
- * Uses WeakMap cache to avoid repeated DOM traversals
- */
-function isFixedPosition(element: Element): boolean {
-  // Check cache first
-  const cached = fixedPositionCache.get(element);
-  if (cached !== undefined) {
-    return cached;
-  }
+function getElementRect(element: Element): ElementRect {
+  const rect = element.getBoundingClientRect();
+  return {
+    top: rect.top,
+    left: rect.left,
+    width: rect.width,
+    height: rect.height,
+  };
+}
 
-  let current: Element | null = element;
-  let result = false;
-
-  while (current && current !== document.body) {
-    const style = window.getComputedStyle(current);
-    if (style.position === 'fixed' || style.position === 'sticky') {
-      result = true;
-      break;
-    }
-    current = current.parentElement;
-  }
-
-  // Cache the result
-  fixedPositionCache.set(element, result);
-  return result;
+function isSameRect(a: ElementRect, b: ElementRect): boolean {
+  return (
+    a.top === b.top &&
+    a.left === b.left &&
+    a.width === b.width &&
+    a.height === b.height
+  );
 }
 
 /**
  * Highlight overlay for hovered elements
  */
 export function ElementHighlight({ element, color = '#6366f1', selected = false }: ElementHighlightProps) {
-  // Memoize the fixed position check
-  const isFixed = useMemo(() => isFixedPosition(element), [element]);
+  const [rect, setRect] = useState<ElementRect>(() => getElementRect(element));
+
+  useLayoutEffect(() => {
+    let rafId: number | null = null;
+    let isCancelled = false;
+
+    const tick = () => {
+      if (isCancelled) {
+        return;
+      }
+
+      const nextRect = getElementRect(element);
+      setRect((currentRect) => (isSameRect(currentRect, nextRect) ? currentRect : nextRect));
+      rafId = window.requestAnimationFrame(tick);
+    };
+
+    tick();
+
+    return () => {
+      isCancelled = true;
+      if (rafId !== null) {
+        window.cancelAnimationFrame(rafId);
+      }
+    };
+  }, [element]);
 
   // Use a more prominent color when selected
   const highlightColor = selected ? '#f97316' : color;
 
   // Memoize style calculation
   const style = useMemo(() => {
-    const rect = element.getBoundingClientRect();
-
     return {
-      position: isFixed ? 'fixed' : 'absolute',
-      top: isFixed ? `${rect.top}px` : `${rect.top + window.scrollY}px`,
-      left: isFixed ? `${rect.left}px` : `${rect.left + window.scrollX}px`,
+      position: 'fixed',
+      top: `${rect.top}px`,
+      left: `${rect.left}px`,
       width: `${rect.width}px`,
       height: `${rect.height}px`,
       border: `2px solid ${highlightColor}`,
@@ -62,9 +78,8 @@ export function ElementHighlight({ element, color = '#6366f1', selected = false 
       pointerEvents: 'none',
       boxSizing: 'border-box',
       zIndex: 2147483646,
-      transition: 'all 50ms ease-out',
     };
-  }, [element, highlightColor, isFixed]);
+  }, [rect, highlightColor]);
 
   return <div style={style} />;
 }

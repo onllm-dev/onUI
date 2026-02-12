@@ -22,6 +22,7 @@ export type {
   GetTabRuntimeStateMessage,
   SetTabEnabledMessage,
   SetAnnotateModeMessage,
+  GetSyncStatusMessage,
   TabRuntimeStateChangedMessage,
   GetStateMessage,
   SetStateMessage,
@@ -37,6 +38,7 @@ export type {
   GetTabRuntimeStateResponse,
   SetTabEnabledResponse,
   SetAnnotateModeResponse,
+  GetSyncStatusResponse,
 } from './messages';
 export type { OutputLevel, Settings } from './settings';
 export { DEFAULT_SETTINGS } from './settings';

@@ -1,5 +1,9 @@
 import type { Annotation, AnnotationInput, AnnotationUpdate } from '@/types';
 import { storageService } from './storage';
+import {
+  deletePageSnapshotFromNativeHost,
+  syncPageSnapshotWithNativeHost,
+} from './native-sync';
 
 const LOG_PREFIX = '[onUI][background][annotations]';
 
@@ -44,6 +48,7 @@ export class AnnotationManager {
 
     annotations.push(annotation);
     await storageService.setAnnotations(input.pageUrl, annotations);
+    await syncPageSnapshotWithNativeHost(input.pageUrl, annotations);
 
     // Update badge
     await this.updateBadge(input.pageUrl, annotations.length);
@@ -114,6 +119,7 @@ export class AnnotationManager {
 
     annotations[index] = updated;
     await storageService.setAnnotations(url, annotations);
+    await syncPageSnapshotWithNativeHost(url, annotations);
 
     console.log(`${LOG_PREFIX} updateAnnotation hit`, {
       requestId,
@@ -160,6 +166,11 @@ export class AnnotationManager {
 
     annotations.splice(index, 1);
     await storageService.setAnnotations(url, annotations);
+    if (annotations.length === 0) {
+      await deletePageSnapshotFromNativeHost(url);
+    } else {
+      await syncPageSnapshotWithNativeHost(url, annotations);
+    }
 
     // Update badge
     await this.updateBadge(url, annotations.length);
@@ -183,6 +194,7 @@ export class AnnotationManager {
     const before = await storageService.getAnnotations(url);
 
     await storageService.setAnnotations(url, []);
+    await deletePageSnapshotFromNativeHost(url);
     await this.updateBadge(url, 0);
 
     console.log(`${LOG_PREFIX} clearAnnotations`, {

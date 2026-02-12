@@ -1,3 +1,6 @@
+import { useMemo } from 'preact/hooks';
+import { useViewportTick } from '../hooks/useViewportTick';
+
 interface TextSelectionHighlightProps {
   rect: DOMRect;
 }
@@ -6,7 +9,8 @@ interface TextSelectionHighlightProps {
  * Visual highlight for selected text
  */
 export function TextSelectionHighlight({ rect }: TextSelectionHighlightProps) {
-  const style = {
+  const tick = useViewportTick();
+  const style = useMemo(() => ({
     position: 'absolute' as const,
     top: `${rect.top + window.scrollY}px`,
     left: `${rect.left + window.scrollX}px`,
@@ -18,7 +22,7 @@ export function TextSelectionHighlight({ rect }: TextSelectionHighlightProps) {
     pointerEvents: 'none' as const,
     zIndex: 2147483643,
     boxSizing: 'border-box' as const,
-  };
+  }), [rect, tick]);
 
   return <div class="onui-text-selection-highlight" style={style} />;
 }

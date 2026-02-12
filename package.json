@@ -10,6 +10,9 @@
   "scripts": {
     "dev": "pnpm --filter @onui/extension dev",
     "build": "pnpm --filter @onui/extension build",
+    "build:mcp": "pnpm --filter @onui/mcp-server build",
+    "setup:mcp": "pnpm --filter @onui/mcp-server setup",
+    "doctor:mcp": "pnpm --filter @onui/mcp-server doctor",
     "lint": "eslint packages/*/src --ext .ts,.tsx"
   },
   "devDependencies": {

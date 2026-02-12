@@ -1,5 +1,6 @@
 import { useMemo } from 'preact/hooks';
 import type { Annotation } from '@/types';
+import { useViewportTick } from '../hooks/useViewportTick';
 
 interface AnnotationMarkerProps {
   annotation: Annotation;
@@ -15,6 +16,7 @@ export function AnnotationMarker({
   index,
   onClick,
 }: AnnotationMarkerProps) {
+  const tick = useViewportTick();
   const { boundingBox } = annotation;
 
   // Memoize style calculation to avoid recalculating on every render
@@ -76,7 +78,7 @@ export function AnnotationMarker({
       transition: 'transform var(--onui-transition-fast)',
       fontFamily: 'var(--onui-font-family)',
     };
-  }, [boundingBox]);
+  }, [boundingBox, tick]);
 
   if (!markerStyle) {
     return null;

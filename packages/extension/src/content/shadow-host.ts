@@ -33,7 +33,7 @@ export class ShadowHost {
 
     // Style to ensure host doesn't affect page layout
     this.host.style.cssText = `
-      position: fixed;
+      position: absolute;
       top: 0;
       left: 0;
       width: 0;

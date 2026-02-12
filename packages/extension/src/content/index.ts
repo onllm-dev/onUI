@@ -6,5 +6,14 @@ import { renderApp } from './render';
 
 console.log('[onUI] Content script loaded');
 
-// Initialize the UI
-renderApp();
+declare global {
+  interface Window {
+    __ONUI_CONTENT_BOOTSTRAPPED__?: boolean;
+  }
+}
+
+if (!window.__ONUI_CONTENT_BOOTSTRAPPED__) {
+  window.__ONUI_CONTENT_BOOTSTRAPPED__ = true;
+  // Initialize the UI once per page context.
+  renderApp();
+}

@@ -1,6 +1,6 @@
 {
   "name": "onui",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "private": true,
   "description": "Browser extension for annotating UI elements for AI agents",
   "packageManager": "pnpm@9.15.0",
@@ -11,8 +11,8 @@
     "dev": "pnpm --filter @onui/extension dev",
     "build": "pnpm --filter @onui/extension build",
     "build:mcp": "pnpm --filter @onui/mcp-server build",
-    "setup:mcp": "pnpm --filter @onui/mcp-server setup",
-    "doctor:mcp": "pnpm --filter @onui/mcp-server doctor",
+    "setup:mcp": "pnpm --filter @onui/mcp-server run setup",
+    "doctor:mcp": "pnpm --filter @onui/mcp-server run doctor",
     "lint": "eslint packages/*/src --ext .ts,.tsx"
   },
   "devDependencies": {

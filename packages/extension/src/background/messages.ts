@@ -5,6 +5,43 @@ import { storageService } from './storage';
 import { stateManager } from './state';
 
 const LOG_PREFIX = '[onUI][background][messages]';
+const CONTENT_SCRIPT_ENTRY_FILE = 'content-script.js';
+
+function isInjectableTabUrl(url?: string): boolean {
+  return typeof url === 'string' && (url.startsWith('http://') || url.startsWith('https://'));
+}
+
+async function ensureContentScriptInjected(tabId: number): Promise<void> {
+  const tab = await chrome.tabs.get(tabId);
+  if (!isInjectableTabUrl(tab.url)) {
+    throw new Error('onUI can only run on http/https pages.');
+  }
+
+  // Inject content script only after explicit user action.
+  await chrome.scripting.executeScript({
+    target: { tabId },
+    files: [CONTENT_SCRIPT_ENTRY_FILE],
+  });
+}
+
+async function reInjectContentScriptIfEnabled(tabId: number, url?: string): Promise<void> {
+  const state = stateManager.getTabRuntimeState(tabId);
+  if (!state.enabled || !isInjectableTabUrl(url)) {
+    return;
+  }
+
+  try {
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      files: [CONTENT_SCRIPT_ENTRY_FILE],
+    });
+  } catch (error) {
+    console.warn(`${LOG_PREFIX} reinjection skipped`, {
+      tabId,
+      error: error instanceof Error ? error.message : 'unknown error',
+    });
+  }
+}
 
 async function notifyTabRuntimeStateChanged(tabId: number): Promise<void> {
   const state = stateManager.getTabRuntimeState(tabId);
@@ -46,6 +83,13 @@ function sanitizeUrlForLog(url?: string): string | undefined {
  * even if the service worker becomes inactive (Manifest V3 limitation)
  */
 export function setupMessageHandler(): void {
+  chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if (changeInfo.status !== 'complete') {
+      return;
+    }
+    void reInjectContentScriptIfEnabled(tabId, tab.url);
+  });
+
   chrome.runtime.onMessage.addListener(
     (
       message: Message,
@@ -212,6 +256,17 @@ async function handleMessage(
       if (!tabId) {
         console.warn(`${LOG_PREFIX} ${requestId} SET_TAB_ENABLED no tabId`);
         return { success: false, error: 'Missing tabId for SET_TAB_ENABLED' };
+      }
+
+      if (message.payload.enabled) {
+        try {
+          await ensureContentScriptInjected(tabId);
+        } catch (error) {
+          return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Failed to inject content script',
+          };
+        }
       }
 
       const state = stateManager.setTabEnabled(tabId, message.payload.enabled);

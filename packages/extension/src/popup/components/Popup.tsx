@@ -124,9 +124,12 @@ export function Popup() {
 
       if (response?.success && response.data) {
         setTabEnabled(response.data.enabled);
+      } else {
+        setTabEnabled(!nextEnabled);
       }
     } catch (error) {
       console.error('[onUI Popup] Failed to toggle tab enabled:', error);
+      setTabEnabled((prev) => !prev);
     }
   };
 
@@ -184,7 +187,7 @@ export function Popup() {
       </div>
 
       <div class="popup-footer">
-        <span>onUI v0.0.1 • </span>
+        <span>onUI v1.0.0 • </span>
         <a href="https://github.com/anthropics/onui" target="_blank" rel="noopener">
           GitHub
         </a>

@@ -352,8 +352,8 @@
   width: 100%;
   min-height: 80px;
   padding: 12px;
-  background: rgba(20, 22, 29, 0.94);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(12, 14, 20, 0.96);
+  border: 1px solid rgba(174, 187, 255, 0.38);
   border-radius: 10px;
   color: var(--onui-text);
   font-family: inherit;
@@ -361,7 +361,8 @@
   line-height: 1.5;
   resize: vertical;
   outline: none;
-  transition: border-color 150ms ease;
+  box-shadow: inset 0 0 0 1px rgba(8, 10, 14, 0.55);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
 .onui-textarea::placeholder {
@@ -369,11 +370,14 @@
 }
 
 .onui-textarea:hover {
-  border-color: var(--onui-border-hover);
+  border-color: rgba(174, 187, 255, 0.55);
 }
 
 .onui-textarea:focus {
   border-color: var(--onui-primary);
+  box-shadow:
+    inset 0 0 0 1px rgba(8, 10, 14, 0.35),
+    0 0 0 2px rgba(99, 102, 241, 0.28);
 }
 
 /* Intent/Severity selectors */

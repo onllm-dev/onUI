@@ -12,7 +12,7 @@ Browser support in this release: **Chrome stable only**.
 ## One-Command Setup
 
 ```bash
-pnpm --filter @onui/mcp-server run setup
+pnpm --filter @onui/mcp-server setup
 ```
 
 What setup does:
@@ -25,19 +25,14 @@ What setup does:
 ## Verify Installation
 
 ```bash
-pnpm --filter @onui/mcp-server run doctor
+pnpm --filter @onui/mcp-server doctor
 ```
 
 Use deep mode for V2 sync readiness checks:
 
 ```bash
-pnpm --filter @onui/mcp-server run doctor -- --deep
+pnpm --filter @onui/mcp-server doctor -- --deep
 ```
-
-## Automated Installer Path
-
-Release installers (`install.sh` / `install.ps1`) run MCP setup and doctor by default.
-That path is recommended for beta users who are not building from source.
 
 ## MCP Tooling
 

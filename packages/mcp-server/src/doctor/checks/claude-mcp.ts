@@ -25,6 +25,6 @@ export async function checkClaudeMcpRegistration(): Promise<CheckResult> {
     name: 'mcp.claude',
     status: 'warning',
     message: 'Claude MCP registration onui-local is missing.',
-    fix: 'Run setup: pnpm --filter @onui/mcp-server run setup',
+    fix: 'Run setup: pnpm --filter @onui/mcp-server setup',
   };
 }

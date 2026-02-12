@@ -69,7 +69,7 @@ export async function checkNativeHostRoundtrip(): Promise<CheckResult> {
         name: 'native.roundtrip',
         status: 'error',
         message: `Manifest at ${manifestPath} does not define a host path.`,
-        fix: 'Rerun setup: pnpm --filter @onui/mcp-server run setup',
+        fix: 'Rerun setup: pnpm --filter @onui/mcp-server setup',
       };
     }
 

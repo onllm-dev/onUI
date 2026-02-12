@@ -98,18 +98,26 @@ prompt_for_mcp() {
     return
   fi
 
-  if [ -t 0 ]; then
+  local answer=""
+  if [ -r /dev/tty ]; then
+    printf 'Set up local MCP bridge now? [y/N]: ' > /dev/tty
+    IFS= read -r answer < /dev/tty || true
+  elif [ -t 0 ]; then
     printf 'Set up local MCP bridge now? [y/N]: '
-    read -r answer
-    case "$answer" in
-      y|Y|yes|YES)
-        INSTALL_MCP=1
-        ;;
-      *)
-        INSTALL_MCP=0
-        ;;
-    esac
+    IFS= read -r answer || true
+  else
+    log "Non-interactive mode detected; skipping MCP setup by default."
+    return
   fi
+
+  case "$answer" in
+    y|Y|yes|YES)
+      INSTALL_MCP=1
+      ;;
+    *)
+      INSTALL_MCP=0
+      ;;
+  esac
 }
 
 install_mcp() {

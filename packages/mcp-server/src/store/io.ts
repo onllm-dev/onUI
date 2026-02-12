@@ -16,7 +16,11 @@ async function withFileLock<T>(targetPath: string, fn: () => Promise<T>): Promis
       } finally {
         await rm(lockPath, { force: true });
       }
-    } catch {
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code;
+      if (code !== 'EEXIST') {
+        throw error;
+      }
       await new Promise((resolve) => setTimeout(resolve, 25));
     }
   }

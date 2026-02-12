@@ -12,7 +12,7 @@ Browser support in this release: **Chrome stable only**.
 ## One-Command Setup
 
 ```bash
-npx @onui/mcp-server setup
+pnpm --filter @onui/mcp-server setup
 ```
 
 What setup does:
@@ -25,13 +25,13 @@ What setup does:
 ## Verify Installation
 
 ```bash
-npx @onui/mcp-server doctor
+pnpm --filter @onui/mcp-server doctor
 ```
 
 Use deep mode for V2 sync readiness checks:
 
 ```bash
-npx @onui/mcp-server doctor --deep
+pnpm --filter @onui/mcp-server doctor -- --deep
 ```
 
 ## MCP Tooling

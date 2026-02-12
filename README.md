@@ -55,13 +55,14 @@ pnpm --filter @onui/mcp-server build
 onUI ships with a local MCP server and Native Messaging bridge to sync extension annotations into a local store.
 
 ```bash
-npx @onui/mcp-server setup
-npx @onui/mcp-server doctor
+pnpm setup:mcp
+pnpm doctor:mcp
 ```
 
 - No cloud backend required.
 - Auto-registers `onui-local` for Claude Code and Codex when those CLIs are installed.
 - Browser support in this release: **Chrome stable only**.
+- `@onui/mcp-server` is currently workspace-local (`private: true`), so run setup/doctor from this repo.
 
 See:
 - `docs/mcp-setup.md`

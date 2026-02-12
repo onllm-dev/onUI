@@ -21,6 +21,7 @@ export async function runSetup(options: SetupOptions = {}): Promise<void> {
   process.stdout.write(`- Native host: ${nativeHost.hostName}\n`);
   process.stdout.write(`- Native manifest: ${nativeHost.manifestPath}\n`);
   process.stdout.write(`- Native wrapper: ${nativeHost.wrapperPath}\n`);
+  process.stdout.write(`- Node binary: ${nativeHost.nodeBinary}\n`);
   process.stdout.write(`- Claude: ${claude.message}\n`);
   process.stdout.write(`- Codex: ${codex.message}\n`);
 

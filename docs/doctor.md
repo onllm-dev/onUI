@@ -3,19 +3,19 @@
 ## Command
 
 ```bash
-npx @onui/mcp-server doctor
+pnpm --filter @onui/mcp-server doctor
 ```
 
 Machine-readable output:
 
 ```bash
-npx @onui/mcp-server doctor --json
+pnpm --filter @onui/mcp-server doctor -- --json
 ```
 
 Deep mode:
 
 ```bash
-npx @onui/mcp-server doctor --deep
+pnpm --filter @onui/mcp-server doctor -- --deep
 ```
 
 ## Exit Codes

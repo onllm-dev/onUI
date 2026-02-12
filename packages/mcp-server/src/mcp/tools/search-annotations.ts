@@ -10,9 +10,13 @@ interface SearchAnnotationsArgs {
 }
 
 export async function runSearchAnnotationsTool(repository: StoreRepository, args: SearchAnnotationsArgs) {
-  if (!args.query) {
+  const query = args.query.trim();
+  if (!query) {
     throw new Error('query is required');
   }
 
-  return repository.searchAnnotations(args);
+  return repository.searchAnnotations({
+    ...args,
+    query,
+  });
 }

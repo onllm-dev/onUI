@@ -15,17 +15,21 @@ export interface NativeHostInstallResult {
   wrapperPath: string;
   manifestPath: string;
   hostName: string;
+  nodeBinary: string;
 }
 
-function createUnixWrapper(cliPath: string): string {
-  return `#!/usr/bin/env bash\nnode "${cliPath}" native-host\n`;
+function createUnixWrapper(cliPath: string, nodeBinary: string): string {
+  return `#!/usr/bin/env bash\n"${nodeBinary}" "${cliPath}" native-host\n`;
 }
 
-function createWindowsWrapper(cliPath: string): string {
-  return `@echo off\r\nnode "${cliPath}" native-host\r\n`;
+function createWindowsWrapper(cliPath: string, nodeBinary: string): string {
+  return `@echo off\r\n"${nodeBinary}" "${cliPath}" native-host\r\n`;
 }
 
-export async function installNativeHost(cliPath: string): Promise<NativeHostInstallResult> {
+export async function installNativeHost(
+  cliPath: string,
+  nodeBinary = process.execPath
+): Promise<NativeHostInstallResult> {
   const platform = process.platform;
   const runtimeDir = join(getDataDir(platform), 'runtime');
   await mkdir(runtimeDir, { recursive: true });
@@ -34,9 +38,9 @@ export async function installNativeHost(cliPath: string): Promise<NativeHostInst
     platform === 'win32' ? join(runtimeDir, 'onui-native-host.cmd') : join(runtimeDir, 'onui-native-host.sh');
 
   if (platform === 'win32') {
-    await writeFile(wrapperPath, createWindowsWrapper(cliPath), 'utf8');
+    await writeFile(wrapperPath, createWindowsWrapper(cliPath, nodeBinary), 'utf8');
   } else {
-    await writeFile(wrapperPath, createUnixWrapper(cliPath), 'utf8');
+    await writeFile(wrapperPath, createUnixWrapper(cliPath, nodeBinary), 'utf8');
     await chmod(wrapperPath, 0o755);
   }
 
@@ -80,5 +84,6 @@ export async function installNativeHost(cliPath: string): Promise<NativeHostInst
     wrapperPath,
     manifestPath,
     hostName: getNativeHostName(),
+    nodeBinary,
   };
 }

@@ -4,7 +4,8 @@ import { storageService } from './storage';
 const LOG_PREFIX = '[onUI][background][native-sync]';
 const NATIVE_HOST_NAME = 'com.onui.native';
 const CURSOR_STORAGE_KEY = 'onui_native_sync_cursor';
-const SYNC_INTERVAL_MS = 30000;
+const SYNC_ALARM_NAME = 'onui_native_pull';
+const SYNC_INTERVAL_MINUTES = 1;
 
 interface NativeRequest {
   type: 'PING' | 'UPSERT_PAGE_SNAPSHOT' | 'DELETE_PAGE' | 'GET_CHANGES_SINCE';
@@ -51,7 +52,7 @@ const syncStatus: SyncStatus = {
   cursor: 0,
 };
 
-let pollTimer: ReturnType<typeof setInterval> | undefined;
+let alarmListenerRegistered = false;
 
 function nextRequestId(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -236,7 +237,25 @@ export function getNativeSyncStatus(): SyncStatus {
   return { ...syncStatus };
 }
 
+async function ensureAlarmPolling(): Promise<void> {
+  if (!alarmListenerRegistered) {
+    chrome.alarms.onAlarm.addListener((alarm) => {
+      if (alarm.name !== SYNC_ALARM_NAME) {
+        return;
+      }
+      void pullChangesFromNativeHost();
+    });
+    alarmListenerRegistered = true;
+  }
+
+  await chrome.alarms.create(SYNC_ALARM_NAME, {
+    periodInMinutes: SYNC_INTERVAL_MINUTES,
+  });
+}
+
 export async function bootstrapNativeSync(): Promise<void> {
+  await ensureAlarmPolling();
+
   try {
     const cursor = await getCursor();
     setSyncStatus({ cursor });
@@ -261,12 +280,4 @@ export async function bootstrapNativeSync(): Promise<void> {
 
   await resyncAllPagesToNativeHost();
   await pullChangesFromNativeHost();
-
-  if (pollTimer) {
-    clearInterval(pollTimer);
-  }
-
-  pollTimer = setInterval(() => {
-    void pullChangesFromNativeHost();
-  }, SYNC_INTERVAL_MS);
 }

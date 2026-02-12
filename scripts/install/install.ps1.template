@@ -27,6 +27,23 @@ function Require-Command($CommandName) {
   }
 }
 
+function Show-NodeInstallHelp {
+  Write-Log "Install Node 20+ and rerun this installer."
+  if (Get-Command winget -ErrorAction SilentlyContinue) {
+    Write-Host "Install command: winget install OpenJS.NodeJS.LTS"
+    return
+  }
+  if (Get-Command choco -ErrorAction SilentlyContinue) {
+    Write-Host "Install command: choco install nodejs-lts -y"
+    return
+  }
+  if (Get-Command scoop -ErrorAction SilentlyContinue) {
+    Write-Host "Install command: scoop install nodejs-lts"
+    return
+  }
+  Write-Host "Install Node 20+ from: https://nodejs.org/en/download"
+}
+
 function Install-Extension {
   Require-Command "Invoke-WebRequest"
   Require-Command "Expand-Archive"
@@ -70,14 +87,16 @@ function Should-InstallMcp {
 
 function Install-Mcp {
   if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
-    Write-Log "Node is required for MCP setup but is not installed. Install Node 20+ and rerun installer."
+    Write-Log "Node is required for MCP setup but is not installed."
+    Show-NodeInstallHelp
     return
   }
   Require-Command "Expand-Archive"
 
   $nodeMajor = [int](node -p "process.versions.node.split('.')[0]")
   if ($nodeMajor -lt 20) {
-    Write-Log "Node 20+ required for MCP setup. Skipping MCP setup."
+    Write-Log "Node 20+ required for MCP setup. Found $(node -v)."
+    Show-NodeInstallHelp
     return
   }
 

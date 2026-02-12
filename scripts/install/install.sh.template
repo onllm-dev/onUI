@@ -27,6 +27,33 @@ warn() {
   printf '[onui-install] WARN: %s\n' "$1" >&2
 }
 
+print_node_install_help() {
+  warn "Install Node 20+ and rerun this installer."
+  case "$(uname -s)" in
+    Darwin)
+      printf 'Install command (macOS): brew install node@20 && brew link --force --overwrite node@20\n' >&2
+      ;;
+    Linux)
+      if command -v apt-get >/dev/null 2>&1; then
+        printf 'Install command (Ubuntu/Debian): sudo apt-get update && sudo apt-get install -y nodejs npm\n' >&2
+      elif command -v dnf >/dev/null 2>&1; then
+        printf 'Install command (Fedora/RHEL): sudo dnf install -y nodejs npm\n' >&2
+      elif command -v yum >/dev/null 2>&1; then
+        printf 'Install command (RHEL/CentOS): sudo yum install -y nodejs npm\n' >&2
+      elif command -v pacman >/dev/null 2>&1; then
+        printf 'Install command (Arch): sudo pacman -S --noconfirm nodejs npm\n' >&2
+      elif command -v apk >/dev/null 2>&1; then
+        printf 'Install command (Alpine): sudo apk add --no-cache nodejs npm\n' >&2
+      else
+        printf 'Install Node 20+ from: https://nodejs.org/en/download\n' >&2
+      fi
+      ;;
+    *)
+      printf 'Install Node 20+ from: https://nodejs.org/en/download\n' >&2
+      ;;
+  esac
+}
+
 require_cmd() {
   command -v "$1" >/dev/null 2>&1 || fail "Missing required command: $1"
 }
@@ -124,7 +151,8 @@ install_mcp() {
   [ "$INSTALL_MCP" -eq 1 ] || return 0
 
   if ! command -v node >/dev/null 2>&1; then
-    warn "Node is required for MCP setup but is not installed. Install Node 20+ and rerun installer."
+    warn "Node is required for MCP setup but is not installed."
+    print_node_install_help
     return 0
   fi
 
@@ -134,7 +162,8 @@ install_mcp() {
   local node_major
   node_major="$(node -p "process.versions.node.split('.')[0]")"
   if [ "$node_major" -lt 20 ]; then
-    warn "Node 20+ required for MCP setup. Found $(node -v). Skipping MCP setup."
+    warn "Node 20+ required for MCP setup. Found $(node -v)."
+    print_node_install_help
     return 0
   fi
 

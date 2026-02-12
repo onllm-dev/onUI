@@ -77,8 +77,6 @@ export function useElementHover(
       }
 
       const element = getElementAtPoint(e.clientX, e.clientY);
-
-      // Only update if element changed
       if (element !== lastElementRef.current) {
         lastElementRef.current = element;
         setHoveredElement(element);

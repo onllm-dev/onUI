@@ -28,28 +28,66 @@ export function shouldIgnoreElement(element: Element): boolean {
   return false;
 }
 
+function isInteractiveElement(element: Element): boolean {
+  if (element instanceof HTMLButtonElement ||
+      element instanceof HTMLAnchorElement ||
+      element instanceof HTMLInputElement ||
+      element instanceof HTMLSelectElement ||
+      element instanceof HTMLTextAreaElement) {
+    return true;
+  }
+
+  if (element.hasAttribute('role') || element.hasAttribute('contenteditable')) {
+    return true;
+  }
+
+  const style = window.getComputedStyle(element);
+  return style.cursor === 'pointer';
+}
+
+function isGenericContainer(element: Element): boolean {
+  return ['DIV', 'SECTION', 'MAIN', 'ARTICLE', 'ASIDE', 'NAV'].includes(element.tagName);
+}
+
 /**
  * Get the element at a given point, excluding our UI
- * Uses elementsFromPoint to avoid hide/show layout thrashing
+ * Uses elementsFromPoint to avoid hide/show layout thrashing.
+ * Prefers meaningful targets over large wrapper containers.
  */
 export function getElementAtPoint(x: number, y: number): Element | null {
   // Get all elements at this point (returns from topmost to bottommost)
   const elements = document.elementsFromPoint(x, y);
+  const candidates: Array<{ element: Element; area: number }> = [];
 
-  // Find the first valid element (skip our UI and ignored elements)
   for (const element of elements) {
-    // Skip our own shadow host
-    if (element.id === 'onui-shadow-host') {
+    if (element.id === 'onui-shadow-host' || element.closest('#onui-shadow-host')) {
       continue;
     }
-
-    // Skip if element is inside our shadow host (shouldn't happen but be safe)
-    if (element.closest('#onui-shadow-host')) {
-      continue;
-    }
-
-    // Skip ignored elements
     if (shouldIgnoreElement(element)) {
+      continue;
+    }
+
+    const rect = element.getBoundingClientRect();
+    candidates.push({ element, area: rect.width * rect.height });
+  }
+
+  if (candidates.length === 0) {
+    return null;
+  }
+
+  const smallestArea = Math.min(...candidates.map((candidate) => candidate.area));
+
+  for (const candidate of candidates) {
+    const { element, area } = candidate;
+    const rect = element.getBoundingClientRect();
+    const isLargeWrapper =
+      isGenericContainer(element) &&
+      element.children.length > 0 &&
+      !isInteractiveElement(element) &&
+      rect.width >= window.innerWidth * 0.8 &&
+      area > smallestArea * 8;
+
+    if (isLargeWrapper) {
       continue;
     }
 

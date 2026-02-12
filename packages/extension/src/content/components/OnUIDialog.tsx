@@ -3,7 +3,7 @@ import type { AnnotationIntent, AnnotationSeverity } from '@/types';
 import { getComputedStylesInfo, type ComputedStylesInfo } from '../utils/computed-styles';
 import { getReactComponents } from '../utils/react-detection';
 import { getCssSelector, getElementPath } from '../utils/element-path';
-import { getBoundingBox } from '../utils/bounding-box';
+import { useViewportTick } from '../hooks/useViewportTick';
 
 // Icons
 const CloseIcon = () => (
@@ -99,6 +99,7 @@ export function OnUIDialog({
   isEditing = false,
   onDelete,
 }: OnUIDialogProps) {
+  const tick = useViewportTick();
   const [comment, setComment] = useState(initialComment);
   const [intent, setIntent] = useState<AnnotationIntent | undefined>(initialIntent);
   const [severity, setSeverity] = useState<AnnotationSeverity | undefined>(initialSeverity);
@@ -142,17 +143,17 @@ export function OnUIDialog({
   useEffect(() => {
     if (!dialogRef.current) return;
 
-    const box = getBoundingBox(element);
+    const rect = element.getBoundingClientRect();
     const dialog = dialogRef.current;
     const dialogRect = dialog.getBoundingClientRect();
 
     // Position to the right of element, or left if not enough space
-    let left = box.left + box.width + 16;
-    let top = box.top;
+    let left = rect.left + rect.width + 16;
+    let top = rect.top;
 
     // Check if dialog goes off right edge
     if (left + dialogRect.width > window.innerWidth - 20) {
-      left = box.left - dialogRect.width - 16;
+      left = rect.left - dialogRect.width - 16;
     }
 
     // Check if dialog goes off left edge
@@ -172,7 +173,7 @@ export function OnUIDialog({
 
     dialog.style.left = `${left}px`;
     dialog.style.top = `${top}px`;
-  }, [element]);
+  }, [element, tick]);
 
   // Handle keyboard shortcuts - stable listener registered once
   useEffect(() => {

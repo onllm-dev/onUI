@@ -8,6 +8,39 @@
   'use strict';
 
   // ============================================
+  // Latest release badge
+  // ============================================
+
+  const releaseBadge = document.getElementById('release-badge');
+
+  async function setLatestReleaseBadge() {
+    if (!releaseBadge) return;
+
+    const fallback = releaseBadge.getAttribute('data-fallback') || 'Stable — Public Release';
+
+    try {
+      const response = await fetch('https://api.github.com/repos/onllm-dev/onUI/releases/latest', {
+        headers: {
+          Accept: 'application/vnd.github+json',
+        },
+      });
+
+      if (!response.ok) {
+        releaseBadge.textContent = fallback;
+        return;
+      }
+
+      const data = await response.json();
+      const tag = typeof data.tag_name === 'string' ? data.tag_name : '';
+      releaseBadge.textContent = tag ? `Stable — ${tag}` : fallback;
+    } catch (_error) {
+      releaseBadge.textContent = fallback;
+    }
+  }
+
+  void setLatestReleaseBadge();
+
+  // ============================================
   // Theme Toggle (Light/Dark Mode)
   // ============================================
 

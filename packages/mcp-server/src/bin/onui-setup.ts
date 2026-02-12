@@ -1,3 +1,3 @@
 import { runSetup } from '../setup/index.js';
 
-void runSetup();
+void runSetup({ cliPath: process.argv[1] });

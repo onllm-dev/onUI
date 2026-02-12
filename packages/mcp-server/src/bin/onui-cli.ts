@@ -8,12 +8,13 @@ async function main(): Promise<void> {
 
   switch (command) {
     case 'setup':
-      await runSetup({ verbose: args.includes('--verbose') });
+      await runSetup({ verbose: args.includes('--verbose'), cliPath: process.argv[1] });
       return;
     case 'doctor': {
       const exitCode = await runDoctor({
         json: args.includes('--json'),
         deep: args.includes('--deep'),
+        cliPath: process.argv[1],
       });
       process.exitCode = exitCode;
       return;

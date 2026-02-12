@@ -360,28 +360,29 @@
 
 .onui-textarea-wrap {
   margin-top: 0;
-  border: 1px solid rgba(160, 176, 255, 0.62);
-  border-radius: 12px;
-  background: rgba(22, 25, 36, 0.98);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.09),
-    inset 0 0 0 1px rgba(8, 10, 16, 0.32);
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
 }
 
 .onui-textarea {
   width: 100%;
   min-height: 80px;
   padding: 12px;
-  background: rgba(12, 14, 20, 0.88) !important;
-  border: 1px solid rgba(176, 190, 255, 0.5) !important;
-  border-radius: 11px;
+  box-sizing: border-box;
+  display: block;
+  margin: 0;
+  background: rgba(10, 12, 18, 0.7) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 10px;
   color: var(--onui-text);
   font-family: inherit;
   font-size: 14px;
   line-height: 1.5;
   resize: vertical;
   outline: none;
-  box-shadow: none;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.25);
   transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
 }
 
@@ -390,16 +391,16 @@
 }
 
 .onui-textarea:hover {
-  background: rgba(16, 19, 28, 0.94) !important;
-  border-color: rgba(188, 202, 255, 0.65) !important;
+  background: rgba(14, 16, 24, 0.8) !important;
+  border-color: rgba(130, 141, 255, 0.35) !important;
 }
 
 .onui-textarea:focus {
-  background: rgba(16, 19, 28, 0.98) !important;
-  border-color: rgba(124, 144, 255, 0.9) !important;
+  background: rgba(14, 16, 24, 0.85) !important;
+  border-color: rgba(99, 108, 255, 0.7) !important;
   box-shadow:
-    0 0 0 1px rgba(8, 10, 14, 0.35),
-    0 0 0 3px rgba(99, 102, 241, 0.4);
+    inset 0 1px 3px rgba(0, 0, 0, 0.2),
+    0 0 0 2.5px rgba(99, 102, 241, 0.25);
 }
 
 /* Intent/Severity selectors */

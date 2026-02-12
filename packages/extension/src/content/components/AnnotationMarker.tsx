@@ -46,13 +46,13 @@ export function AnnotationMarker({
       top = clamp(rawTop, pagePadding, maxTop);
       left = clamp(rawLeft, pagePadding, maxLeft);
     } else {
-      const doc = document.documentElement;
-      const pageWidth = Math.max(doc.scrollWidth, doc.clientWidth);
-      const pageHeight = Math.max(doc.scrollHeight, doc.clientHeight);
-      const maxTop = pageHeight - markerSize - pagePadding;
-      const maxLeft = pageWidth - markerSize - pagePadding;
-      top = clamp(rawTop, pagePadding, maxTop);
-      left = clamp(rawLeft, pagePadding, maxLeft);
+      // Keep markers visible in the current viewport for page-level elements.
+      const minTop = window.scrollY + pagePadding;
+      const minLeft = window.scrollX + pagePadding;
+      const maxTop = window.scrollY + window.innerHeight - markerSize - pagePadding;
+      const maxLeft = window.scrollX + window.innerWidth - markerSize - pagePadding;
+      top = clamp(rawTop, minTop, maxTop);
+      left = clamp(rawLeft, minLeft, maxLeft);
     }
 
     return {

@@ -1,6 +1,6 @@
 {
   "name": "@onui/mcp-server",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
   "type": "module",
   "bin": {

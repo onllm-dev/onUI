@@ -3,9 +3,27 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
+  "bin": {
+    "onui-mcp": "dist/bin/onui-cli.js"
+  },
   "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/bin/onui-cli.js",
+    "setup": "node dist/bin/onui-cli.js setup",
+    "doctor": "node dist/bin/onui-cli.js doctor",
+    "mcp": "node dist/bin/onui-cli.js mcp",
+    "native-host": "node dist/bin/onui-cli.js native-host"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.5",
+    "@onui/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "tsx": "^4.19.2",
+    "vitest": "^2.1.9"
   }
 }

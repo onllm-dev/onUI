@@ -244,13 +244,15 @@ export function OnUIDialog({
         )}
 
         {/* Comment Input */}
-        <textarea
-          ref={textareaRef}
-          class="onui-textarea"
-          placeholder="Describe the issue or feedback..."
-          value={comment}
-          onInput={(e) => setComment((e.target as HTMLTextAreaElement).value)}
-        />
+        <div class="onui-textarea-wrap">
+          <textarea
+            ref={textareaRef}
+            class="onui-textarea"
+            placeholder="Describe the issue or feedback..."
+            value={comment}
+            onInput={(e) => setComment((e.target as HTMLTextAreaElement).value)}
+          />
+        </div>
 
         {/* Intent Selector */}
         <div class="onui-selector">

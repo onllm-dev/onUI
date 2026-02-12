@@ -1,46 +1,48 @@
+<div align="center">
+
 # onUI
+### Annotate Any UI for AI Agents
 
-Annotate UI elements for AI agents with a Chrome extension, no code integration required.
+Lightweight Chrome extension + local MCP bridge for annotation-first UI pair programming.
 
-onUI works on any web page where content scripts can run. Turn it on per tab, annotate elements visually, and export structured notes for agents.
+[![GitHub stars](https://img.shields.io/github/stars/onllm-dev/onUI?style=for-the-badge)](https://github.com/onllm-dev/onUI/stargazers)
+[![GitHub license](https://img.shields.io/github/license/onllm-dev/onUI?style=for-the-badge)](https://github.com/onllm-dev/onUI/blob/main/LICENSE)
+[![Chrome Stable](https://img.shields.io/badge/Browser-Chrome_Stable-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://www.google.com/chrome/)
 
-## Highlights
+</div>
 
-- Zero integration into app code
-- Per-tab ON/OFF control (off by default)
-- In-page annotation dialog with intent and severity
-- Visual markers and hover targeting
-- Export outputs in compact/standard/detailed/forensic formats
-- Shadow DOM isolation for stable styling
-- Local MCP server + native bridge (no backend required)
+> [!NOTE]
+> 🚧 `onUI` is in active beta development.
 
-## Project Background
+## ✨ Why onUI
 
-onUI was built from hands-on exploration of annotation-first agent workflows and adapted into a frictionless browser-extension model.
+- 🧩 No integration into app code
+- 🎛️ Per-tab ON/OFF control (off by default)
+- 🎯 In-page annotation dialog with intent + severity
+- 👀 Visual markers and hover targeting
+- 🧾 Export outputs in compact / standard / detailed / forensic formats
+- 🛡️ Shadow DOM isolation for stable styling
+- 🔌 Local MCP server + native bridge (no cloud backend required)
 
-## Support
+## 🚀 Quick Start (Chrome Stable)
 
-If onUI is useful to you, please star the repo: https://github.com/onllm-dev/onUI
-
-It helps other users discover the product.
-
-## Quick Start
+### 1) Clone + build extension
 
 ```bash
 git clone https://github.com/onllm-dev/onUI.git
 cd onUI
 pnpm install
-pnpm --filter @onui/extension build
-pnpm --filter @onui/mcp-server build
+pnpm build
 ```
 
-Load in Chrome:
+### 2) Load in Chrome
+
 1. Open `chrome://extensions`
-2. Enable Developer mode
-3. Click Load unpacked
+2. Enable **Developer mode**
+3. Click **Load unpacked**
 4. Select `packages/extension/dist`
 
-## Usage
+## 🧠 Usage
 
 1. Open any supported website tab.
 2. Click the onUI extension icon.
@@ -48,33 +50,33 @@ Load in Chrome:
 4. Use the on-page launcher to annotate and manage notes.
 5. Copy exported output from the toolbar.
 
-## Development
-
-```bash
-pnpm install
-pnpm --filter @onui/extension build
-pnpm --filter @onui/mcp-server build
-```
-
-## Local MCP Setup (Chrome Stable)
+## 🔌 Local MCP Setup (Optional)
 
 onUI ships with a local MCP server and Native Messaging bridge to sync extension annotations into a local store.
 
 ```bash
+pnpm build:mcp
 pnpm setup:mcp
 pnpm doctor:mcp
 ```
 
-- No cloud backend required.
 - Auto-registers `onui-local` for Claude Code and Codex when those CLIs are installed.
 - Browser support in this release: **Chrome stable only**.
-- `@onui/mcp-server` is currently workspace-local (`private: true`), so run setup/doctor from this repo.
+- `@onui/mcp-server` is workspace-local (`private: true`), so run setup/doctor from this repo.
 
 See:
 - `docs/mcp-setup.md`
 - `docs/doctor.md`
 
-## Repository Structure
+## 🛠️ Development
+
+```bash
+pnpm install
+pnpm build
+pnpm build:mcp
+```
+
+## 🗂️ Repository Structure
 
 ```text
 packages/
@@ -83,6 +85,13 @@ packages/
   mcp-server/  Local MCP server + native bridge setup/doctor tooling
 ```
 
-## License
+## ⭐ Support
+
+If onUI is useful to you, please star the repo:
+https://github.com/onllm-dev/onUI
+
+It helps other users discover the product. 
+
+## 📄 License
 
 MIT

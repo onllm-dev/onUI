@@ -12,7 +12,7 @@ export async function checkMcpRuntime(cliPath: string): Promise<CheckResult> {
   const client = new Client(
     {
       name: 'onui-doctor',
-      version: '1.0.7',
+      version: '1.0.8',
     },
     {
       capabilities: {},

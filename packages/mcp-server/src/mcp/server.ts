@@ -27,7 +27,7 @@ export async function runMcpServer(): Promise<void> {
   const server = new Server(
     {
       name: 'onui-local-mcp',
-      version: '1.0.4',
+      version: '1.0.5',
     },
     {
       capabilities: {

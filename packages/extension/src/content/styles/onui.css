@@ -1,0 +1,615 @@
+/* ============================================
+   AGENTATION TOOLBAR - Dark Theme Glassmorphism
+   ============================================ */
+
+/* Dark theme variables for OnUI */
+.onui-toolbar {
+  --onui-bg: rgba(23, 23, 23, 0.95);
+  --onui-bg-glass: rgba(38, 38, 38, 0.8);
+  --onui-bg-hover: rgba(83, 87, 255, 0.16);
+  --onui-bg-active: rgba(83, 87, 255, 0.24);
+  --onui-border: rgba(255, 255, 255, 0.1);
+  --onui-border-hover: rgba(130, 141, 255, 0.5);
+  --onui-text: #fafafa;
+  --onui-text-secondary: #b8bad1;
+  --onui-text-muted: #71717a;
+  --onui-primary: #5b63ff;
+  --onui-primary-hover: #737dff;
+  --onui-success: #22c55e;
+  --onui-warning: #f59e0b;
+  --onui-error: #ef4444;
+  --onui-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.65);
+  --onui-blur: 16px;
+}
+
+/* Main toolbar container - positioned bottom right */
+.onui-toolbar {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: 6px;
+  z-index: 2147483647;
+  pointer-events: auto;
+  font-family: var(--onui-font-family);
+}
+
+/* Toggle button - always visible */
+.onui-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--onui-border);
+  border-radius: 12px;
+  background: var(--onui-bg);
+  backdrop-filter: blur(var(--onui-blur));
+  -webkit-backdrop-filter: blur(var(--onui-blur));
+  color: var(--onui-text);
+  cursor: pointer;
+  box-shadow: var(--onui-shadow);
+  transition: all 150ms ease;
+}
+
+.onui-toggle:hover {
+  background: linear-gradient(140deg, rgba(91, 99, 255, 0.34), rgba(73, 198, 255, 0.18));
+  border-color: var(--onui-border-hover);
+  transform: scale(1.05);
+}
+
+.onui-toggle:active {
+  transform: scale(0.98);
+}
+
+.onui-toggle.active {
+  background: linear-gradient(140deg, var(--onui-primary), #4ec7ff);
+  border-color: var(--onui-primary);
+}
+
+.onui-toggle.active:hover {
+  background: linear-gradient(140deg, var(--onui-primary-hover), #6ad2ff);
+}
+
+.onui-toggle svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* Expandable panel - opens upward */
+.onui-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 112px;
+  padding: 5px;
+  background: linear-gradient(165deg, rgba(23, 23, 23, 0.96), rgba(28, 31, 45, 0.96));
+  backdrop-filter: blur(var(--onui-blur));
+  -webkit-backdrop-filter: blur(var(--onui-blur));
+  border: 1px solid var(--onui-border);
+  border-radius: 12px;
+  box-shadow: var(--onui-shadow);
+  animation: onui-panel-in 150ms ease;
+  box-sizing: border-box;
+}
+
+@keyframes onui-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Panel header */
+.onui-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px 7px;
+  border-bottom: 1px solid var(--onui-border);
+  margin-bottom: 4px;
+}
+
+.onui-panel-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--onui-text);
+  letter-spacing: -0.01em;
+}
+
+.onui-panel-title-accent {
+  color: #67d3ff;
+}
+
+.onui-panel-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  font-size: 10px;
+  font-weight: 600;
+  color: white;
+  background: var(--onui-primary);
+  border-radius: 10px;
+}
+
+/* Panel buttons */
+.onui-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 7px 8px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--onui-text-secondary);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 100ms ease;
+}
+
+.onui-btn:hover {
+  background: linear-gradient(140deg, rgba(91, 99, 255, 0.22), rgba(78, 199, 255, 0.12));
+  border-color: rgba(130, 141, 255, 0.45);
+  color: var(--onui-text);
+}
+
+.onui-btn:active {
+  background: var(--onui-bg-active);
+}
+
+.onui-btn.active {
+  background: linear-gradient(140deg, var(--onui-primary), #4ec7ff);
+  color: white;
+}
+
+.onui-btn.active:hover {
+  background: linear-gradient(140deg, var(--onui-primary-hover), #6ad2ff);
+}
+
+.onui-btn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.onui-btn-label {
+  white-space: nowrap;
+}
+
+/* Divider */
+.onui-divider {
+  height: 1px;
+  background: var(--onui-border);
+  margin: 2px 0;
+}
+
+/* Settings section in panel */
+.onui-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 5px;
+  margin-top: 2px;
+  border-top: 1px solid var(--onui-border);
+}
+
+.onui-setting-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.onui-setting-label {
+  font-size: 11px;
+  color: var(--onui-text-secondary);
+}
+
+/* Select dropdown */
+.onui-select {
+  width: 100%;
+  min-width: 0;
+  padding: 6px 8px;
+  background: var(--onui-bg-glass);
+  border: 1px solid var(--onui-border);
+  border-radius: 6px;
+  color: var(--onui-text);
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  outline: none;
+}
+
+.onui-select:hover {
+  border-color: var(--onui-border-hover);
+}
+
+.onui-select:focus {
+  border-color: var(--onui-primary);
+}
+
+/* ============================================
+   AGENTATION DIALOG - Modal for annotations
+   ============================================ */
+
+.onui-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 2147483646;
+  animation: onui-fade-in 150ms ease;
+  pointer-events: auto; /* Required because shadow host has pointer-events: none */
+}
+
+@keyframes onui-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.onui-dialog {
+  position: fixed;
+  z-index: 2147483647;
+  display: flex;
+  flex-direction: column;
+  width: 360px;
+  max-height: 500px;
+  padding: 16px;
+  background: var(--onui-bg);
+  backdrop-filter: blur(var(--onui-blur));
+  -webkit-backdrop-filter: blur(var(--onui-blur));
+  border: 1px solid var(--onui-border);
+  border-radius: 16px;
+  box-shadow: var(--onui-shadow);
+  font-family: var(--onui-font-family);
+  animation: onui-dialog-in 200ms ease;
+  overflow: hidden;
+  pointer-events: auto; /* Required because shadow host has pointer-events: none */
+}
+
+@keyframes onui-dialog-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.onui-dialog-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.onui-dialog-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--onui-text);
+}
+
+.onui-dialog-subtitle {
+  font-size: 12px;
+  color: var(--onui-text-muted);
+  margin-top: 4px;
+}
+
+.onui-dialog-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--onui-text-secondary);
+  cursor: pointer;
+  transition: all 100ms ease;
+}
+
+.onui-dialog-close:hover {
+  background: var(--onui-bg-hover);
+  color: var(--onui-text);
+}
+
+.onui-dialog-close svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Comment textarea */
+.onui-textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px;
+  background: var(--onui-bg-glass);
+  border: 1px solid var(--onui-border);
+  border-radius: 10px;
+  color: var(--onui-text);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+  transition: border-color 150ms ease;
+}
+
+.onui-textarea::placeholder {
+  color: var(--onui-text-muted);
+}
+
+.onui-textarea:hover {
+  border-color: var(--onui-border-hover);
+}
+
+.onui-textarea:focus {
+  border-color: var(--onui-primary);
+}
+
+/* Intent/Severity selectors */
+.onui-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.onui-selector-label {
+  width: 100%;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--onui-text-secondary);
+  margin-bottom: 4px;
+}
+
+.onui-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--onui-border);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--onui-text-secondary);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  transition: all 140ms ease;
+}
+
+.onui-chip:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--onui-border-hover);
+  color: var(--onui-text);
+  transform: translateY(-1px);
+}
+
+.onui-chip:active {
+  transform: translateY(0);
+}
+
+.onui-chip:focus-visible {
+  border-color: var(--onui-primary);
+  box-shadow:
+    0 0 0 2px rgba(99, 102, 241, 0.45),
+    0 0 0 4px rgba(99, 102, 241, 0.18);
+}
+
+.onui-chip.is-selected {
+  background: var(--onui-primary);
+  border-color: var(--onui-primary);
+  color: white;
+  box-shadow:
+    0 0 0 1px rgba(129, 140, 248, 0.55),
+    0 8px 20px -10px rgba(99, 102, 241, 0.65);
+}
+
+.onui-chip.is-selected:hover {
+  background: var(--onui-primary-hover);
+  border-color: var(--onui-primary-hover);
+  color: white;
+}
+
+.onui-chip.is-selected:focus-visible {
+  box-shadow:
+    0 0 0 2px rgba(129, 140, 248, 0.6),
+    0 0 0 4px rgba(129, 140, 248, 0.25),
+    0 8px 20px -10px rgba(99, 102, 241, 0.65);
+}
+
+.onui-chip svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Computed styles display */
+.onui-styles {
+  margin-top: 12px;
+  padding: 10px;
+  background: var(--onui-bg-glass);
+  border: 1px solid var(--onui-border);
+  border-radius: 8px;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.onui-styles-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--onui-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.onui-style-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.onui-style-key {
+  color: var(--onui-text-muted);
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+}
+
+.onui-style-value {
+  color: var(--onui-text);
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+  text-align: right;
+  word-break: break-all;
+}
+
+/* Dialog footer */
+.onui-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--onui-border);
+}
+
+.onui-btn-secondary {
+  padding: 10px 16px;
+  border: 1px solid var(--onui-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--onui-text-secondary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 100ms ease;
+}
+
+.onui-btn-secondary:hover {
+  background: var(--onui-bg-hover);
+  color: var(--onui-text);
+}
+
+.onui-btn-primary {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: var(--onui-primary);
+  color: white;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 100ms ease;
+}
+
+.onui-btn-primary:hover {
+  background: var(--onui-primary-hover);
+}
+
+.onui-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* React component path display */
+.onui-component-path {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  margin-top: 12px;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--onui-primary-hover);
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.onui-component-path svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* Custom scrollbar */
+.onui-dialog ::-webkit-scrollbar {
+  width: 6px;
+}
+
+.onui-dialog ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.onui-dialog ::-webkit-scrollbar-thumb {
+  background: var(--onui-border);
+  border-radius: 3px;
+}
+
+.onui-dialog ::-webkit-scrollbar-thumb:hover {
+  background: var(--onui-border-hover);
+}
+
+/* ============================================
+   REFRESH BANNER - Extension updated notification
+   ============================================ */
+
+.onui-refresh-banner {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 16px;
+  background: var(--onui-warning, #f59e0b);
+  color: #000;
+  border-radius: 8px;
+  font-family: var(--onui-font-family);
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 2147483647;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  animation: onui-panel-in 0.15s ease;
+}
+
+.onui-refresh-banner button {
+  padding: 6px 12px;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 12px;
+  font-family: inherit;
+}
+
+.onui-refresh-banner button:hover {
+  background: #333;
+}

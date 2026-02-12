@@ -1,0 +1,262 @@
+:root {
+  --popup-primary: #6366f1;
+  --popup-primary-hover: #4f46e5;
+  --popup-text: #1f2937;
+  --popup-text-secondary: #6b7280;
+  --popup-bg: #ffffff;
+  --popup-bg-secondary: #f9fafb;
+  --popup-border: #e5e7eb;
+  --popup-error: #ef4444;
+  --popup-radius: 6px;
+  --popup-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 320px;
+  min-height: 200px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  color: var(--popup-text);
+  background: var(--popup-bg);
+}
+
+.popup {
+  padding: 16px;
+}
+
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--popup-border);
+}
+
+.popup-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.popup-logo {
+  width: 24px;
+  height: 24px;
+}
+
+.popup-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  background: var(--popup-primary);
+  border-radius: 12px;
+}
+
+.popup-section {
+  margin-bottom: 16px;
+}
+
+.popup-section-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--popup-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.popup-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: var(--popup-bg-secondary);
+  border-radius: var(--popup-radius);
+  cursor: pointer;
+}
+
+.popup-toggle:hover {
+  background: var(--popup-border);
+}
+
+.popup-toggle.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.popup-toggle.disabled:hover {
+  background: var(--popup-bg-secondary);
+}
+
+.popup-toggle-label {
+  font-weight: 500;
+}
+
+.popup-toggle-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: var(--popup-border);
+  border-radius: 12px;
+  transition: background 0.2s;
+}
+
+.popup-toggle-switch.active {
+  background: var(--popup-primary);
+}
+
+.popup-toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: var(--popup-shadow);
+  transition: transform 0.2s;
+}
+
+.popup-toggle-switch.active::after {
+  transform: translateX(20px);
+}
+
+.popup-stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--popup-bg-secondary);
+  border-radius: var(--popup-radius);
+  margin-bottom: 8px;
+}
+
+.popup-stat-label {
+  color: var(--popup-text-secondary);
+}
+
+.popup-stat-value {
+  font-weight: 600;
+}
+
+.popup-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 40px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  background: var(--popup-primary);
+  border: none;
+  border-radius: var(--popup-radius);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.popup-btn:hover {
+  background: var(--popup-primary-hover);
+}
+
+.popup-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.popup-btn-secondary {
+  color: var(--popup-text);
+  background: var(--popup-bg-secondary);
+  border: 1px solid var(--popup-border);
+}
+
+.popup-btn-secondary:hover {
+  background: var(--popup-border);
+}
+
+.popup-btn-danger {
+  color: white;
+  background: var(--popup-error);
+}
+
+.popup-btn-danger:hover {
+  background: #dc2626;
+}
+
+.popup-footer {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--popup-border);
+  text-align: center;
+  font-size: 12px;
+  color: var(--popup-text-secondary);
+}
+
+.popup-footer a {
+  color: var(--popup-primary);
+  text-decoration: none;
+}
+
+.popup-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Settings styles */
+.popup-setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--popup-bg-secondary);
+  border-radius: var(--popup-radius);
+}
+
+.popup-setting-label {
+  font-weight: 500;
+  color: var(--popup-text);
+}
+
+.popup-setting-select {
+  padding: 6px 10px;
+  font-size: 13px;
+  color: var(--popup-text);
+  background: var(--popup-bg);
+  border: 1px solid var(--popup-border);
+  border-radius: var(--popup-radius);
+  cursor: pointer;
+  outline: none;
+}
+
+.popup-setting-select:focus {
+  border-color: var(--popup-primary);
+}
+
+.popup-setting-description {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--popup-text-secondary);
+  padding: 0 4px;
+}
+
+.popup-helper-text {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--popup-text-secondary);
+  padding: 0 4px;
+}

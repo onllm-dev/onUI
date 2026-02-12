@@ -15,7 +15,7 @@ export async function checkNativeHostManifest(): Promise<CheckResult> {
         name: 'native.manifest',
         status: 'error',
         message: `Manifest is invalid at ${manifestPath}`,
-        fix: 'Rerun setup: pnpm --filter @onui/mcp-server setup',
+        fix: 'Rerun setup: pnpm --filter @onui/mcp-server run setup',
       };
     }
 
@@ -33,7 +33,7 @@ export async function checkNativeHostManifest(): Promise<CheckResult> {
       name: 'native.manifest',
       status: 'warning',
       message: `Native manifest not found at ${manifestPath}`,
-      fix: 'Run setup to install native host: pnpm --filter @onui/mcp-server setup',
+      fix: 'Run setup to install native host: pnpm --filter @onui/mcp-server run setup',
     };
   }
 }

@@ -26,7 +26,38 @@ Lightweight Chrome extension + local MCP bridge for annotation-first UI pair pro
 
 ## 🚀 Quick Start (Chrome Stable)
 
-### 1) Clone + build extension
+### 1) One-command install (latest release)
+
+macOS / Linux:
+
+```bash
+curl -fsSL https://github.com/onllm-dev/onUI/releases/latest/download/install.sh | bash
+```
+
+Windows (PowerShell):
+
+```powershell
+irm https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 | iex
+```
+
+The installer:
+- Downloads the latest extension build artifact.
+- Builds and configures the local MCP bridge (`onui-local`).
+- Runs doctor checks and prints status.
+
+### 2) Final manual Chrome step (required)
+
+Chrome still requires manual unpacked extension loading for this beta flow:
+1. Open `chrome://extensions`
+2. Enable **Developer mode**
+3. Click **Load unpacked**
+4. Select the extension folder printed by the installer
+
+> Chromium removed branded Chrome command-line sideload flags in April 2025.
+> - https://groups.google.com/a/chromium.org/g/chromium-extensions/c/1-g8EFx2BBY
+> - https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked
+
+### 3) Build from source (alternative)
 
 ```bash
 git clone https://github.com/onllm-dev/onUI.git
@@ -35,12 +66,7 @@ pnpm install
 pnpm build
 ```
 
-### 2) Load in Chrome
-
-1. Open `chrome://extensions`
-2. Enable **Developer mode**
-3. Click **Load unpacked**
-4. Select `packages/extension/dist`
+Load `packages/extension/dist` in `chrome://extensions` using **Load unpacked**.
 
 ## 🧠 Usage
 
@@ -67,6 +93,7 @@ pnpm doctor:mcp
 See:
 - `docs/mcp-setup.md`
 - `docs/doctor.md`
+- `docs/release.md`
 
 ## 🛠️ Development
 

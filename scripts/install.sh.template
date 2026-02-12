@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+VERSION="__ONUI_VERSION__"
+REPO="onllm-dev/onUI"
+TAG="v${VERSION}"
+RELEASE_BASE_URL="https://github.com/${REPO}/releases/download/${TAG}"
+EXT_ZIP_NAME="onui-extension-v${VERSION}.zip"
+
+ONUI_HOME="${ONUI_HOME:-${HOME}/.onui}"
+EXTENSION_DIR="${ONUI_HOME}/extension/v${VERSION}"
+SOURCE_DIR="${ONUI_HOME}/src/onUI-v${VERSION}"
+ZIP_PATH="${ONUI_HOME}/${EXT_ZIP_NAME}"
+
+log() {
+  printf '[onui-install] %s\n' "$1"
+}
+
+fail() {
+  printf '[onui-install][error] %s\n' "$1" >&2
+  exit 1
+}
+
+need_cmd() {
+  command -v "$1" >/dev/null 2>&1 || fail "Required command not found: $1"
+}
+
+check_node_version() {
+  local major
+  major="$(node -p "process.versions.node.split('.')[0]")"
+  if [ "${major}" -lt 20 ]; then
+    fail "Node.js 20+ is required. Found: $(node -v)"
+  fi
+}
+
+log "Checking prerequisites"
+need_cmd curl
+need_cmd unzip
+need_cmd git
+need_cmd node
+need_cmd pnpm
+check_node_version
+
+mkdir -p "${ONUI_HOME}"
+
+log "Downloading extension artifact for ${TAG}"
+curl -fsSL "${RELEASE_BASE_URL}/${EXT_ZIP_NAME}" -o "${ZIP_PATH}"
+
+log "Installing extension files into ${EXTENSION_DIR}"
+rm -rf "${EXTENSION_DIR}"
+mkdir -p "${EXTENSION_DIR}"
+unzip -q "${ZIP_PATH}" -d "${EXTENSION_DIR}"
+
+log "Fetching source at ${TAG}"
+rm -rf "${SOURCE_DIR}"
+git clone --depth 1 --branch "${TAG}" "https://github.com/${REPO}.git" "${SOURCE_DIR}"
+
+log "Building MCP server and running setup"
+(
+  cd "${SOURCE_DIR}"
+  pnpm install --frozen-lockfile
+  pnpm --filter @onui/core run build
+  pnpm --filter @onui/mcp-server run build
+  pnpm --filter @onui/mcp-server run setup
+
+  set +e
+  pnpm --filter @onui/mcp-server run doctor
+  doctor_exit=$?
+  set -e
+
+  if [ "${doctor_exit}" -eq 2 ]; then
+    fail "MCP doctor reported critical failures. Please fix and rerun install."
+  fi
+
+  if [ "${doctor_exit}" -eq 1 ]; then
+    log "MCP doctor reported warnings. Installation completed, but review warnings above."
+  fi
+)
+
+case "$(uname -s)" in
+  Darwin)
+    open "chrome://extensions" >/dev/null 2>&1 || true
+    ;;
+  Linux)
+    xdg-open "chrome://extensions" >/dev/null 2>&1 || true
+    ;;
+esac
+
+cat <<MSG
+
+onUI install completed for version ${VERSION}.
+
+Final manual step required (Chrome policy):
+1. Open chrome://extensions
+2. Enable Developer mode
+3. Click Load unpacked
+4. Select: ${EXTENSION_DIR}
+
+Note: Since April 2025, branded Chrome no longer supports command-line sideload flags for normal users.
+
+MSG

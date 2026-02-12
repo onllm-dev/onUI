@@ -11,8 +11,9 @@
     "dev": "pnpm --filter @onui/extension dev",
     "build": "pnpm --filter @onui/extension build",
     "build:mcp": "pnpm --filter @onui/mcp-server build",
-    "setup:mcp": "pnpm --filter @onui/mcp-server setup",
-    "doctor:mcp": "pnpm --filter @onui/mcp-server doctor",
+    "setup:mcp": "pnpm --filter @onui/mcp-server run setup",
+    "doctor:mcp": "pnpm --filter @onui/mcp-server run doctor",
+    "sync:version": "node scripts/sync-version.mjs",
     "lint": "eslint packages/*/src --ext .ts,.tsx"
   },
   "devDependencies": {

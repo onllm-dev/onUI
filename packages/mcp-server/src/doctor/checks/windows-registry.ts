@@ -29,6 +29,6 @@ export async function checkWindowsRegistry(): Promise<CheckResult> {
     name: 'native.windows_registry',
     status: 'error',
     message: `Windows registry key missing: ${regPath}`,
-    fix: 'Run setup to register native host: pnpm --filter @onui/mcp-server setup',
+    fix: 'Run setup to register native host: pnpm --filter @onui/mcp-server run setup',
   };
 }

@@ -15,10 +15,10 @@ export interface AnnotationRecord extends Annotation {
 }
 
 export interface MetadataPatch {
-  status?: AnnotationStatus;
-  intent?: AnnotationIntent;
-  severity?: AnnotationSeverity;
-  comment?: string;
+  status?: AnnotationStatus | undefined;
+  intent?: AnnotationIntent | undefined;
+  severity?: AnnotationSeverity | undefined;
+  comment?: string | undefined;
 }
 
 export interface ChangeRecord {
@@ -180,7 +180,10 @@ export function updateAnnotationMetadata(
 
   const updated: AnnotationRecord = {
     ...annotation,
-    ...patch,
+    ...(patch.status !== undefined ? { status: patch.status } : {}),
+    ...(patch.intent !== undefined ? { intent: patch.intent } : {}),
+    ...(patch.severity !== undefined ? { severity: patch.severity } : {}),
+    ...(patch.comment !== undefined ? { comment: patch.comment } : {}),
     updatedAt: now,
   };
 

@@ -187,7 +187,7 @@ export function Popup() {
       </div>
 
       <div class="popup-footer">
-        <span>onUI v1.0.0 • </span>
+        <span>onUI v1.0.1 • </span>
         <a href="https://github.com/anthropics/onui" target="_blank" rel="noopener">
           GitHub
         </a>

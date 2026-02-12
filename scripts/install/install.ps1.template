@@ -96,21 +96,29 @@ function Install-Mcp {
     pnpm --filter @onui/core run build
     pnpm --filter @onui/mcp-server run build
     pnpm --filter @onui/mcp-server run setup
+    $doctorCliPath = Join-Path $McpSrcDir "packages/mcp-server/dist/bin/onui-cli.js"
+    if (-not (Test-Path $doctorCliPath)) {
+      Write-Log "MCP doctor CLI not found at $doctorCliPath; skipping doctor validation."
+      return
+    }
+
     $doctorJson = ""
     try {
-      $doctorJson = pnpm --filter @onui/mcp-server run doctor -- --json 2>$null
+      $doctorJson = & node $doctorCliPath doctor --json 2>$null
     } catch {
-      $doctorJson = $_.Exception.Message
+      $doctorJson = ""
     }
 
     $doctorStatus = "unknown"
-    try {
-      $doctorReport = $doctorJson | ConvertFrom-Json
-      if ($doctorReport.status) {
-        $doctorStatus = [string]$doctorReport.status
+    if ($doctorJson) {
+      try {
+        $doctorReport = $doctorJson | ConvertFrom-Json
+        if ($doctorReport.status) {
+          $doctorStatus = [string]$doctorReport.status
+        }
+      } catch {
+        $doctorStatus = "unknown"
       }
-    } catch {
-      $doctorStatus = "unknown"
     }
 
     if ($doctorStatus -eq "error") {

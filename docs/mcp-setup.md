@@ -18,8 +18,10 @@ curl -fsSL https://github.com/onllm-dev/onUI/releases/latest/download/install.sh
 
 Windows (PowerShell):
 ```powershell
-$env:ONUI_INSTALL_MCP=1; irm https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 | iex
+irm https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 | iex
 ```
+
+When prompted, enter `y` to enable MCP setup.
 
 Manual source setup is also supported:
 

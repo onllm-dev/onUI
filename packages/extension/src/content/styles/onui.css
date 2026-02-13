@@ -3,7 +3,8 @@
    ============================================ */
 
 /* Dark theme variables for OnUI */
-.onui-toolbar {
+.onui-toolbar,
+.onui-dialog {
   --onui-bg: rgba(23, 23, 23, 0.95);
   --onui-bg-glass: rgba(38, 38, 38, 0.8);
   --onui-bg-hover: rgba(83, 87, 255, 0.16);

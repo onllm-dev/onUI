@@ -82,6 +82,9 @@ export function OnUIToolbar({
   // Escape key to exit annotation mode
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.defaultPrevented) {
+        return;
+      }
       if (e.key === 'Escape' && isAnnotateMode) {
         onToggleAnnotateMode();
       }

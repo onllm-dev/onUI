@@ -52,3 +52,4 @@ coverage/
 # Misc
 *.png
 !landing-page/assets/onui-mark-128.png
+*.mov

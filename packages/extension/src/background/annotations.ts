@@ -6,6 +6,7 @@ import {
 } from './native-sync';
 
 const LOG_PREFIX = '[onUI][background][annotations]';
+const MAX_BULK_ANNOTATIONS = 25;
 
 /**
  * Generate a unique ID for annotations
@@ -61,6 +62,56 @@ export class AnnotationManager {
     });
 
     return annotation;
+  }
+
+  /**
+   * Create multiple annotations in a single write/sync operation
+   */
+  async createAnnotationsBulk(inputs: AnnotationInput[]): Promise<Annotation[]> {
+    const startedAt = Date.now();
+
+    if (inputs.length === 0) {
+      throw new Error('No annotation inputs provided');
+    }
+
+    if (inputs.length > MAX_BULK_ANNOTATIONS) {
+      throw new Error(`Cannot create more than ${MAX_BULK_ANNOTATIONS} annotations at once`);
+    }
+
+    const pageUrl = inputs[0]?.pageUrl;
+    if (!pageUrl) {
+      throw new Error('Missing pageUrl in annotation input');
+    }
+
+    if (!inputs.every((input) => input.pageUrl === pageUrl)) {
+      throw new Error('Bulk annotations must target the same pageUrl');
+    }
+
+    const annotations = await storageService.getAnnotations(pageUrl);
+    const now = Date.now();
+
+    const createdAnnotations: Annotation[] = inputs.map((input, index) => ({
+      ...input,
+      id: generateId(),
+      createdAt: now + index,
+      updatedAt: now + index,
+    }));
+
+    annotations.push(...createdAnnotations);
+    await storageService.setAnnotations(pageUrl, annotations);
+    await syncPageSnapshotWithNativeHost(pageUrl, annotations);
+
+    // Update badge
+    await this.updateBadge(pageUrl, annotations.length);
+
+    console.log(`${LOG_PREFIX} createAnnotationsBulk`, {
+      pageUrl,
+      createdCount: createdAnnotations.length,
+      totalForUrl: annotations.length,
+      durationMs: Date.now() - startedAt,
+    });
+
+    return createdAnnotations;
   }
 
   /**

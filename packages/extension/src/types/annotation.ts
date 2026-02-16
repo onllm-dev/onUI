@@ -27,6 +27,8 @@ export interface Annotation {
   tagName: string;
   /** User comment describing the element */
   comment: string;
+  /** Shared identifier for annotations created in a single batch operation */
+  batchId?: string;
   /** Selected text content (if any) */
   selectedText?: string;
   /** Element bounding box */

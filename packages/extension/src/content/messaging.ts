@@ -3,6 +3,7 @@ import type {
   TabRuntimeState,
   GetAnnotationsResponse,
   CreateAnnotationResponse,
+  CreateAnnotationsBulkResponse,
   UpdateAnnotationResponse,
   DeleteAnnotationResponse,
   ClearAnnotationsResponse,
@@ -197,6 +198,18 @@ export async function createAnnotation(
   return sendMessage({
     type: 'CREATE_ANNOTATION',
     payload: input,
+  });
+}
+
+/**
+ * Create multiple annotations in one operation
+ */
+export async function createAnnotationsBulk(
+  inputs: AnnotationInput[]
+): Promise<CreateAnnotationsBulkResponse> {
+  return sendMessage({
+    type: 'CREATE_ANNOTATIONS_BULK',
+    payload: { inputs },
   });
 }
 

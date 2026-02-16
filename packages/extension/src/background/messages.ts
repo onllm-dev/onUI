@@ -171,6 +171,15 @@ async function handleMessage(
       return { success: true, data: annotation };
     }
 
+    case 'CREATE_ANNOTATIONS_BULK': {
+      const annotations = await annotationManager.createAnnotationsBulk(message.payload.inputs);
+      console.log(`${LOG_PREFIX} ${requestId} CREATE_ANNOTATIONS_BULK completed`, {
+        durationMs: Date.now() - receivedAt,
+        count: annotations.length,
+      });
+      return { success: true, data: annotations };
+    }
+
     case 'UPDATE_ANNOTATION': {
       const updated = await annotationManager.updateAnnotation(
         message.payload.id,
@@ -285,6 +294,12 @@ async function handleMessage(
       if (!tabId) {
         console.warn(`${LOG_PREFIX} ${requestId} SET_ANNOTATE_MODE no tabId`);
         return { success: false, error: 'Missing tabId for SET_ANNOTATE_MODE' };
+      }
+
+      // MV3 service workers are ephemeral; recover enabled state when content is already active.
+      const current = stateManager.getTabRuntimeState(tabId);
+      if (!current.enabled && message.meta?.source === 'content') {
+        stateManager.setTabEnabled(tabId, true);
       }
 
       const state = stateManager.setAnnotateMode(tabId, message.payload.annotateMode);

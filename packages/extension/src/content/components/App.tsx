@@ -1,13 +1,24 @@
-import { useState, useCallback } from 'preact/hooks';
+import { useState, useCallback, useEffect } from 'preact/hooks';
 import type { Annotation, AnnotationIntent, AnnotationSeverity, OutputLevel } from '@/types';
 import { ElementHighlight } from './ElementHighlight';
 import { AnnotationMarkers } from './AnnotationMarkers';
 import { OnUIToolbar } from './OnUIToolbar';
 import { OnUIDialog } from './OnUIDialog';
+import { ErrorToast } from './ErrorToast';
 import { useElementHover } from '../hooks/useElementHover';
 import { useAnnotations } from '../hooks/useAnnotations';
 import { useTabRuntimeState } from '../hooks/useTabRuntimeState';
 import { createAnnotationFromElement } from '../utils/create-annotation';
+
+const MAX_MULTI_SELECTION = 25;
+
+function isSameElement(a: Element, b: Element): boolean {
+  return a.isSameNode(b);
+}
+
+function createBatchId(): string {
+  return `batch-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
 
 /**
  * Main application component gated by per-tab enabled state
@@ -48,6 +59,7 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
   const {
     annotations,
     addAnnotation,
+    addAnnotationsBulk,
     updateAnnotation,
     deleteAnnotation,
     clearAnnotations,
@@ -60,17 +72,111 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
   // Element being annotated (popup open)
   const [selectedElement, setSelectedElement] = useState<Element | null>(null);
 
+  // Multi-select targets before shift is released
+  const [pendingMultiSelection, setPendingMultiSelection] = useState<Element[]>([]);
+
+  // Multi-select targets shown in dialog
+  const [multiDialogTargets, setMultiDialogTargets] = useState<Element[]>([]);
+
   // Annotation being edited
   const [editingAnnotation, setEditingAnnotation] = useState<Annotation | null>(null);
 
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Clear temporary state when annotate mode is disabled
+  useEffect(() => {
+    if (!annotateMode) {
+      setSelectedElement(null);
+      setPendingMultiSelection([]);
+      setMultiDialogTargets([]);
+      setEditingAnnotation(null);
+    }
+  }, [annotateMode]);
+
   // Handle element click in annotation mode
-  const handleElementClick = useCallback((element: Element) => {
-    setSelectedElement(element);
+  const handleElementClick = useCallback((element: Element, event: MouseEvent) => {
     setEditingAnnotation(null);
+
+    if (event.shiftKey) {
+      setSelectedElement(null);
+      setMultiDialogTargets([]);
+
+      setPendingMultiSelection((prev) => {
+        const alreadySelected = prev.some((candidate) => isSameElement(candidate, element));
+        if (alreadySelected) {
+          return prev.filter((candidate) => !isSameElement(candidate, element));
+        }
+
+        if (prev.length >= MAX_MULTI_SELECTION) {
+          setToastMessage(`You can select up to ${MAX_MULTI_SELECTION} elements per batch.`);
+          return prev;
+        }
+
+        return [...prev, element];
+      });
+      return;
+    }
+
+    setPendingMultiSelection([]);
+    setMultiDialogTargets([]);
+    setSelectedElement(element);
   }, []);
 
+  // Open multi-target dialog when shift is released
+  useEffect(() => {
+    const handleShiftRelease = (event: KeyboardEvent) => {
+      if (event.key !== 'Shift') return;
+      if (!annotateMode) return;
+      if (selectedElement || editingAnnotation || multiDialogTargets.length > 0) return;
+      if (pendingMultiSelection.length === 0) return;
+
+      const connectedTargets = pendingMultiSelection.filter((element) => element.isConnected);
+      setPendingMultiSelection([]);
+
+      if (connectedTargets.length === 0) {
+        setToastMessage('Selected elements are no longer available.');
+        return;
+      }
+
+      setMultiDialogTargets(connectedTargets);
+    };
+
+    document.addEventListener('keyup', handleShiftRelease);
+    return () => document.removeEventListener('keyup', handleShiftRelease);
+  }, [
+    annotateMode,
+    selectedElement,
+    editingAnnotation,
+    pendingMultiSelection,
+    multiDialogTargets.length,
+  ]);
+
+  // Esc while selecting clears pending multi targets before toolbar exits annotate mode
+  useEffect(() => {
+    const handleEscapeClearSelection = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      if (!annotateMode) return;
+      if (pendingMultiSelection.length === 0) return;
+      if (selectedElement || editingAnnotation || multiDialogTargets.length > 0) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      setPendingMultiSelection([]);
+    };
+
+    document.addEventListener('keydown', handleEscapeClearSelection, true);
+    return () => document.removeEventListener('keydown', handleEscapeClearSelection, true);
+  }, [
+    annotateMode,
+    pendingMultiSelection.length,
+    selectedElement,
+    editingAnnotation,
+    multiDialogTargets.length,
+  ]);
+
   const { hoveredElement } = useElementHover({
-    enabled: annotateMode && !selectedElement && !editingAnnotation,
+    enabled: annotateMode && !selectedElement && !editingAnnotation && multiDialogTargets.length === 0,
     onElementClick: handleElementClick,
   });
 
@@ -86,10 +192,55 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
         severity: data.severity,
       });
 
-      await addAnnotation(input);
+      const created = await addAnnotation(input);
+      if (!created) {
+        setToastMessage('Failed to add annotation. Please try again.');
+        return;
+      }
+
       setSelectedElement(null);
+      setToastMessage(null);
     },
     [selectedElement, addAnnotation]
+  );
+
+  // Handle save multi annotation batch with shared intent/severity/comment
+  const handleSaveMultiAnnotation = useCallback(
+    async (data: { comment: string; intent?: AnnotationIntent | undefined; severity?: AnnotationSeverity | undefined }) => {
+      if (multiDialogTargets.length === 0) return;
+
+      const connectedTargets = multiDialogTargets.filter((target) => target.isConnected);
+      if (connectedTargets.length !== multiDialogTargets.length) {
+        setMultiDialogTargets(connectedTargets);
+      }
+
+      if (connectedTargets.length === 0) {
+        setMultiDialogTargets([]);
+        setToastMessage('Selected elements are no longer available.');
+        return;
+      }
+
+      const batchId = createBatchId();
+      const inputs = connectedTargets.map((element) =>
+        createAnnotationFromElement({
+          element,
+          comment: data.comment,
+          batchId,
+          intent: data.intent,
+          severity: data.severity,
+        })
+      );
+
+      const created = await addAnnotationsBulk(inputs);
+      if (created.length === 0) {
+        setToastMessage('Failed to add annotations. Please try again.');
+        return;
+      }
+
+      setMultiDialogTargets([]);
+      setToastMessage(null);
+    },
+    [multiDialogTargets, addAnnotationsBulk]
   );
 
   // Handle update existing annotation with optional intent/severity
@@ -114,6 +265,8 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
   // Handle cancel popup
   const handleCancelPopup = useCallback(() => {
     setSelectedElement(null);
+    setPendingMultiSelection([]);
+    setMultiDialogTargets([]);
     setEditingAnnotation(null);
   }, []);
 
@@ -121,6 +274,8 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
   const handleMarkerClick = useCallback((annotation: Annotation) => {
     setEditingAnnotation(annotation);
     setSelectedElement(null);
+    setPendingMultiSelection([]);
+    setMultiDialogTargets([]);
   }, []);
 
   // Get element for editing annotation (find by selector)
@@ -139,10 +294,15 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
     await clearAnnotations();
   }, [clearAnnotations]);
 
+  // Remove a target from an open multi-target dialog
+  const handleRemoveMultiTarget = useCallback((target: Element) => {
+    setMultiDialogTargets((prev) => prev.filter((candidate) => !isSameElement(candidate, target)));
+  }, []);
+
   const editingElement = editingAnnotation ? getEditingElement() : null;
 
   // Hide toolbar when dialog is open to prevent z-index conflicts
-  const isDialogOpen = selectedElement !== null || editingAnnotation !== null;
+  const isDialogOpen = selectedElement !== null || editingAnnotation !== null || multiDialogTargets.length > 0;
 
   return (
     <>
@@ -169,7 +329,7 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
       )}
 
       {/* Element highlight when hovering */}
-      {annotateMode && hoveredElement && !selectedElement && !editingAnnotation && (
+      {annotateMode && hoveredElement && !selectedElement && !editingAnnotation && multiDialogTargets.length === 0 && (
         <ElementHighlight element={hoveredElement} />
       )}
 
@@ -177,6 +337,24 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
       {selectedElement && (
         <ElementHighlight element={selectedElement} selected />
       )}
+
+      {/* Highlight pending multi-selected elements */}
+      {pendingMultiSelection.map((element, index) => (
+        <ElementHighlight
+          key={`pending-${element.tagName.toLowerCase()}-${index}`}
+          element={element}
+          selected
+        />
+      ))}
+
+      {/* Highlight multi-dialog targets */}
+      {multiDialogTargets.map((element, index) => (
+        <ElementHighlight
+          key={`multi-${element.tagName.toLowerCase()}-${index}`}
+          element={element}
+          selected
+        />
+      ))}
 
       {/* Highlight element being edited */}
       {editingElement && (
@@ -188,6 +366,17 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
         <OnUIDialog
           element={selectedElement}
           onSave={handleSaveAnnotation}
+          onCancel={handleCancelPopup}
+        />
+      )}
+
+      {/* Multi annotation dialog */}
+      {multiDialogTargets.length > 0 && (
+        <OnUIDialog
+          element={multiDialogTargets[0]!}
+          multiTargets={multiDialogTargets}
+          onRemoveTarget={handleRemoveMultiTarget}
+          onSave={handleSaveMultiAnnotation}
           onCancel={handleCancelPopup}
         />
       )}
@@ -211,6 +400,13 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
         annotations={annotations}
         onMarkerClick={handleMarkerClick}
       />
+
+      {toastMessage && (
+        <ErrorToast
+          message={toastMessage}
+          onDismiss={() => setToastMessage(null)}
+        />
+      )}
     </>
   );
 }

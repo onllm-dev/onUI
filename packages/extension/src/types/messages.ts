@@ -7,6 +7,7 @@ import type { Settings } from './settings';
 export type MessageType =
   | 'GET_ANNOTATIONS'
   | 'CREATE_ANNOTATION'
+  | 'CREATE_ANNOTATIONS_BULK'
   | 'UPDATE_ANNOTATION'
   | 'DELETE_ANNOTATION'
   | 'CLEAR_ANNOTATIONS'
@@ -56,6 +57,16 @@ export interface GetAnnotationsMessage extends BaseMessage {
 export interface CreateAnnotationMessage extends BaseMessage {
   type: 'CREATE_ANNOTATION';
   payload: AnnotationInput;
+}
+
+/**
+ * Create multiple annotations in one operation
+ */
+export interface CreateAnnotationsBulkMessage extends BaseMessage {
+  type: 'CREATE_ANNOTATIONS_BULK';
+  payload: {
+    inputs: AnnotationInput[];
+  };
 }
 
 /**
@@ -181,6 +192,7 @@ export interface GetSyncStatusMessage extends BaseMessage {
 export type Message =
   | GetAnnotationsMessage
   | CreateAnnotationMessage
+  | CreateAnnotationsBulkMessage
   | UpdateAnnotationMessage
   | DeleteAnnotationMessage
   | ClearAnnotationsMessage
@@ -208,6 +220,7 @@ export interface MessageResponse<T = unknown> {
  */
 export type GetAnnotationsResponse = MessageResponse<Annotation[]>;
 export type CreateAnnotationResponse = MessageResponse<Annotation>;
+export type CreateAnnotationsBulkResponse = MessageResponse<Annotation[]>;
 export type UpdateAnnotationResponse = MessageResponse<Annotation>;
 export type DeleteAnnotationResponse = MessageResponse<void>;
 export type ClearAnnotationsResponse = MessageResponse<void>;

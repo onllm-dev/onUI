@@ -74,19 +74,23 @@ const InfoIcon = () => (
   </svg>
 );
 
+interface OnUISaveData {
+  comment: string;
+  intent?: AnnotationIntent | undefined;
+  severity?: AnnotationSeverity | undefined;
+}
+
 interface OnUIDialogProps {
   element: Element;
-  onSave: (data: {
-    comment: string;
-    intent?: AnnotationIntent | undefined;
-    severity?: AnnotationSeverity | undefined;
-  }) => void;
+  onSave: (data: OnUISaveData) => void;
   onCancel: () => void;
   initialComment?: string;
   initialIntent?: AnnotationIntent | undefined;
   initialSeverity?: AnnotationSeverity | undefined;
   isEditing?: boolean;
   onDelete?: () => void;
+  multiTargets?: Element[] | undefined;
+  onRemoveTarget?: ((target: Element) => void) | undefined;
 }
 
 export function OnUIDialog({
@@ -98,6 +102,8 @@ export function OnUIDialog({
   initialSeverity,
   isEditing = false,
   onDelete,
+  multiTargets,
+  onRemoveTarget,
 }: OnUIDialogProps) {
   const tick = useViewportTick();
   const [comment, setComment] = useState(initialComment);
@@ -109,6 +115,11 @@ export function OnUIDialog({
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
+
+  const isMultiCreate = !isEditing && multiTargets !== undefined;
+  const targetCount = multiTargets?.length ?? 1;
+  const hasTargets = targetCount > 0;
+  const canSave = Boolean(comment.trim()) && (!isMultiCreate || hasTargets);
 
   // Store current values in refs for stable keydown handler
   const commentRef = useRef(comment);
@@ -130,14 +141,19 @@ export function OnUIDialog({
 
   // Extract element info on mount
   useEffect(() => {
-    setStylesInfo(getComputedStylesInfo(element));
-    setReactPath(getReactComponents(element));
+    if (isMultiCreate) {
+      setStylesInfo(null);
+      setReactPath(null);
+    } else {
+      setStylesInfo(getComputedStylesInfo(element));
+      setReactPath(getReactComponents(element));
+    }
 
     // Focus textarea
     setTimeout(() => {
       textareaRef.current?.focus();
     }, 100);
-  }, [element]);
+  }, [element, isMultiCreate]);
 
   // Position dialog near element
   useEffect(() => {
@@ -179,9 +195,15 @@ export function OnUIDialog({
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
         onCancel();
       } else if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-        // Use refs to get current values without recreating the listener
+        const shouldSave = Boolean(commentRef.current.trim()) && (!isMultiCreate || hasTargets);
+        if (!shouldSave) {
+          return;
+        }
+
         onSave({
           comment: commentRef.current,
           intent: intentRef.current,
@@ -192,14 +214,29 @@ export function OnUIDialog({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onCancel, onSave]); // Only stable callback deps
+  }, [onCancel, onSave, isMultiCreate, hasTargets]);
 
   const handleSave = useCallback(() => {
+    if (!canSave) {
+      return;
+    }
+
     onSave({ comment, intent, severity });
-  }, [comment, intent, severity, onSave]);
+  }, [canSave, comment, intent, severity, onSave]);
 
   const elementPath = getElementPath(element);
   const selector = getCssSelector(element);
+  const title = isEditing
+    ? 'Edit Annotation'
+    : isMultiCreate
+      ? `Add ${targetCount} Annotation${targetCount === 1 ? '' : 's'}`
+      : 'Add Annotation';
+  const subtitle = isMultiCreate ? `${targetCount} selected elements` : elementPath;
+  const saveLabel = isEditing
+    ? 'Update'
+    : isMultiCreate
+      ? `Add ${targetCount} Annotation${targetCount === 1 ? '' : 's'}`
+      : 'Add Annotation';
 
   const intentOptions: { value: AnnotationIntent; label: string; icon: () => preact.JSX.Element }[] = [
     { value: 'fix', label: 'Fix', icon: WrenchIcon },
@@ -224,10 +261,10 @@ export function OnUIDialog({
         <div class="onui-dialog-header">
           <div>
             <div class="onui-dialog-title">
-              {isEditing ? 'Edit Annotation' : 'Add Annotation'}
+              {title}
             </div>
             <div class="onui-dialog-subtitle" title={selector}>
-              {elementPath}
+              {subtitle}
             </div>
           </div>
           <button class="onui-dialog-close" onClick={onCancel}>
@@ -235,8 +272,50 @@ export function OnUIDialog({
           </button>
         </div>
 
+        {isMultiCreate && (
+          <div class="onui-targets">
+            <div class="onui-targets-title">
+              Selected Targets
+            </div>
+            {multiTargets && multiTargets.length > 0 ? (
+              <ul class="onui-target-list">
+                {multiTargets.map((target, index) => {
+                  const targetPath = getElementPath(target);
+                  const targetSelector = getCssSelector(target);
+
+                  return (
+                    <li class="onui-target-item" key={`${targetSelector}-${index}`}>
+                      <div class="onui-target-content">
+                        <div class="onui-target-path" title={targetSelector}>
+                          {targetPath}
+                        </div>
+                        <div class="onui-target-selector" title={targetSelector}>
+                          {targetSelector}
+                        </div>
+                      </div>
+                      {onRemoveTarget && (
+                        <button
+                          class="onui-target-remove"
+                          aria-label={`Remove target ${index + 1}`}
+                          onClick={() => onRemoveTarget(target)}
+                        >
+                          <CloseIcon />
+                        </button>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <div class="onui-target-empty">
+                No targets selected.
+              </div>
+            )}
+          </div>
+        )}
+
         {/* React Component Path */}
-        {reactPath && (
+        {!isMultiCreate && reactPath && (
           <div class="onui-component-path">
             <ReactIcon />
             <span>{reactPath}</span>
@@ -291,46 +370,49 @@ export function OnUIDialog({
           ))}
         </div>
 
-        {/* Computed Styles Toggle */}
-        <button
-          class="onui-btn"
-          onClick={() => setShowStyles(!showStyles)}
-          style={{ marginTop: '12px' }}
-        >
-          {showStyles ? 'Hide Styles' : 'Show Computed Styles'}
-        </button>
+        {/* Computed styles are only shown for single-element mode */}
+        {!isMultiCreate && (
+          <>
+            <button
+              class="onui-btn"
+              onClick={() => setShowStyles(!showStyles)}
+              style={{ marginTop: '12px' }}
+            >
+              {showStyles ? 'Hide Styles' : 'Show Computed Styles'}
+            </button>
 
-        {/* Computed Styles Display */}
-        {showStyles && stylesInfo && (
-          <div class="onui-styles">
-            <div class="onui-styles-title">Layout</div>
-            {Object.entries(stylesInfo.layout).map(([key, value]) => (
-              <div class="onui-style-row" key={key}>
-                <span class="onui-style-key">{key}</span>
-                <span class="onui-style-value">{value}</span>
-              </div>
-            ))}
+            {showStyles && stylesInfo && (
+              <div class="onui-styles">
+                <div class="onui-styles-title">Layout</div>
+                {Object.entries(stylesInfo.layout).map(([key, value]) => (
+                  <div class="onui-style-row" key={key}>
+                    <span class="onui-style-key">{key}</span>
+                    <span class="onui-style-value">{value}</span>
+                  </div>
+                ))}
 
-            <div class="onui-styles-title" style={{ marginTop: '12px' }}>
-              Typography
-            </div>
-            {Object.entries(stylesInfo.typography).map(([key, value]) => (
-              <div class="onui-style-row" key={key}>
-                <span class="onui-style-key">{key}</span>
-                <span class="onui-style-value">{value}</span>
-              </div>
-            ))}
+                <div class="onui-styles-title" style={{ marginTop: '12px' }}>
+                  Typography
+                </div>
+                {Object.entries(stylesInfo.typography).map(([key, value]) => (
+                  <div class="onui-style-row" key={key}>
+                    <span class="onui-style-key">{key}</span>
+                    <span class="onui-style-value">{value}</span>
+                  </div>
+                ))}
 
-            <div class="onui-styles-title" style={{ marginTop: '12px' }}>
-              Colors
-            </div>
-            {Object.entries(stylesInfo.colors).map(([key, value]) => (
-              <div class="onui-style-row" key={key}>
-                <span class="onui-style-key">{key}</span>
-                <span class="onui-style-value">{value}</span>
+                <div class="onui-styles-title" style={{ marginTop: '12px' }}>
+                  Colors
+                </div>
+                {Object.entries(stylesInfo.colors).map(([key, value]) => (
+                  <div class="onui-style-row" key={key}>
+                    <span class="onui-style-key">{key}</span>
+                    <span class="onui-style-value">{value}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
 
         {/* Footer */}
@@ -350,9 +432,9 @@ export function OnUIDialog({
           <button
             class="onui-btn-primary"
             onClick={handleSave}
-            disabled={!comment.trim()}
+            disabled={!canSave}
           >
-            {isEditing ? 'Update' : 'Add Annotation'}
+            {saveLabel}
           </button>
         </div>
       </div>

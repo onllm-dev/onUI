@@ -1,8 +1,11 @@
+:host,
 :root {
   /* Colors */
   --onui-primary: #6366f1;
   --onui-primary-hover: #4f46e5;
   --onui-primary-active: #4338ca;
+  --onui-marker-bg: #2563eb;
+  --onui-marker-text: #ffffff;
 
   --onui-bg: #ffffff;
   --onui-bg-secondary: #f9fafb;

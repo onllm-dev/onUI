@@ -5,7 +5,7 @@ import { throttle } from '../utils/throttle';
 interface UseElementHoverOptions {
   enabled: boolean;
   throttleMs?: number;
-  onElementClick?: (element: Element) => void;
+  onElementClick?: (element: Element, event: MouseEvent) => void;
 }
 
 interface UseElementHoverReturn {
@@ -98,7 +98,7 @@ export function useElementHover(
       if (element) {
         e.preventDefault();
         e.stopPropagation();
-        onElementClickRef.current(element);
+        onElementClickRef.current(element, e);
       }
     },
     [] // Stable - uses refs internally

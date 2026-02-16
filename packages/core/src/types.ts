@@ -20,6 +20,7 @@ export interface Annotation {
   elementPath: string;
   tagName: string;
   comment: string;
+  batchId?: string;
   selectedText?: string;
   boundingBox: BoundingBox;
   createdAt: number;

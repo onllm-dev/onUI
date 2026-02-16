@@ -107,7 +107,9 @@ export function useTabRuntimeState(): UseTabRuntimeStateReturn {
     try {
       const response = await setAnnotateMode(nextAnnotateMode);
       if (response.success && response.data) {
-        setEnabledState(response.data.enabled);
+        // Never let annotate-mode updates accidentally disable the tab state in content.
+        // This guards against stale background state after MV3 worker restarts.
+        setEnabledState((prev) => prev || response.data.enabled);
         setAnnotateModeState(response.data.annotateMode);
       } else {
         setAnnotateModeState(previousAnnotateMode);

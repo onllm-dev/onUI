@@ -8,9 +8,18 @@ Powered by [onLLM.dev](https://onllm.dev).
 [![GitHub stars](https://img.shields.io/github/stars/onllm-dev/onUI?style=for-the-badge)](https://github.com/onllm-dev/onUI/stargazers)
 [![GitHub license](https://img.shields.io/github/license/onllm-dev/onUI?style=for-the-badge)](https://github.com/onllm-dev/onUI/blob/main/LICENSE)
 [![Chrome Stable](https://img.shields.io/badge/Browser-Chrome_Stable-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://www.google.com/chrome/)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/tushar_s)
 
 > [!NOTE]
 > `onUI` is now stable and production-ready.
+
+### Demo
+
+<a href="https://github.com/onllm-dev/onUI/raw/main/landing-page/assets/onui-demo.mp4">
+  <img src="https://github.com/onllm-dev/onUI/raw/main/landing-page/assets/onui-demo-preview.gif" alt="onUI demo — click to play full video" width="720">
+</a>
+
+<sub>Click the preview above to play the full demo video.</sub>
 
 ## ✨ Why onUI
 
@@ -60,7 +69,10 @@ Then load it in Chrome:
 2. Click the onUI extension icon.
 3. Enable `This Tab`.
 4. Use the on-page launcher to annotate and manage notes.
-5. Copy exported output from the toolbar.
+5. Hold `Shift` and click multiple elements to batch-select targets.
+6. Release `Shift` to open a shared annotation dialog for selected targets.
+7. Save once to create one annotation per selected element.
+8. Copy exported output from the toolbar.
 
 ## 🔌 Local MCP Setup
 
@@ -87,6 +99,50 @@ pnpm build:mcp
 pnpm setup:mcp
 pnpm doctor:mcp
 ```
+
+### Manual JSON config for custom MCP routers/clients
+
+If your MCP router uses an object-style `mcpServers` map, use this canonical entry:
+
+```json
+{
+  "mcpServers": {
+    "onui-local": {
+      "command": "node",
+      "args": [
+        "/ABSOLUTE/PATH/TO/onUI/packages/mcp-server/dist/bin/onui-cli.js",
+        "mcp"
+      ]
+    }
+  }
+}
+```
+
+Use an **absolute path** for `onui-cli.js` (relative paths are often rejected or resolved incorrectly by routers).
+
+If your router uses a list/array schema instead of an object map, adapt the same command/args shape like this:
+
+```json
+{
+  "servers": [
+    {
+      "name": "onui-local",
+      "command": "node",
+      "args": [
+        "/ABSOLUTE/PATH/TO/onUI/packages/mcp-server/dist/bin/onui-cli.js",
+        "mcp"
+      ]
+    }
+  ]
+}
+```
+
+> The list example above is a schema adaptation pattern, not a claim about any specific router's exact key names.
+
+Setup/verification notes:
+- Run `pnpm build:mcp` first so `packages/mcp-server/dist/bin/onui-cli.js` exists.
+- Keep the server entry name as `onui-local`.
+- Run `pnpm doctor:mcp` after wiring config to confirm local setup health.
 
 - Auto-registers `onui-local` for Claude Code and Codex when those CLIs are installed.
 - Browser support in this release: **Chrome stable only**.
@@ -163,7 +219,13 @@ packages/
 If onUI is useful to you, please star the repo:
 https://github.com/onllm-dev/onUI
 
-It helps other users discover the product. 
+It helps other users discover the product.
+
+<a href="https://buymeacoffee.com/tushar_s" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="48"></a>
+
+### Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=onllm-dev/onUI&type=Timeline)](https://star-history.com/#onllm-dev/onUI&Timeline)
 
 ## 📄 License
 

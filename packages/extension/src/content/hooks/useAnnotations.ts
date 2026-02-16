@@ -3,6 +3,7 @@ import type { Annotation, AnnotationInput, AnnotationUpdate } from '@/types';
 import {
   getAnnotations as fetchAnnotations,
   createAnnotation,
+  createAnnotationsBulk as createAnnotationsBulkApi,
   updateAnnotation as updateAnnotationApi,
   deleteAnnotation as deleteAnnotationApi,
   clearAnnotations as clearAnnotationsApi,
@@ -17,6 +18,7 @@ interface UseAnnotationsReturn {
   error: string | null;
   isContextInvalid: boolean;
   addAnnotation: (input: AnnotationInput) => Promise<Annotation | null>;
+  addAnnotationsBulk: (inputs: AnnotationInput[]) => Promise<Annotation[]>;
   updateAnnotation: (id: string, update: AnnotationUpdate) => Promise<boolean>;
   deleteAnnotation: (id: string) => Promise<boolean>;
   clearAnnotations: () => Promise<boolean>;
@@ -150,6 +152,64 @@ export function useAnnotations(): UseAnnotationsReturn {
         });
         setError(errorMessage);
         return null;
+      } finally {
+        const durationMs = Date.now() - startedAt;
+        console.log(`${LOG_PREFIX} ${operationId} end`, { durationMs });
+      }
+    },
+    [nextOperationId]
+  );
+
+  // Add multiple annotations in a single operation
+  const addAnnotationsBulk = useCallback(
+    async (inputs: AnnotationInput[]): Promise<Annotation[]> => {
+      const operationId = nextOperationId('add-bulk');
+
+      if (isContextInvalidRef.current) {
+        console.warn(`${LOG_PREFIX} ${operationId} skipped: context already invalid`);
+        return [];
+      }
+
+      if (inputs.length === 0) {
+        console.warn(`${LOG_PREFIX} ${operationId} skipped: no inputs`);
+        return [];
+      }
+
+      const startedAt = Date.now();
+      console.log(`${LOG_PREFIX} ${operationId} start`, {
+        count: inputs.length,
+        pageUrl: inputs[0]?.pageUrl,
+      });
+
+      try {
+        setError(null);
+
+        const response = await createAnnotationsBulkApi(inputs);
+        console.log(`${LOG_PREFIX} ${operationId} response`, {
+          success: response.success,
+          count: response.data?.length,
+          error: response.error,
+        });
+
+        if (response.success && response.data) {
+          const createdAnnotations = response.data;
+          setAnnotations((prev) => [...prev, ...createdAnnotations]);
+          return createdAnnotations;
+        }
+
+        setError(response.error || 'Failed to add annotations');
+        return [];
+      } catch (err) {
+        if (isContextInvalidatedError(err)) {
+          setIsContextInvalid(true);
+        }
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        console.error(`${LOG_PREFIX} ${operationId} failed`, {
+          error: errorMessage,
+          contextInvalidated: isContextInvalidatedError(err),
+        });
+        setError(errorMessage);
+        return [];
       } finally {
         const durationMs = Date.now() - startedAt;
         console.log(`${LOG_PREFIX} ${operationId} end`, { durationMs });
@@ -313,6 +373,7 @@ export function useAnnotations(): UseAnnotationsReturn {
     error,
     isContextInvalid,
     addAnnotation,
+    addAnnotationsBulk,
     updateAnnotation,
     deleteAnnotation,
     clearAnnotations,

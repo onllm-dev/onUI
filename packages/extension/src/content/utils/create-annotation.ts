@@ -9,6 +9,7 @@ interface CreateAnnotationOptions {
   comment: string;
   selectedText?: string | undefined;
   selectionRect?: DOMRect;
+  batchId?: string | undefined;
   intent?: AnnotationIntent | undefined;
   severity?: AnnotationSeverity | undefined;
 }
@@ -19,7 +20,7 @@ interface CreateAnnotationOptions {
 export function createAnnotationFromElement(
   options: CreateAnnotationOptions
 ): AnnotationInput {
-  const { element, comment, selectedText, selectionRect, intent, severity } = options;
+  const { element, comment, selectedText, selectionRect, batchId, intent, severity } = options;
 
   const selector = getCssSelector(element);
   const elementPath = getElementPath(element);
@@ -72,6 +73,7 @@ export function createAnnotationFromElement(
     elementPath,
     tagName: element.tagName.toLowerCase(),
     comment,
+    ...(batchId !== undefined && { batchId }),
     ...(selectedText !== undefined && { selectedText }),
     boundingBox,
     pageUrl: window.location.href,

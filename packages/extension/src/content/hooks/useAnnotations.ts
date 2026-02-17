@@ -107,6 +107,39 @@ export function useAnnotations(): UseAnnotationsReturn {
     void refreshAnnotations();
   }, [refreshAnnotations]);
 
+  useEffect(() => {
+    const normalizeUrl = (url: string): string => {
+      try {
+        const parsed = new URL(url);
+        return `${parsed.origin}${parsed.pathname.replace(/\/$/, '')}${parsed.search}`;
+      } catch {
+        return url;
+      }
+    };
+
+    const currentUrl = normalizeUrl(window.location.href);
+    const handleStorageChange = (
+      changes: Record<string, chrome.storage.StorageChange>,
+      areaName: string
+    ) => {
+      if (areaName !== 'local') {
+        return;
+      }
+
+      const annotationsChange = changes.onui_annotations;
+      if (!annotationsChange) {
+        return;
+      }
+
+      const nextAll = annotationsChange.newValue as Record<string, Annotation[]> | undefined;
+      const nextAnnotations = nextAll?.[currentUrl] ?? [];
+      setAnnotations(nextAnnotations);
+    };
+
+    chrome.storage.onChanged.addListener(handleStorageChange);
+    return () => chrome.storage.onChanged.removeListener(handleStorageChange);
+  }, []);
+
   // Add a new annotation
   const addAnnotation = useCallback(
     async (input: AnnotationInput): Promise<Annotation | null> => {

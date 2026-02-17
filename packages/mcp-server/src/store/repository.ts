@@ -2,6 +2,8 @@ import type { Annotation, OutputLevel, ReportContext } from '@onui/core';
 import { generateReport } from '@onui/core';
 import { readStore, withStore } from './io.js';
 import {
+  clearPageAnnotations,
+  deleteAnnotation,
   deletePageSnapshot,
   getChangesSince,
   normalizeUrl,
@@ -66,6 +68,34 @@ export class StoreRepository {
       return {
         store: next,
         result: { pageUrl: normalizedUrl },
+      };
+    });
+  }
+
+  async deleteAnnotation(annotationId: string): Promise<{ id: string; pageUrl: string; remainingOnPage: number }> {
+    return withStore(this.storePath, async (store) => {
+      const { store: next, removed, remainingOnPage } = deleteAnnotation(store, annotationId);
+      return {
+        store: next,
+        result: {
+          id: removed.id,
+          pageUrl: removed.pageUrl,
+          remainingOnPage,
+        },
+      };
+    });
+  }
+
+  async clearPageAnnotations(pageUrl: string): Promise<{ pageUrl: string; removedCount: number }> {
+    const normalizedUrl = normalizeUrl(pageUrl);
+    return withStore(this.storePath, async (store) => {
+      const { store: next, removedCount } = clearPageAnnotations(store, normalizedUrl);
+      return {
+        store: next,
+        result: {
+          pageUrl: normalizedUrl,
+          removedCount,
+        },
       };
     });
   }

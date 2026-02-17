@@ -2,6 +2,8 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import { runBulkUpdateAnnotationMetadataTool } from './tools/bulk-update-annotation-metadata.js';
+import { runClearPageAnnotationsTool } from './tools/clear-page-annotations.js';
+import { runDeleteAnnotationTool } from './tools/delete-annotation.js';
 import { runGetAnnotationsTool } from './tools/get-annotations.js';
 import { runGetReportTool } from './tools/get-report.js';
 import { runListPagesTool } from './tools/list-pages.js';
@@ -149,6 +151,28 @@ export async function runMcpServer(): Promise<void> {
           required: ['ids', 'patch'],
         },
       },
+      {
+        name: 'onui_delete_annotation',
+        description: 'Delete a single annotation by id.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+          },
+          required: ['id'],
+        },
+      },
+      {
+        name: 'onui_clear_page_annotations',
+        description: 'Delete all annotations for a specific page URL.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            pageUrl: { type: 'string' },
+          },
+          required: ['pageUrl'],
+        },
+      },
     ],
   }));
 
@@ -229,6 +253,20 @@ export async function runMcpServer(): Promise<void> {
                     : undefined,
               }
               : {},
+          })
+        );
+
+      case 'onui_delete_annotation':
+        return toTextResult(
+          await runDeleteAnnotationTool(repository, {
+            id: String(args.id ?? ''),
+          })
+        );
+
+      case 'onui_clear_page_annotations':
+        return toTextResult(
+          await runClearPageAnnotationsTool(repository, {
+            pageUrl: String(args.pageUrl ?? ''),
           })
         );
 

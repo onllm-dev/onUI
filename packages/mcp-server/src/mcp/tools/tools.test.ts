@@ -7,6 +7,8 @@ import { runGetReportTool } from './get-report.js';
 import { runSearchAnnotationsTool } from './search-annotations.js';
 import { runUpdateAnnotationMetadataTool } from './update-annotation-metadata.js';
 import { runBulkUpdateAnnotationMetadataTool } from './bulk-update-annotation-metadata.js';
+import { runDeleteAnnotationTool } from './delete-annotation.js';
+import { runClearPageAnnotationsTool } from './clear-page-annotations.js';
 
 function createMockAnnotation(id: string, overrides: Partial<Annotation> = {}): Annotation {
   return {
@@ -45,6 +47,8 @@ function createMockRepository(overrides: Partial<StoreRepository> = {}): StoreRe
     searchAnnotations: vi.fn().mockResolvedValue([]),
     updateAnnotationMetadata: vi.fn(),
     bulkUpdateAnnotationMetadata: vi.fn(),
+    deleteAnnotation: vi.fn(),
+    clearPageAnnotations: vi.fn(),
     getChangesSince: vi.fn(),
     ...overrides,
   } as unknown as StoreRepository;
@@ -514,5 +518,63 @@ describe('runBulkUpdateAnnotationMetadataTool', () => {
       ids: ['1', '2'],
       patch: {},
     });
+  });
+});
+
+describe('runDeleteAnnotationTool', () => {
+  it('deletes annotation by id', async () => {
+    const repository = createMockRepository({
+      deleteAnnotation: vi.fn().mockResolvedValue({
+        id: '1',
+        pageUrl: 'https://example.com/page',
+        remainingOnPage: 2,
+      }),
+    });
+
+    const result = await runDeleteAnnotationTool(repository, { id: '1' });
+
+    expect(repository.deleteAnnotation).toHaveBeenCalledWith('1');
+    expect(result).toEqual({
+      id: '1',
+      pageUrl: 'https://example.com/page',
+      remainingOnPage: 2,
+    });
+  });
+
+  it('throws error when id is empty', async () => {
+    const repository = createMockRepository();
+
+    await expect(
+      runDeleteAnnotationTool(repository, { id: '' })
+    ).rejects.toThrow('id is required');
+  });
+});
+
+describe('runClearPageAnnotationsTool', () => {
+  it('clears all annotations for a page', async () => {
+    const repository = createMockRepository({
+      clearPageAnnotations: vi.fn().mockResolvedValue({
+        pageUrl: 'https://example.com/page',
+        removedCount: 3,
+      }),
+    });
+
+    const result = await runClearPageAnnotationsTool(repository, {
+      pageUrl: 'https://example.com/page',
+    });
+
+    expect(repository.clearPageAnnotations).toHaveBeenCalledWith('https://example.com/page');
+    expect(result).toEqual({
+      pageUrl: 'https://example.com/page',
+      removedCount: 3,
+    });
+  });
+
+  it('throws error when pageUrl is empty', async () => {
+    const repository = createMockRepository();
+
+    await expect(
+      runClearPageAnnotationsTool(repository, { pageUrl: '' })
+    ).rejects.toThrow('pageUrl is required');
   });
 });

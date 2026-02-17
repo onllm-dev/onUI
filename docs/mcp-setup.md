@@ -58,6 +58,15 @@ The local MCP server exposes:
 4. `onui_search_annotations`
 5. `onui_update_annotation_metadata`
 6. `onui_bulk_update_annotation_metadata`
+7. `onui_delete_annotation`
+8. `onui_clear_page_annotations`
+
+## Recommended Agent Cleanup Workflow
+
+If you want agents to process annotations and then remove them:
+1. Pull page annotations with `onui_get_annotations`.
+2. After processing each item, call `onui_delete_annotation` for the handled IDs.
+3. If all annotations on the page were handled, call `onui_clear_page_annotations` for that page URL.
 
 ## Local Data Paths
 

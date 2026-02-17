@@ -21,13 +21,33 @@ export interface MetadataPatch {
   comment?: string | undefined;
 }
 
-export interface ChangeRecord {
+interface ChangeRecordBase {
   id: string;
+  updatedAt: number;
+}
+
+export interface MetadataUpdateChangeRecord extends ChangeRecordBase {
   type: 'metadata_update';
   annotationId: string;
   patch: MetadataPatch;
-  updatedAt: number;
 }
+
+export interface AnnotationDeleteChangeRecord extends ChangeRecordBase {
+  type: 'annotation_delete';
+  annotationId: string;
+  pageUrl: string;
+}
+
+export interface PageClearChangeRecord extends ChangeRecordBase {
+  type: 'page_clear';
+  pageUrl: string;
+  annotationIds: string[];
+}
+
+export type ChangeRecord =
+  | MetadataUpdateChangeRecord
+  | AnnotationDeleteChangeRecord
+  | PageClearChangeRecord;
 
 export interface StoreSnapshot {
   version: number;
@@ -162,6 +182,111 @@ export function deletePageSnapshot(store: StoreSnapshot, pageUrl: string, now = 
   };
 }
 
+export function deleteAnnotation(
+  store: StoreSnapshot,
+  annotationId: string,
+  now = Date.now()
+): {
+  store: StoreSnapshot;
+  removed: AnnotationRecord;
+  remainingOnPage: number;
+} {
+  const removed = store.annotationsById[annotationId];
+  if (!removed) {
+    throw new Error(`Annotation not found: ${annotationId}`);
+  }
+
+  const normalizedUrl = normalizeUrl(removed.pageUrl);
+  const currentPage = store.pages[normalizedUrl];
+
+  const annotationsById = { ...store.annotationsById };
+  delete annotationsById[annotationId];
+
+  const pages = { ...store.pages };
+  let remainingOnPage = 0;
+
+  if (currentPage) {
+    const nextAnnotationIds = currentPage.annotationIds.filter((id) => id !== annotationId);
+    remainingOnPage = nextAnnotationIds.length;
+
+    if (nextAnnotationIds.length > 0) {
+      pages[normalizedUrl] = {
+        ...currentPage,
+        annotationIds: nextAnnotationIds,
+        updatedAt: now,
+      };
+    } else {
+      delete pages[normalizedUrl];
+    }
+  }
+
+  const change: AnnotationDeleteChangeRecord = {
+    id: `${now}-${Math.random().toString(36).slice(2, 8)}`,
+    type: 'annotation_delete',
+    annotationId,
+    pageUrl: normalizedUrl,
+    updatedAt: now,
+  };
+
+  return {
+    removed,
+    remainingOnPage,
+    store: {
+      ...store,
+      updatedAt: now,
+      pages,
+      annotationsById,
+      changeLog: [...store.changeLog, change].slice(-5000),
+    },
+  };
+}
+
+export function clearPageAnnotations(
+  store: StoreSnapshot,
+  pageUrl: string,
+  now = Date.now()
+): {
+  store: StoreSnapshot;
+  removedCount: number;
+} {
+  const normalizedUrl = normalizeUrl(pageUrl);
+  const existingPage = store.pages[normalizedUrl];
+  if (!existingPage) {
+    return {
+      store,
+      removedCount: 0,
+    };
+  }
+
+  const annotationIds = [...existingPage.annotationIds];
+  const annotationsById = { ...store.annotationsById };
+  for (const id of annotationIds) {
+    delete annotationsById[id];
+  }
+
+  const pages = { ...store.pages };
+  delete pages[normalizedUrl];
+
+  const change: PageClearChangeRecord = {
+    id: `${now}-${Math.random().toString(36).slice(2, 8)}`,
+    type: 'page_clear',
+    pageUrl: normalizedUrl,
+    annotationIds,
+    updatedAt: now,
+  };
+
+  return {
+    removedCount: annotationIds.length,
+    store: {
+      ...store,
+      updatedAt: now,
+      pages,
+      annotationsById,
+      changeLog: [...store.changeLog, change].slice(-5000),
+    },
+  };
+}
+
 export function updateAnnotationMetadata(
   store: StoreSnapshot,
   annotationId: string,
@@ -187,7 +312,7 @@ export function updateAnnotationMetadata(
     updatedAt: now,
   };
 
-  const change: ChangeRecord = {
+  const change: MetadataUpdateChangeRecord = {
     id: `${now}-${Math.random().toString(36).slice(2, 8)}`,
     type: 'metadata_update',
     annotationId,

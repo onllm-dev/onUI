@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
+  clearPageAnnotations,
   createEmptyStore,
+  deleteAnnotation,
   deletePageSnapshot,
   getChangesSince,
   updateAnnotationMetadata,
@@ -81,5 +83,40 @@ describe('store schema operations', () => {
     const changes = getChangesSince(store, 1);
     expect(changes).toHaveLength(1);
     expect(changes[0]?.annotationId).toBe('1');
+  });
+
+  it('deletes a single annotation and appends delete change', () => {
+    const seeded = upsertPageSnapshot(createEmptyStore(), {
+      pageUrl: 'https://example.com/a',
+      pageTitle: 'A',
+      annotations: [createAnnotation('1')],
+    });
+
+    const { store, remainingOnPage } = deleteAnnotation(seeded, '1', 3);
+    expect(remainingOnPage).toBe(0);
+    expect(store.annotationsById['1']).toBeUndefined();
+    expect(store.pages['https://example.com/a']).toBeUndefined();
+
+    const changes = getChangesSince(store, 0);
+    expect(changes).toHaveLength(1);
+    expect(changes[0]?.type).toBe('annotation_delete');
+  });
+
+  it('clears page annotations and appends page_clear change', () => {
+    const seeded = upsertPageSnapshot(createEmptyStore(), {
+      pageUrl: 'https://example.com/a',
+      pageTitle: 'A',
+      annotations: [createAnnotation('1'), createAnnotation('2')],
+    });
+
+    const { store, removedCount } = clearPageAnnotations(seeded, 'https://example.com/a', 4);
+    expect(removedCount).toBe(2);
+    expect(store.pages['https://example.com/a']).toBeUndefined();
+    expect(store.annotationsById['1']).toBeUndefined();
+    expect(store.annotationsById['2']).toBeUndefined();
+
+    const changes = getChangesSince(store, 0);
+    expect(changes).toHaveLength(1);
+    expect(changes[0]?.type).toBe('page_clear');
   });
 });

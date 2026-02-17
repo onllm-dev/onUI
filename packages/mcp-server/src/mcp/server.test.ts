@@ -372,6 +372,60 @@ describe('StoreRepository integration', () => {
     });
   });
 
+  describe('deleteAnnotation', () => {
+    it('deletes a single annotation by id', async () => {
+      await setupTestStore(storePath, [
+        createTestAnnotation('1'),
+        createTestAnnotation('2'),
+      ]);
+
+      const result = await repository.deleteAnnotation('1');
+      expect(result).toEqual({
+        id: '1',
+        pageUrl: 'https://example.com/test',
+        remainingOnPage: 1,
+      });
+
+      const annotations = await repository.getAnnotations('https://example.com/test');
+      expect(annotations).toHaveLength(1);
+      expect(annotations[0]?.id).toBe('2');
+    });
+
+    it('throws when annotation does not exist', async () => {
+      await setupTestStore(storePath, [createTestAnnotation('1')]);
+
+      await expect(repository.deleteAnnotation('missing')).rejects.toThrow('Annotation not found');
+    });
+  });
+
+  describe('clearPageAnnotations', () => {
+    it('clears all annotations for a page', async () => {
+      await setupTestStore(storePath, [
+        createTestAnnotation('1'),
+        createTestAnnotation('2'),
+      ]);
+
+      const result = await repository.clearPageAnnotations('https://example.com/test');
+      expect(result).toEqual({
+        pageUrl: 'https://example.com/test',
+        removedCount: 2,
+      });
+
+      const annotations = await repository.getAnnotations('https://example.com/test');
+      expect(annotations).toEqual([]);
+    });
+
+    it('returns removedCount=0 when page is missing', async () => {
+      await setupTestStore(storePath);
+
+      const result = await repository.clearPageAnnotations('https://example.com/missing');
+      expect(result).toEqual({
+        pageUrl: 'https://example.com/missing',
+        removedCount: 0,
+      });
+    });
+  });
+
   describe('getChangesSince', () => {
     it('returns empty changes for fresh store', async () => {
       await setupTestStore(storePath, [createTestAnnotation('1')]);
@@ -394,6 +448,24 @@ describe('StoreRepository integration', () => {
       expect(changes[0]?.annotationId).toBe('1');
       expect(changes[0]?.patch.status).toBe('resolved');
       expect(latest).toBeGreaterThan(0);
+    });
+
+    it('returns annotation_delete change after delete', async () => {
+      await setupTestStore(storePath, [createTestAnnotation('1')]);
+      await repository.deleteAnnotation('1');
+
+      const { changes } = await repository.getChangesSince(0);
+      expect(changes).toHaveLength(1);
+      expect(changes[0]?.type).toBe('annotation_delete');
+    });
+
+    it('returns page_clear change after clear page', async () => {
+      await setupTestStore(storePath, [createTestAnnotation('1')]);
+      await repository.clearPageAnnotations('https://example.com/test');
+
+      const { changes } = await repository.getChangesSince(0);
+      expect(changes).toHaveLength(1);
+      expect(changes[0]?.type).toBe('page_clear');
     });
 
     it('filters changes by since timestamp', async () => {

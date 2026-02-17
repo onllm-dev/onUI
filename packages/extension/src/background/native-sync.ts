@@ -21,7 +21,7 @@ interface NativeResponse<T = unknown> {
   error?: string | null;
 }
 
-interface ChangeRecord {
+interface MetadataUpdateChangeRecord {
   id: string;
   type: 'metadata_update';
   annotationId: string;
@@ -33,6 +33,27 @@ interface ChangeRecord {
   };
   updatedAt: number;
 }
+
+interface AnnotationDeleteChangeRecord {
+  id: string;
+  type: 'annotation_delete';
+  annotationId: string;
+  pageUrl: string;
+  updatedAt: number;
+}
+
+interface PageClearChangeRecord {
+  id: string;
+  type: 'page_clear';
+  pageUrl: string;
+  annotationIds: string[];
+  updatedAt: number;
+}
+
+type ChangeRecord =
+  | MetadataUpdateChangeRecord
+  | AnnotationDeleteChangeRecord
+  | PageClearChangeRecord;
 
 interface GetChangesResult {
   changes: ChangeRecord[];
@@ -94,11 +115,7 @@ async function setCursor(cursor: number): Promise<void> {
   syncStatus.cursor = cursor;
 }
 
-async function applyMetadataChange(change: ChangeRecord): Promise<void> {
-  if (change.type !== 'metadata_update') {
-    return;
-  }
-
+async function applyMetadataChange(change: MetadataUpdateChangeRecord): Promise<void> {
   const pageUrl = await storageService.getAnnotationUrlById(change.annotationId);
   if (!pageUrl) {
     return;
@@ -125,6 +142,25 @@ async function applyMetadataChange(change: ChangeRecord): Promise<void> {
   };
 
   await storageService.setAnnotations(pageUrl, annotations);
+}
+
+async function applyAnnotationDeleteChange(change: AnnotationDeleteChangeRecord): Promise<void> {
+  const pageUrl = change.pageUrl || await storageService.getAnnotationUrlById(change.annotationId);
+  if (!pageUrl) {
+    return;
+  }
+
+  const annotations = await storageService.getAnnotations(pageUrl);
+  const nextAnnotations = annotations.filter((annotation) => annotation.id !== change.annotationId);
+  if (nextAnnotations.length === annotations.length) {
+    return;
+  }
+
+  await storageService.setAnnotations(pageUrl, nextAnnotations);
+}
+
+async function applyPageClearChange(change: PageClearChangeRecord): Promise<void> {
+  await storageService.setAnnotations(change.pageUrl, []);
 }
 
 export async function syncPageSnapshotWithNativeHost(
@@ -211,7 +247,19 @@ export async function pullChangesFromNativeHost(): Promise<void> {
     });
 
     for (const change of result.changes) {
-      await applyMetadataChange(change);
+      if (change.type === 'metadata_update') {
+        await applyMetadataChange(change);
+        continue;
+      }
+
+      if (change.type === 'annotation_delete') {
+        await applyAnnotationDeleteChange(change);
+        continue;
+      }
+
+      if (change.type === 'page_clear') {
+        await applyPageClearChange(change);
+      }
     }
 
     if (typeof result.latest === 'number' && result.latest > since) {

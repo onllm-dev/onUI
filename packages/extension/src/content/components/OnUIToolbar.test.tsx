@@ -12,15 +12,43 @@ vi.mock('../utils/output-generation', () => ({
   generateOutput: vi.fn(() => 'copied annotation output'),
 }));
 
+function createAnnotation(id: string): Annotation {
+  return {
+    id,
+    selector: `#annotation-${id}`,
+    elementPath: `div > #annotation-${id}`,
+    tagName: 'div',
+    comment: `Annotation ${id}`,
+    boundingBox: {
+      top: 0,
+      left: 0,
+      width: 100,
+      height: 20,
+      isFixed: false,
+    },
+    createdAt: 1,
+    updatedAt: 1,
+    pageUrl: 'https://example.com',
+    pageTitle: 'Example',
+    attributes: {},
+  };
+}
+
 function renderToolbar({
   isAnnotateMode = false,
   multiSelectCount = 0,
   onToggleAnnotateMode = vi.fn(),
+  clearOnCopy = false,
+  onClearOnCopyChange = vi.fn(),
+  onClearAnnotations = vi.fn(),
   annotations = [],
 }: {
   isAnnotateMode?: boolean;
   multiSelectCount?: number;
   onToggleAnnotateMode?: () => void;
+  clearOnCopy?: boolean;
+  onClearOnCopyChange?: (enabled: boolean) => void;
+  onClearAnnotations?: () => void | Promise<void>;
   annotations?: Annotation[];
 } = {}) {
   render(
@@ -31,7 +59,9 @@ function renderToolbar({
       annotations={annotations}
       outputLevel="standard"
       onOutputLevelChange={vi.fn()}
-      onClearAnnotations={vi.fn()}
+      clearOnCopy={clearOnCopy}
+      onClearOnCopyChange={onClearOnCopyChange}
+      onClearAnnotations={onClearAnnotations}
     />
   );
 }
@@ -73,5 +103,32 @@ describe('OnUIToolbar', () => {
     await user.keyboard('{Escape}');
 
     expect(onToggleAnnotateMode).toHaveBeenCalledTimes(1);
+  });
+
+  it('clears annotations after successful copy when clear-on-copy is enabled', async () => {
+    const onClearAnnotations = vi.fn();
+    renderToolbar({
+      clearOnCopy: true,
+      onClearAnnotations,
+      annotations: [createAnnotation('1')],
+    });
+    const user = userEvent.setup();
+
+    await user.click(screen.getByTitle('Toggle onUI panel'));
+    await user.click(screen.getByText('Copy'));
+
+    expect(onClearAnnotations).toHaveBeenCalledTimes(1);
+  });
+
+  it('updates clear-on-copy setting from settings panel checkbox', async () => {
+    const onClearOnCopyChange = vi.fn();
+    renderToolbar({ onClearOnCopyChange });
+    const user = userEvent.setup();
+
+    await user.click(screen.getByTitle('Toggle onUI panel'));
+    await user.click(screen.getByText('Settings'));
+    await user.click(screen.getByLabelText('Clear On Copy'));
+
+    expect(onClearOnCopyChange).toHaveBeenCalledWith(true);
   });
 });

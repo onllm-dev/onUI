@@ -240,6 +240,20 @@
   gap: 6px;
 }
 
+.onui-setting-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  cursor: pointer;
+}
+
+.onui-setting-checkbox {
+  margin: 0;
+  accent-color: var(--onui-primary);
+  cursor: pointer;
+}
+
 .onui-setting-label {
   font-size: 11px;
   color: var(--onui-text-secondary);

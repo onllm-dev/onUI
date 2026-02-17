@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'preact/hooks';
 import type { Annotation, AnnotationIntent, AnnotationSeverity, OutputLevel } from '@/types';
+import { getSettings, updateSettings } from '../messaging';
 import { ElementHighlight } from './ElementHighlight';
 import { AnnotationMarkers } from './AnnotationMarkers';
 import { OnUIToolbar } from './OnUIToolbar';
@@ -68,6 +69,7 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
 
   // Output level for onUI
   const [outputLevel, setOutputLevel] = useState<OutputLevel>('standard');
+  const [clearOnCopy, setClearOnCopy] = useState(false);
 
   // Element being annotated (popup open)
   const [selectedElement, setSelectedElement] = useState<Element | null>(null);
@@ -82,6 +84,25 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
   const [editingAnnotation, setEditingAnnotation] = useState<Annotation | null>(null);
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadSettings = async () => {
+      const response = await getSettings();
+      if (!mounted || !response.success || !response.data) {
+        return;
+      }
+
+      setClearOnCopy(Boolean(response.data.clearOnCopy));
+    };
+
+    void loadSettings();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   // Clear temporary state when annotate mode is disabled
   useEffect(() => {
@@ -294,6 +315,27 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
     await clearAnnotations();
   }, [clearAnnotations]);
 
+  const handleClearOnCopyChange = useCallback(
+    async (enabled: boolean) => {
+      const previous = clearOnCopy;
+      setClearOnCopy(enabled);
+
+      try {
+        const response = await updateSettings({ clearOnCopy: enabled });
+        if (response.success) {
+          return;
+        }
+
+        setClearOnCopy(previous);
+        setToastMessage(response.error || 'Failed to save clear-on-copy setting.');
+      } catch {
+        setClearOnCopy(previous);
+        setToastMessage('Failed to save clear-on-copy setting.');
+      }
+    },
+    [clearOnCopy]
+  );
+
   // Remove a target from an open multi-target dialog
   const handleRemoveMultiTarget = useCallback((target: Element) => {
     setMultiDialogTargets((prev) => prev.filter((candidate) => !isSameElement(candidate, target)));
@@ -325,6 +367,10 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
           annotations={annotations}
           outputLevel={outputLevel}
           onOutputLevelChange={setOutputLevel}
+          clearOnCopy={clearOnCopy}
+          onClearOnCopyChange={(enabled) => {
+            void handleClearOnCopyChange(enabled);
+          }}
           onClearAnnotations={handleClearAnnotations}
         />
       )}

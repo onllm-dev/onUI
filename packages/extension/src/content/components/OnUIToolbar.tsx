@@ -56,7 +56,9 @@ interface OnUIToolbarProps {
   annotations: Annotation[];
   outputLevel: OutputLevel;
   onOutputLevelChange: (level: OutputLevel) => void;
-  onClearAnnotations: () => void;
+  clearOnCopy: boolean;
+  onClearOnCopyChange: (enabled: boolean) => void;
+  onClearAnnotations: () => void | Promise<void>;
 }
 
 export function OnUIToolbar({
@@ -66,6 +68,8 @@ export function OnUIToolbar({
   annotations,
   outputLevel,
   onOutputLevelChange,
+  clearOnCopy,
+  onClearOnCopyChange,
   onClearAnnotations,
 }: OnUIToolbarProps) {
   const LOG_PREFIX = '[onUI][toolbar]';
@@ -105,13 +109,17 @@ export function OnUIToolbar({
     const success = await copyToClipboard(output);
 
     if (success) {
+      if (clearOnCopy) {
+        await Promise.resolve(onClearAnnotations());
+        console.log(`${LOG_PREFIX} clear-on-copy enabled: annotations cleared`);
+      }
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
       console.log(`${LOG_PREFIX} annotations copied to clipboard`);
     } else {
       console.error(`${LOG_PREFIX} failed to copy annotations`);
     }
-  }, [annotations, outputLevel, LOG_PREFIX]);
+  }, [annotations, outputLevel, clearOnCopy, onClearAnnotations, LOG_PREFIX]);
 
   const handleClear = useCallback(() => {
     if (annotations.length === 0) return;
@@ -205,6 +213,16 @@ export function OnUIToolbar({
                   <option value="forensic">Forensic</option>
                 </select>
               </div>
+
+              <label class="onui-setting-toggle-row">
+                <input
+                  class="onui-setting-checkbox"
+                  type="checkbox"
+                  checked={clearOnCopy}
+                  onChange={(e) => onClearOnCopyChange((e.target as HTMLInputElement).checked)}
+                />
+                <span class="onui-setting-label">Clear On Copy</span>
+              </label>
             </div>
           )}
         </div>

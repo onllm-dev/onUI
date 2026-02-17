@@ -214,7 +214,7 @@ export function Popup() {
         {(syncStatus === 'unavailable' || syncStatus === 'error') && (
           <div class="popup-mcp-setup">
             <div class="popup-helper-text">
-              Install local MCP to enable Claude Code and Codex sync.
+              Install local MCP to enable sync in compatible MCP clients.
             </div>
             <button class="popup-btn" onClick={handleCopyMcpSetupCommand}>
               {setupCommandCopied ? 'Copied setup command' : 'Copy MCP setup command'}

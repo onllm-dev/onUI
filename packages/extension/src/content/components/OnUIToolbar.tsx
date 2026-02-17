@@ -144,6 +144,14 @@ export function OnUIToolbar({
             </span>
           </button>
 
+          {isAnnotateMode && (
+            <div class="onui-inline-tip" role="status" aria-live="polite">
+              {multiSelectCount > 0
+                ? `Shift multi-select: ${multiSelectCount} selected. Release Shift to annotate all.`
+                : 'Tip: hold Shift and click to multi-select elements.'}
+            </div>
+          )}
+
           {/* Copy Button */}
           <button
             class={`onui-btn ${copySuccess ? 'active' : ''}`}
@@ -155,14 +163,6 @@ export function OnUIToolbar({
               {copySuccess ? 'Copied!' : 'Copy'}
             </span>
           </button>
-
-          {isAnnotateMode && (
-            <div class="onui-inline-tip" role="status" aria-live="polite">
-              {multiSelectCount > 0
-                ? `Shift multi-select: ${multiSelectCount} selected. Release Shift to annotate all.`
-                : 'Tip: hold Shift and click to multi-select elements.'}
-            </div>
-          )}
 
           {/* Clear Button */}
           <button

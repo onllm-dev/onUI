@@ -51,6 +51,7 @@ const CheckIcon = () => (
 
 interface OnUIToolbarProps {
   isAnnotateMode: boolean;
+  multiSelectCount: number;
   onToggleAnnotateMode: () => void;
   annotations: Annotation[];
   outputLevel: OutputLevel;
@@ -60,6 +61,7 @@ interface OnUIToolbarProps {
 
 export function OnUIToolbar({
   isAnnotateMode,
+  multiSelectCount,
   onToggleAnnotateMode,
   annotations,
   outputLevel,
@@ -153,6 +155,14 @@ export function OnUIToolbar({
               {copySuccess ? 'Copied!' : 'Copy'}
             </span>
           </button>
+
+          {isAnnotateMode && (
+            <div class="onui-inline-tip" role="status" aria-live="polite">
+              {multiSelectCount > 0
+                ? `Shift multi-select: ${multiSelectCount} selected. Release Shift to annotate all.`
+                : 'Tip: hold Shift and click to multi-select elements.'}
+            </div>
+          )}
 
           {/* Clear Button */}
           <button

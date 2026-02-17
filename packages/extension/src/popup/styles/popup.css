@@ -180,6 +180,24 @@ body {
   cursor: not-allowed;
 }
 
+.popup-mcp-setup {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--popup-border);
+}
+
+.popup-link {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--popup-primary);
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.popup-link:hover {
+  text-decoration: underline;
+}
+
 .popup-btn-secondary {
   color: var(--popup-text);
   background: var(--popup-bg-secondary);

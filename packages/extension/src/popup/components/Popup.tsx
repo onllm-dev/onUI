@@ -1,7 +1,22 @@
 import { useState, useEffect } from 'preact/hooks';
+import { copyToClipboard } from '@/content/utils/clipboard';
+
+const MCP_SETUP_DOCS_URL = 'https://github.com/onllm-dev/onUI/blob/main/docs/mcp-setup.md';
+const MCP_SETUP_COMMAND_UNIX = 'curl -fsSL https://github.com/onllm-dev/onUI/releases/latest/download/install.sh | bash -s -- --mcp';
+const MCP_SETUP_COMMAND_WINDOWS = 'irm https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 | iex';
 
 function isSupportedTabUrl(url: string): boolean {
   return url.startsWith('http://') || url.startsWith('https://');
+}
+
+function isLikelyWindowsPlatform(): boolean {
+  const ua = navigator.userAgent || '';
+  const platform = navigator.platform || '';
+  return /Windows/i.test(ua) || /Win/i.test(platform);
+}
+
+function getSetupCommand(): string {
+  return isLikelyWindowsPlatform() ? MCP_SETUP_COMMAND_WINDOWS : MCP_SETUP_COMMAND_UNIX;
 }
 
 export function Popup() {
@@ -11,6 +26,7 @@ export function Popup() {
   const [isSupportedPage, setIsSupportedPage] = useState(true);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'ok' | 'error' | 'unavailable'>('idle');
   const [syncError, setSyncError] = useState<string | null>(null);
+  const [setupCommandCopied, setSetupCommandCopied] = useState(false);
 
   // Load state from current tab
   useEffect(() => {
@@ -133,6 +149,16 @@ export function Popup() {
     }
   };
 
+  const handleCopyMcpSetupCommand = async () => {
+    const copied = await copyToClipboard(getSetupCommand());
+    if (!copied) {
+      return;
+    }
+
+    setSetupCommandCopied(true);
+    window.setTimeout(() => setSetupCommandCopied(false), 2000);
+  };
+
   if (isLoading) {
     return (
       <div class="popup">
@@ -183,6 +209,20 @@ export function Popup() {
         </div>
         {syncError && (
           <div class="popup-helper-text">{syncError}</div>
+        )}
+
+        {(syncStatus === 'unavailable' || syncStatus === 'error') && (
+          <div class="popup-mcp-setup">
+            <div class="popup-helper-text">
+              Install local MCP to enable Claude Code and Codex sync.
+            </div>
+            <button class="popup-btn" onClick={handleCopyMcpSetupCommand}>
+              {setupCommandCopied ? 'Copied setup command' : 'Copy MCP setup command'}
+            </button>
+            <a class="popup-link" href={MCP_SETUP_DOCS_URL} target="_blank" rel="noopener noreferrer">
+              Open MCP setup guide
+            </a>
+          </div>
         )}
       </div>
 

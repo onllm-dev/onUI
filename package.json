@@ -10,6 +10,8 @@
   "scripts": {
     "dev": "pnpm --filter @onui/extension dev",
     "build": "pnpm --filter @onui/extension build",
+    "test": "pnpm test:extension",
+    "test:extension": "pnpm --filter @onui/extension test",
     "build:mcp": "pnpm --filter @onui/mcp-server build",
     "setup:mcp": "pnpm --filter @onui/mcp-server run setup",
     "doctor:mcp": "pnpm --filter @onui/mcp-server run doctor",

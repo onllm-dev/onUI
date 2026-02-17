@@ -204,6 +204,18 @@
   white-space: nowrap;
 }
 
+.onui-inline-tip {
+  margin-top: 3px;
+  margin-bottom: 2px;
+  padding: 7px 8px;
+  border: 1px solid rgba(130, 141, 255, 0.32);
+  border-radius: 7px;
+  background: rgba(91, 99, 255, 0.12);
+  color: var(--onui-text-secondary);
+  font-size: 10.5px;
+  line-height: 1.35;
+}
+
 /* Divider */
 .onui-divider {
   height: 1px;

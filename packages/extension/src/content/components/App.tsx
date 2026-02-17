@@ -318,6 +318,7 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
       {!isDialogOpen && (
         <OnUIToolbar
           isAnnotateMode={annotateMode}
+          multiSelectCount={pendingMultiSelection.length}
           onToggleAnnotateMode={() => {
             void onToggleAnnotateMode();
           }}

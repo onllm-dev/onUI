@@ -20,6 +20,20 @@ pnpm install
 pnpm --filter @onui/extension build
 ```
 
+## Test
+
+Run extension UI tests:
+
+```bash
+pnpm test:extension
+```
+
+or from the extension package:
+
+```bash
+pnpm --filter @onui/extension test
+```
+
 ## Load Extension
 
 1. Open `chrome://extensions`

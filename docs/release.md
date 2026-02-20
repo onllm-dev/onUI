@@ -42,6 +42,9 @@ This command:
 Upload `onui-chrome-web-store-vX.Y.Z.zip` from `artifacts/vX.Y.Z/`.
 The CWS zip strips the `manifest.key` field automatically.
 
+Live listing:
+`https://chromewebstore.google.com/detail/onui/hllgijkdhegkpooopdhbfdjialkhlkan`
+
 ## Public Installer URLs
 
 1. `https://github.com/onllm-dev/onUI/releases/latest/download/install.sh`

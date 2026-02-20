@@ -674,6 +674,31 @@ h1 {
   margin: 0 auto;
 }
 
+.install-quick-cta {
+  max-width: min(100%, 52rem);
+  margin: 0 auto clamp(1rem, 2.5vw, 1.25rem);
+  padding: clamp(1rem, 2.5vw, 1.25rem);
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.5rem, 1.5vw, 0.75rem);
+}
+
+.install-store-btn {
+  width: fit-content;
+}
+
+.install-quick-note {
+  font-size: clamp(0.8rem, 1.75vw, 0.875rem);
+  color: var(--text-muted);
+  text-align: center;
+}
+
 .install-step-card {
   padding: clamp(1.25rem, 3vw, 1.75rem);
   background: var(--glass);

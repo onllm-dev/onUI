@@ -268,27 +268,46 @@ main {
 }
 
 .badge-store {
-  background: linear-gradient(135deg, var(--blue-bg) 0%, rgba(59, 130, 246, 0.2) 100%);
-  color: var(--blue);
-  border: 1px solid var(--blue-border);
-  box-shadow: 0 0 0 rgba(59, 130, 246, 0);
-  animation: badge-store-pulse 3s ease-in-out infinite;
+  position: relative;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(20, 184, 166, 0.26) 50%, rgba(59, 130, 246, 0.3) 100%);
+  background-size: 220% 220%;
+  color: #0b3a74;
+  border: 1px solid rgba(59, 130, 246, 0.55);
+  box-shadow:
+    0 0 0 rgba(59, 130, 246, 0),
+    0 0.4rem 1rem rgba(59, 130, 246, 0.22);
+  animation: badge-store-attention 1.8s ease-in-out infinite;
 }
 
 .badge-store:hover,
 .badge-store:focus-visible {
-  border-color: var(--blue);
-  box-shadow: 0 0.5rem 1.25rem rgba(59, 130, 246, 0.25);
+  border-color: rgba(59, 130, 246, 0.7);
+  box-shadow:
+    0 0 0 0.35rem rgba(59, 130, 246, 0.2),
+    0 0.85rem 1.85rem rgba(59, 130, 246, 0.36);
+  transform: translateY(-2px) scale(1.03);
 }
 
-@keyframes badge-store-pulse {
+@keyframes badge-store-attention {
   0%,
   100% {
-    box-shadow: 0 0 0 rgba(59, 130, 246, 0);
+    background-position: 0% 50%;
+    box-shadow:
+      0 0 0 rgba(59, 130, 246, 0),
+      0 0.4rem 1rem rgba(59, 130, 246, 0.22);
+    filter: brightness(1);
   }
   50% {
-    box-shadow: 0 0.375rem 1rem rgba(59, 130, 246, 0.18);
+    background-position: 100% 50%;
+    box-shadow:
+      0 0 0 0.4rem rgba(59, 130, 246, 0.2),
+      0 0.95rem 2rem rgba(59, 130, 246, 0.34);
+    filter: brightness(1.08);
   }
+}
+
+[data-theme="dark"] .badge-store {
+  color: #dbeafe;
 }
 
 .badge-oss {

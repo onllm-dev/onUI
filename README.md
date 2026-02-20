@@ -33,11 +33,11 @@ Powered by [onLLM.dev](https://onllm.dev).
 
 ## Install (Current)
 
-### Option A: Chrome Web Store (recommended once approved)
+### Option A: Chrome Web Store (recommended)
 
-Install directly from Chrome Web Store when listed.
+Install directly from Chrome Web Store:
 
-> Chrome Web Store extension listing is coming soon.
+https://chromewebstore.google.com/detail/onui/hllgijkdhegkpooopdhbfdjialkhlkan?authuser=0&hl=en-GB
 
 ### Option B: One-command installer from latest GitHub release
 

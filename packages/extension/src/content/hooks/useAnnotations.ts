@@ -12,6 +12,30 @@ import {
 
 const LOG_PREFIX = '[onUI][useAnnotations]';
 
+function appendUniqueById(
+  current: Annotation[],
+  incoming: Annotation[]
+): Annotation[] {
+  if (incoming.length === 0) {
+    return current;
+  }
+
+  const seen = new Set(current.map((annotation) => annotation.id));
+  const uniqueIncoming = incoming.filter((annotation) => {
+    if (seen.has(annotation.id)) {
+      return false;
+    }
+    seen.add(annotation.id);
+    return true;
+  });
+
+  if (uniqueIncoming.length === 0) {
+    return current;
+  }
+
+  return [...current, ...uniqueIncoming];
+}
+
 interface UseAnnotationsReturn {
   annotations: Annotation[];
   isLoading: boolean;
@@ -168,7 +192,7 @@ export function useAnnotations(): UseAnnotationsReturn {
 
         if (response.success && response.data) {
           const newAnnotation = response.data;
-          setAnnotations((prev) => [...prev, newAnnotation]);
+          setAnnotations((prev) => appendUniqueById(prev, [newAnnotation]));
           return newAnnotation;
         }
 
@@ -226,7 +250,7 @@ export function useAnnotations(): UseAnnotationsReturn {
 
         if (response.success && response.data) {
           const createdAnnotations = response.data;
-          setAnnotations((prev) => [...prev, ...createdAnnotations]);
+          setAnnotations((prev) => appendUniqueById(prev, createdAnnotations));
           return createdAnnotations;
         }
 

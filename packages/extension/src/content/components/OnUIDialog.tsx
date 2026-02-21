@@ -109,6 +109,7 @@ export function OnUIDialog({
   const [comment, setComment] = useState(initialComment);
   const [intent, setIntent] = useState<AnnotationIntent | undefined>(initialIntent);
   const [severity, setSeverity] = useState<AnnotationSeverity | undefined>(initialSeverity);
+  const [isSaving, setIsSaving] = useState(false);
   const [stylesInfo, setStylesInfo] = useState<ComputedStylesInfo | null>(null);
   const [reactPath, setReactPath] = useState<string | null>(null);
   const [showStyles, setShowStyles] = useState(false);
@@ -125,6 +126,7 @@ export function OnUIDialog({
   const commentRef = useRef(comment);
   const intentRef = useRef(intent);
   const severityRef = useRef(severity);
+  const isSavingRef = useRef(isSaving);
 
   // Keep refs up to date when state changes
   useEffect(() => {
@@ -138,6 +140,47 @@ export function OnUIDialog({
   useEffect(() => {
     severityRef.current = severity;
   }, [severity]);
+
+  useEffect(() => {
+    isSavingRef.current = isSaving;
+  }, [isSaving]);
+
+  const runSave = useCallback(
+    async (
+      commentValue: string,
+      intentValue: AnnotationIntent | undefined,
+      severityValue: AnnotationSeverity | undefined
+    ) => {
+      if (isSavingRef.current) {
+        return;
+      }
+
+      setIsSaving(true);
+      isSavingRef.current = true;
+
+      try {
+        await Promise.resolve(
+          onSave({
+            comment: commentValue,
+            intent: intentValue,
+            severity: severityValue,
+          })
+        );
+      } finally {
+        isSavingRef.current = false;
+        setIsSaving(false);
+      }
+    },
+    [onSave]
+  );
+
+  const handleSave = useCallback(() => {
+    if (!canSave) {
+      return;
+    }
+
+    void runSave(comment, intent, severity);
+  }, [canSave, comment, intent, severity, runSave]);
 
   // Extract element info on mount
   useEffect(() => {
@@ -191,7 +234,7 @@ export function OnUIDialog({
     dialog.style.top = `${top}px`;
   }, [element, tick]);
 
-  // Handle keyboard shortcuts - stable listener registered once
+  // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -200,29 +243,17 @@ export function OnUIDialog({
         onCancel();
       } else if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
         const shouldSave = Boolean(commentRef.current.trim()) && (!isMultiCreate || hasTargets);
-        if (!shouldSave) {
+        if (!shouldSave || isSavingRef.current) {
           return;
         }
 
-        onSave({
-          comment: commentRef.current,
-          intent: intentRef.current,
-          severity: severityRef.current,
-        });
+        void runSave(commentRef.current, intentRef.current, severityRef.current);
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onCancel, onSave, isMultiCreate, hasTargets]);
-
-  const handleSave = useCallback(() => {
-    if (!canSave) {
-      return;
-    }
-
-    onSave({ comment, intent, severity });
-  }, [canSave, comment, intent, severity, onSave]);
+  }, [onCancel, runSave, isMultiCreate, hasTargets]);
 
   const elementPath = getElementPath(element);
   const selector = getCssSelector(element);
@@ -237,6 +268,7 @@ export function OnUIDialog({
     : isMultiCreate
       ? `Add ${targetCount} Annotation${targetCount === 1 ? '' : 's'}`
       : 'Add Annotation';
+  const saveButtonLabel = isSaving ? (isEditing ? 'Updating...' : 'Saving...') : saveLabel;
 
   const intentOptions: { value: AnnotationIntent; label: string; icon: () => preact.JSX.Element }[] = [
     { value: 'fix', label: 'Fix', icon: WrenchIcon },
@@ -432,9 +464,9 @@ export function OnUIDialog({
           <button
             class="onui-btn-primary"
             onClick={handleSave}
-            disabled={!canSave}
+            disabled={!canSave || isSaving}
           >
-            {saveLabel}
+            {saveButtonLabel}
           </button>
         </div>
       </div>

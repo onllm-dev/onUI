@@ -7,7 +7,12 @@ import onuiCSS from './onui.css?inline';
  * Inject all styles into a shadow root
  */
 export function injectStyles(shadowRoot: ShadowRoot): void {
+  if (shadowRoot.querySelector('style[data-onui-styles="base"]')) {
+    return;
+  }
+
   const style = document.createElement('style');
+  style.setAttribute('data-onui-styles', 'base');
   style.textContent = `
     ${variablesCSS}
     ${toolbarCSS}

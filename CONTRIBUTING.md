@@ -38,8 +38,10 @@ pnpm --filter @onui/extension build
 ### Self-Hosted Staging Runner
 
 - The workflow also runs `Verify (Self-Hosted Staging)` on labels:
-  - `self-hosted`, `linux`, `x64`, `staging`, `onui`
-- For security, self-hosted execution is disabled for forked pull requests.
+  - `self-hosted`, `Linux`, `X64`, `staging`, `onui`
+- For security, self-hosted execution is manual only (`workflow_dispatch`).
+- Pull requests and pushes run only on GitHub-hosted runners by default.
+- See `docs/security/self-hosted-runner.md` for the hardening baseline.
 
 ## Commit Guidelines
 

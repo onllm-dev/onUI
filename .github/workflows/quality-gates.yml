@@ -54,7 +54,7 @@ jobs:
     name: Verify (Self-Hosted Staging)
     runs-on: [self-hosted, Linux, X64, staging, onui]
     timeout-minutes: 45
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+    if: ${{ github.event_name == 'workflow_dispatch' && github.repository == 'onllm-dev/onUI' }}
 
     steps:
       - name: Checkout

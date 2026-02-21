@@ -1084,6 +1084,22 @@ h1 {
   color: var(--accent);
 }
 
+.footer-links .footer-support-link {
+  color: #9a5f00;
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-border);
+  border-radius: var(--radius-full);
+  padding: 0.35rem 0.7rem;
+  transition: color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.footer-links .footer-support-link:hover {
+  color: #7c4c00;
+  border-color: var(--amber);
+  box-shadow: 0 0.35rem 0.8rem rgba(245, 158, 11, 0.2);
+  transform: translateY(-1px);
+}
+
 /* Responsive adjustments */
 @media (max-width: 48rem) {
   .nav-links a:not(.nav-github) {

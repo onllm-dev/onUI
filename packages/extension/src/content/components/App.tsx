@@ -21,6 +21,20 @@ function createBatchId(): string {
   return `batch-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+interface SaveDialogData {
+  comment: string;
+  intent?: AnnotationIntent | undefined;
+  severity?: AnnotationSeverity | undefined;
+}
+
+function toAnnotationUpdate(data: SaveDialogData) {
+  return {
+    comment: data.comment,
+    ...(data.intent !== undefined ? { intent: data.intent } : {}),
+    ...(data.severity !== undefined ? { severity: data.severity } : {}),
+  };
+}
+
 /**
  * Main application component gated by per-tab enabled state
  */
@@ -203,7 +217,7 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
 
   // Handle save new annotation with optional intent/severity
   const handleSaveAnnotation = useCallback(
-    async (data: { comment: string; intent?: AnnotationIntent | undefined; severity?: AnnotationSeverity | undefined }) => {
+    async (data: SaveDialogData) => {
       if (!selectedElement) return;
 
       const input = createAnnotationFromElement({
@@ -227,7 +241,7 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
 
   // Handle save multi annotation batch with shared intent/severity/comment
   const handleSaveMultiAnnotation = useCallback(
-    async (data: { comment: string; intent?: AnnotationIntent | undefined; severity?: AnnotationSeverity | undefined }) => {
+    async (data: SaveDialogData) => {
       if (multiDialogTargets.length === 0) return;
 
       const connectedTargets = multiDialogTargets.filter((target) => target.isConnected);
@@ -266,10 +280,10 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
 
   // Handle update existing annotation with optional intent/severity
   const handleUpdateAnnotation = useCallback(
-    async (data: { comment: string; intent?: AnnotationIntent | undefined; severity?: AnnotationSeverity | undefined }) => {
+    async (data: SaveDialogData) => {
       if (!editingAnnotation) return;
 
-      await updateAnnotation(editingAnnotation.id, data);
+      await updateAnnotation(editingAnnotation.id, toAnnotationUpdate(data));
       setEditingAnnotation(null);
     },
     [editingAnnotation, updateAnnotation]

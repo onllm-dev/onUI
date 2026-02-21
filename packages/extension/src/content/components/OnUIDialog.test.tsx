@@ -24,9 +24,9 @@ describe('OnUIDialog', () => {
     target.id = 'submit';
     document.body.appendChild(target);
 
-    let resolveSave: (() => void) | null = null;
+    let resolveSave: (() => void) | undefined;
     const savePromise = new Promise<void>((resolve) => {
-      resolveSave = resolve;
+      resolveSave = () => resolve();
     });
     const onSave = vi.fn(() => savePromise);
 
@@ -54,7 +54,10 @@ describe('OnUIDialog', () => {
     await user.click(savingButton);
     expect(onSave).toHaveBeenCalledTimes(1);
 
-    resolveSave?.();
+    if (!resolveSave) {
+      throw new Error('Save resolver was not initialized');
+    }
+    resolveSave();
 
     await waitFor(() => {
       expect((screen.getByRole('button', { name: 'Add Annotation' }) as HTMLButtonElement).disabled).toBe(false);

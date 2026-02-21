@@ -201,8 +201,8 @@ Release actions:
 
 ```bash
 pnpm install
-pnpm build
-pnpm build:mcp
+pnpm check
+pnpm test:coverage
 ```
 
 ## 🗂️ Repository Structure

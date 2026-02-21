@@ -83,6 +83,10 @@ function setSyncStatus(update: Partial<SyncStatus>): void {
   Object.assign(syncStatus, update);
 }
 
+function clearSyncStatusError(): void {
+  delete syncStatus.lastError;
+}
+
 function isHostUnavailableError(errorMessage: string): boolean {
   return (
     errorMessage.includes('Specified native messaging host not found') ||
@@ -179,10 +183,10 @@ export async function syncPageSnapshotWithNativeHost(
       },
     });
 
+    clearSyncStatusError();
     setSyncStatus({
       status: 'ok',
       lastSyncAt: Date.now(),
-      lastError: undefined,
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown native sync error';
@@ -203,10 +207,10 @@ export async function deletePageSnapshotFromNativeHost(pageUrl: string): Promise
       payload: { pageUrl },
     });
 
+    clearSyncStatusError();
     setSyncStatus({
       status: 'ok',
       lastSyncAt: Date.now(),
-      lastError: undefined,
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown native delete sync error';
@@ -266,10 +270,10 @@ export async function pullChangesFromNativeHost(): Promise<void> {
       await setCursor(result.latest);
     }
 
+    clearSyncStatusError();
     setSyncStatus({
       status: 'ok',
       lastPullAt: Date.now(),
-      lastError: undefined,
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown native pull error';
@@ -315,7 +319,8 @@ export async function bootstrapNativeSync(): Promise<void> {
       payload: {},
     });
 
-    setSyncStatus({ status: 'ok', lastError: undefined });
+    clearSyncStatusError();
+    setSyncStatus({ status: 'ok' });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown native bootstrap error';
     setSyncStatus({

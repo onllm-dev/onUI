@@ -122,7 +122,7 @@ async function sendMessage<T>(message: Message): Promise<T> {
     url: sanitizeUrlForLog(window.location.href),
   });
 
-  let timeoutId: ReturnType<typeof window.setTimeout> | undefined;
+  let timeoutId: number | undefined;
   const timeoutPromise = new Promise<never>((_, reject) => {
     timeoutId = window.setTimeout(() => {
       reject(new ExtensionMessageTimeoutError(message.type, REQUEST_TIMEOUT_MS));

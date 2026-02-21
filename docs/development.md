@@ -22,16 +22,22 @@ pnpm --filter @onui/extension build
 
 ## Test
 
-Run extension UI tests:
+Run workspace tests:
 
 ```bash
-pnpm test:extension
+pnpm test:all
 ```
 
-or from the extension package:
+Run all local quality gates (recommended before push):
 
 ```bash
-pnpm --filter @onui/extension test
+pnpm check
+```
+
+Run coverage checks:
+
+```bash
+pnpm test:coverage
 ```
 
 ## Load Extension

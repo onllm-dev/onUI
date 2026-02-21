@@ -7,12 +7,15 @@
     "dev": "vite",
     "build": "vite build && vite build --config vite.content.config.ts",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@onui/core": "workspace:*"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^2.1.9",
     "@crxjs/vite-plugin": "^2.0.0-beta.25",
     "@preact/preset-vite": "^2.8.0",
     "@testing-library/preact": "^3.2.4",

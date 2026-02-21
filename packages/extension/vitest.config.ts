@@ -7,6 +7,16 @@ export default defineConfig({
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
     globals: true,
     setupFiles: ['src/test/setup.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+      thresholds: {
+        lines: 18,
+        statements: 18,
+        functions: 30,
+        branches: 55,
+      },
+    },
   },
   resolve: {
     alias: {

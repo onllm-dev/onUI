@@ -12,6 +12,7 @@
     }
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
   }
 }

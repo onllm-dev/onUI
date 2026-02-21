@@ -35,6 +35,12 @@ pnpm --filter @onui/extension build
   - `pnpm test:coverage` (with package coverage thresholds)
 - CI runs verification on Node 20 and Node 22.
 
+### Self-Hosted Staging Runner
+
+- The workflow also runs `Verify (Self-Hosted Staging)` on labels:
+  - `self-hosted`, `linux`, `x64`, `staging`, `onui`
+- For security, self-hosted execution is disabled for forked pull requests.
+
 ## Commit Guidelines
 
 - Use clear Conventional Commit prefixes when possible (`feat:`, `fix:`, `docs:`, `chore:`).

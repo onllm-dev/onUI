@@ -73,6 +73,18 @@ describe('Popup MCP onboarding', () => {
     expect(screen.getByText('Open MCP setup guide')).toBeTruthy();
   });
 
+  it('shows GitHub and Buy Me a Coffee links in footer', async () => {
+    render(<Popup />);
+
+    await screen.findByText('Local bridge: unavailable');
+
+    const githubLink = screen.getByRole('link', { name: 'GitHub' }) as HTMLAnchorElement;
+    const coffeeLink = screen.getByRole('link', { name: 'Buy Me a Coffee' }) as HTMLAnchorElement;
+
+    expect(githubLink.href).toContain('https://github.com/onllm-dev/onUI');
+    expect(coffeeLink.href).toContain('https://buymeacoffee.com/tushar_s');
+  });
+
   it('copies Unix MCP setup command for non Windows platforms', async () => {
     const { copyToClipboard } = await import('@/content/utils/clipboard');
     const copyMock = vi.mocked(copyToClipboard);

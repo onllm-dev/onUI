@@ -4,6 +4,7 @@ import { copyToClipboard } from '@/content/utils/clipboard';
 const MCP_SETUP_DOCS_URL = 'https://github.com/onllm-dev/onUI/blob/main/docs/mcp-setup.md';
 const MCP_SETUP_COMMAND_UNIX = 'curl -fsSL https://github.com/onllm-dev/onUI/releases/latest/download/install.sh | bash -s -- --mcp';
 const MCP_SETUP_COMMAND_WINDOWS = 'irm https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 | iex';
+const BUY_ME_A_COFFEE_URL = 'https://buymeacoffee.com/tushar_s';
 
 function isSupportedTabUrl(url: string): boolean {
   return url.startsWith('http://') || url.startsWith('https://');
@@ -227,9 +228,14 @@ export function Popup() {
       </div>
 
       <div class="popup-footer">
-        <span>onUI v1.0.14 • </span>
+        <span>onUI v1.0.14</span>
+        <span aria-hidden="true">•</span>
         <a href="https://github.com/onllm-dev/onUI" target="_blank" rel="noopener">
           GitHub
+        </a>
+        <span aria-hidden="true">•</span>
+        <a href={BUY_ME_A_COFFEE_URL} target="_blank" rel="noopener">
+          Buy Me a Coffee
         </a>
       </div>
     </div>

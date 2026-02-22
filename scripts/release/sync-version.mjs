@@ -51,8 +51,8 @@ updateJsonFile('packages/extension/manifest.json', (manifest) => {
 
 updateTextFile(
   'packages/extension/src/popup/components/Popup.tsx',
-  (content) => content.replace(/onUI v\d+\.\d+\.\d+ •/g, `onUI v${version} •`),
-  /onUI v\d+\.\d+\.\d+ •/
+  (content) => content.replace(/onUI v\d+\.\d+\.\d+/g, `onUI v${version}`),
+  /onUI v\d+\.\d+\.\d+/
 );
 
 updateTextFile(

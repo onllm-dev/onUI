@@ -9,7 +9,32 @@ import {
   getNativeHostWindowsRegistryPath,
 } from '../store/path.js';
 
-const EXTENSION_ID = 'fnkengnadapimmlepnjienecfoekgacp';
+const CHROME_WEB_STORE_EXTENSION_ID = 'hllgijkdhegkpooopdhbfdjialkhlkan';
+const CHROME_UNPACKED_EXTENSION_ID = 'fnkengnadapimmlepnjienecfoekgacp';
+
+function normalizeExtensionId(id: string): string | undefined {
+  const normalized = id.trim().toLowerCase();
+  if (!/^[a-p]{32}$/.test(normalized)) {
+    return undefined;
+  }
+  return normalized;
+}
+
+export function buildChromeAllowedOrigins(extensionIds: readonly string[] = [
+  CHROME_WEB_STORE_EXTENSION_ID,
+  CHROME_UNPACKED_EXTENSION_ID,
+]): string[] {
+  const deduped = new Set<string>();
+
+  for (const id of extensionIds) {
+    const normalized = normalizeExtensionId(id);
+    if (normalized) {
+      deduped.add(normalized);
+    }
+  }
+
+  return Array.from(deduped).map((id) => `chrome-extension://${id}/`);
+}
 
 export interface NativeHostInstallResult {
   wrapperPath: string;
@@ -52,7 +77,7 @@ export async function installNativeHost(
     description: 'onUI native messaging host',
     path: wrapperPath,
     type: 'stdio',
-    allowed_origins: [`chrome-extension://${EXTENSION_ID}/`],
+    allowed_origins: buildChromeAllowedOrigins(),
   };
 
   await writeFile(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');

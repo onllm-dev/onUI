@@ -119,9 +119,9 @@ if (!data.access_token) {
 process.stdout.write(data.access_token);
 ")"
 
-upload_url="$UPLOAD_BASE/v2/publishers/${publisher_id}/items/${extension_id}:upload"
-publish_url="$API_BASE/v2/publishers/${publisher_id}/items/${extension_id}:publish"
-status_url="$API_BASE/v2/publishers/${publisher_id}/items/${extension_id}:fetchStatus"
+upload_url="$UPLOAD_BASE/v2/publishers/$publisher_id/items/$extension_id:upload"
+publish_url="$API_BASE/v2/publishers/$publisher_id/items/$extension_id:publish"
+status_url="$API_BASE/v2/publishers/$publisher_id/items/$extension_id:fetchStatus"
 
 log "Uploading zip to Chrome Web Store API (v2)"
 upload_response="$(curl -fsS -X POST "$upload_url" \

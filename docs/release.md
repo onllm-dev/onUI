@@ -42,6 +42,28 @@ This command:
 Upload `onui-chrome-web-store-vX.Y.Z.zip` from `artifacts/vX.Y.Z/`.
 The CWS zip strips the `manifest.key` field automatically.
 
+## Automated Chrome Web Store Publish (Local Only)
+
+Create local files (both gitignored):
+
+```bash
+./scripts/release/init-cws-publish-local.sh
+```
+
+Then edit `scripts/release/chrome-web-store.env` with your credentials and publisher ID.
+
+Publish current version:
+
+```bash
+./app.sh --publish-cws
+```
+
+Release and then publish to CWS in one run:
+
+```bash
+./app.sh --release-cws
+```
+
 Live listing:
 `https://chromewebstore.google.com/detail/onui/hllgijkdhegkpooopdhbfdjialkhlkan`
 

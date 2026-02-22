@@ -9,6 +9,8 @@ usage() {
 Usage:
   ./app.sh --build
   ./app.sh --release
+  ./app.sh --publish-cws
+  ./app.sh --release-cws
 EOF
 }
 
@@ -178,6 +180,15 @@ package_artifacts() {
   ls -1 "$artifacts_dir"
 }
 
+publish_chrome_web_store() {
+  local version="$1"
+  local script_path="scripts/release/chrome-web-store.publish.sh"
+
+  [ -x "$script_path" ] || fail "Missing local executable: $script_path. Run: ./scripts/release/init-cws-publish-local.sh"
+  log "Publishing Chrome Web Store package for v${version}"
+  "$script_path" --version "$version"
+}
+
 release_to_github() {
   local version="$1"
   local tag="v${version}"
@@ -240,6 +251,26 @@ main() {
       run_build_pipeline
       package_artifacts "$version"
       release_to_github "$version"
+      ;;
+    --publish-cws)
+      preflight_common
+      local version
+      version="$(current_version)"
+      publish_chrome_web_store "$version"
+      ;;
+    --release-cws)
+      preflight_common
+      assert_clean_tree
+      assert_main_branch
+      assert_gh_auth
+      local version
+      version="$(next_patch_version)"
+      log "Bumping version to $version"
+      sync_version "$version"
+      run_build_pipeline
+      package_artifacts "$version"
+      release_to_github "$version"
+      publish_chrome_web_store "$version"
       ;;
     *)
       usage

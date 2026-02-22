@@ -197,6 +197,28 @@ Release actions:
 5. Push commit/tag
 6. Create GitHub release with packaged assets
 
+### Local Chrome Web Store publish automation
+
+Create local publish files (gitignored):
+
+```bash
+./scripts/release/init-cws-publish-local.sh
+```
+
+Then set credentials in `scripts/release/chrome-web-store.env`.
+
+Publish current version to CWS:
+
+```bash
+./app.sh --publish-cws
+```
+
+Release + CWS publish in one run:
+
+```bash
+./app.sh --release-cws
+```
+
 ## 🛠️ Development
 
 ```bash

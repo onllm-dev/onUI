@@ -1,0 +1,163 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+DEFAULT_ENV_FILE="$ROOT_DIR/scripts/release/chrome-web-store.env"
+API_BASE="https://chromewebstore.googleapis.com"
+UPLOAD_BASE="https://chromewebstore.googleapis.com/upload"
+
+usage() {
+  cat <<'EOF'
+Usage:
+  ./scripts/release/chrome-web-store.publish.sh --version <x.y.z>
+  ./scripts/release/chrome-web-store.publish.sh --zip <path-to-cws-zip>
+
+Options:
+  --version <x.y.z>   Version used to resolve default zip path.
+  --zip <path>        Explicit path to onui-chrome-web-store zip.
+  --env-file <path>   Override local env file path.
+  --skip-publish      Upload only (do not publish).
+EOF
+}
+
+require_cmd() {
+  command -v "$1" >/dev/null 2>&1 || {
+    printf '[cws] ERROR: Missing command: %s\n' "$1" >&2
+    exit 1
+  }
+}
+
+fail() {
+  printf '[cws] ERROR: %s\n' "$1" >&2
+  exit 1
+}
+
+log() {
+  printf '[cws] %s\n' "$1"
+}
+
+version=""
+zip_path=""
+env_file="$DEFAULT_ENV_FILE"
+skip_publish="false"
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --version)
+      [ "$#" -ge 2 ] || fail "Missing value for --version"
+      version="$2"
+      shift 2
+      ;;
+    --zip)
+      [ "$#" -ge 2 ] || fail "Missing value for --zip"
+      zip_path="$2"
+      shift 2
+      ;;
+    --env-file)
+      [ "$#" -ge 2 ] || fail "Missing value for --env-file"
+      env_file="$2"
+      shift 2
+      ;;
+    --skip-publish)
+      skip_publish="true"
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      fail "Unknown argument: $1"
+      ;;
+  esac
+done
+
+require_cmd curl
+require_cmd node
+
+[ -f "$env_file" ] || fail "Missing env file: $env_file"
+# shellcheck disable=SC1090
+source "$env_file"
+
+extension_id="${CWS_EXTENSION_ID:-hllgijkdhegkpooopdhbfdjialkhlkan}"
+publisher_id="${CWS_PUBLISHER_ID:-}"
+client_id="${CWS_CLIENT_ID:-}"
+client_secret="${CWS_CLIENT_SECRET:-}"
+refresh_token="${CWS_REFRESH_TOKEN:-}"
+
+[ -n "$publisher_id" ] || fail "CWS_PUBLISHER_ID is required"
+[ -n "$client_id" ] || fail "CWS_CLIENT_ID is required"
+[ -n "$client_secret" ] || fail "CWS_CLIENT_SECRET is required"
+[ -n "$refresh_token" ] || fail "CWS_REFRESH_TOKEN is required"
+
+if [ -z "$version" ] && [ -z "$zip_path" ]; then
+  version="$(node -p "require('$ROOT_DIR/package.json').version")"
+fi
+
+if [ -z "$zip_path" ]; then
+  zip_path="$ROOT_DIR/artifacts/v${version}/onui-chrome-web-store-v${version}.zip"
+fi
+
+[ -f "$zip_path" ] || fail "Zip not found: $zip_path"
+
+log "Requesting OAuth access token"
+token_response="$(curl -fsS -X POST 'https://oauth2.googleapis.com/token' \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  --data-urlencode "client_id=$client_id" \
+  --data-urlencode "client_secret=$client_secret" \
+  --data-urlencode "refresh_token=$refresh_token" \
+  --data-urlencode 'grant_type=refresh_token')"
+
+access_token="$(printf '%s' "$token_response" | node -e "
+const fs = require('node:fs');
+const raw = fs.readFileSync(0, 'utf8');
+const data = JSON.parse(raw);
+if (!data.access_token) {
+  console.error(data.error_description || data.error || 'Could not fetch access token');
+  process.exit(1);
+}
+process.stdout.write(data.access_token);
+")"
+
+upload_url="$UPLOAD_BASE/v2/publishers/$publisher_id/items/$extension_id:upload"
+publish_url="$API_BASE/v2/publishers/$publisher_id/items/$extension_id:publish"
+status_url="$API_BASE/v2/publishers/$publisher_id/items/$extension_id:fetchStatus"
+
+log "Uploading zip to Chrome Web Store API (v2)"
+upload_response="$(curl -fsS -X POST "$upload_url" \
+  -H "Authorization: Bearer $access_token" \
+  -H 'Content-Type: application/zip' \
+  --data-binary "@$zip_path")"
+printf '%s' "$upload_response" | node -e "
+const fs = require('node:fs');
+const raw = fs.readFileSync(0, 'utf8');
+const data = JSON.parse(raw);
+console.log('[cws] upload response:', JSON.stringify(data));
+"
+
+if [ "$skip_publish" = "true" ]; then
+  log "Skipping publish as requested (--skip-publish)"
+  exit 0
+fi
+
+log "Publishing extension"
+publish_response="$(curl -fsS -X POST "$publish_url" \
+  -H "Authorization: Bearer $access_token")"
+printf '%s' "$publish_response" | node -e "
+const fs = require('node:fs');
+const raw = fs.readFileSync(0, 'utf8');
+const data = JSON.parse(raw);
+console.log('[cws] publish response:', JSON.stringify(data));
+"
+
+log "Fetching status"
+status_response="$(curl -fsS -X GET "$status_url" \
+  -H "Authorization: Bearer $access_token")"
+printf '%s' "$status_response" | node -e "
+const fs = require('node:fs');
+const raw = fs.readFileSync(0, 'utf8');
+const data = JSON.parse(raw);
+console.log('[cws] status response:', JSON.stringify(data));
+"
+
+log "Done"

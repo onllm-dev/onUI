@@ -50,33 +50,6 @@ jobs:
       - name: Build all packages
         run: pnpm build:all
 
-  verify-staging-runner:
-    name: Verify (Self-Hosted Staging)
-    runs-on: [self-hosted, Linux, X64, staging, onui]
-    timeout-minutes: 45
-    if: ${{ github.event_name == 'workflow_dispatch' && github.repository == 'onllm-dev/onUI' }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.15.0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run staging quality gate
-        run: pnpm check
-
   coverage:
     name: Coverage (Node 20)
     runs-on: ubuntu-latest

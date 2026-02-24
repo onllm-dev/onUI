@@ -2,6 +2,9 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 
 export type SupportedPlatform = 'darwin' | 'linux' | 'win32';
+export type NativeHostBrowser = 'chrome' | 'edge';
+
+const SUPPORTED_NATIVE_HOST_BROWSERS: readonly NativeHostBrowser[] = ['chrome', 'edge'] as const;
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -36,15 +39,25 @@ export function getNativeHostName(): string {
   return 'com.onui.native';
 }
 
-export function getNativeHostDir(platform = process.platform): string {
+export function getSupportedNativeHostBrowsers(): readonly NativeHostBrowser[] {
+  return SUPPORTED_NATIVE_HOST_BROWSERS;
+}
+
+export function getNativeHostDir(
+  platform = process.platform,
+  browser: NativeHostBrowser = 'chrome'
+): string {
   const home = homedir();
 
   switch (platform) {
-    case 'darwin':
-      return join(home, 'Library', 'Application Support', 'Google', 'Chrome', 'NativeMessagingHosts');
+    case 'darwin': {
+      const browserRoot = browser === 'edge' ? join('Microsoft Edge') : join('Google', 'Chrome');
+      return join(home, 'Library', 'Application Support', browserRoot, 'NativeMessagingHosts');
+    }
     case 'linux': {
       const configHome = process.env.XDG_CONFIG_HOME ?? join(home, '.config');
-      return join(configHome, 'google-chrome', 'NativeMessagingHosts');
+      const browserDir = browser === 'edge' ? 'microsoft-edge' : 'google-chrome';
+      return join(configHome, browserDir, 'NativeMessagingHosts');
     }
     case 'win32':
       return join(getDataDir(platform), 'native-host');
@@ -53,10 +66,17 @@ export function getNativeHostDir(platform = process.platform): string {
   }
 }
 
-export function getNativeHostManifestPath(platform = process.platform): string {
-  return join(getNativeHostDir(platform), `${getNativeHostName()}.json`);
+export function getNativeHostManifestPath(
+  platform = process.platform,
+  browser: NativeHostBrowser = 'chrome'
+): string {
+  return join(getNativeHostDir(platform, browser), `${getNativeHostName()}.json`);
 }
 
-export function getNativeHostWindowsRegistryPath(): string {
-  return 'HKCU\\Software\\Google\\Chrome\\NativeMessagingHosts\\com.onui.native';
+export function getNativeHostWindowsRegistryPath(browser: NativeHostBrowser = 'chrome'): string {
+  const browserRegistryRoot =
+    browser === 'edge'
+      ? 'HKCU\\Software\\Microsoft\\Edge\\NativeMessagingHosts'
+      : 'HKCU\\Software\\Google\\Chrome\\NativeMessagingHosts';
+  return `${browserRegistryRoot}\\${getNativeHostName()}`;
 }

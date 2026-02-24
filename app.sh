@@ -123,6 +123,7 @@ package_artifacts() {
 
   local unpacked_zip="$artifacts_dir/onui-extension-unpacked-v${version}.zip"
   local cws_zip="$artifacts_dir/onui-chrome-web-store-v${version}.zip"
+  local edge_zip="$artifacts_dir/onui-edge-add-ons-v${version}.zip"
   local mcp_bundle_zip="$artifacts_dir/onui-mcp-bundle-v${version}.zip"
   local install_sh="$artifacts_dir/install.sh"
   local install_ps1="$artifacts_dir/install.ps1"
@@ -145,6 +146,7 @@ package_artifacts() {
   (
     cd "$tmp_dir"
     zip -qr "$ROOT_DIR/$cws_zip" .
+    zip -qr "$ROOT_DIR/$edge_zip" .
   )
   rm -rf "$tmp_dir"
 
@@ -169,6 +171,7 @@ package_artifacts() {
   {
     sha256_file "$unpacked_zip"
     sha256_file "$cws_zip"
+    sha256_file "$edge_zip"
     sha256_file "$mcp_bundle_zip"
     sha256_file "$install_sh"
     sha256_file "$install_ps1"
@@ -206,6 +209,7 @@ release_to_github() {
   gh release create "$tag" \
     "$artifacts_dir/onui-extension-unpacked-v${version}.zip" \
     "$artifacts_dir/onui-chrome-web-store-v${version}.zip" \
+    "$artifacts_dir/onui-edge-add-ons-v${version}.zip" \
     "$artifacts_dir/onui-mcp-bundle-v${version}.zip" \
     "$artifacts_dir/install.sh" \
     "$artifacts_dir/install.ps1" \

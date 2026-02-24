@@ -59,13 +59,28 @@ require_cmd() {
   command -v "$1" >/dev/null 2>&1 || fail "Missing required command: $1"
 }
 
-open_chrome_extensions() {
+open_browser_extensions() {
+  if command -v microsoft-edge >/dev/null 2>&1; then
+    microsoft-edge "edge://extensions" >/dev/null 2>&1 &
+    return
+  fi
+  if command -v microsoft-edge-stable >/dev/null 2>&1; then
+    microsoft-edge-stable "edge://extensions" >/dev/null 2>&1 &
+    return
+  fi
+  if command -v google-chrome >/dev/null 2>&1; then
+    google-chrome "chrome://extensions" >/dev/null 2>&1 &
+    return
+  fi
   if command -v open >/dev/null 2>&1; then
+    open -a "Microsoft Edge" "edge://extensions" >/dev/null 2>&1 && return
+    open -a "Google Chrome" "chrome://extensions" >/dev/null 2>&1 && return
+    open "edge://extensions" >/dev/null 2>&1 && return
     open "chrome://extensions" >/dev/null 2>&1 || true
     return
   fi
   if command -v xdg-open >/dev/null 2>&1; then
-    xdg-open "chrome://extensions" >/dev/null 2>&1 || true
+    xdg-open "edge://extensions" >/dev/null 2>&1 || xdg-open "chrome://extensions" >/dev/null 2>&1 || true
   fi
 }
 
@@ -226,13 +241,13 @@ install_mcp() {
 }
 
 print_final_steps() {
-  printf '\nFinal Chrome step (still required):\n'
-  printf '1) Open chrome://extensions\n'
+  printf '\nFinal browser step (still required):\n'
+  printf '1) Open edge://extensions or chrome://extensions\n'
   printf '2) Enable Developer mode\n'
   printf '3) Click Load unpacked\n'
   printf '4) Select: %s\n' "$CURRENT_LINK"
   printf '\n'
-  open_chrome_extensions
+  open_browser_extensions
 }
 
 main() {

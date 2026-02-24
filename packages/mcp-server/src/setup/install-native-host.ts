@@ -6,11 +6,15 @@ import {
   getNativeHostDir,
   getNativeHostManifestPath,
   getNativeHostName,
+  getSupportedNativeHostBrowsers,
   getNativeHostWindowsRegistryPath,
+  type NativeHostBrowser,
 } from '../store/path.js';
 
 const CHROME_WEB_STORE_EXTENSION_ID = 'hllgijkdhegkpooopdhbfdjialkhlkan';
-const CHROME_UNPACKED_EXTENSION_ID = 'fnkengnadapimmlepnjienecfoekgacp';
+const CHROMIUM_UNPACKED_EXTENSION_ID = 'fnkengnadapimmlepnjienecfoekgacp';
+const DEFAULT_CHROME_EXTENSION_IDS = [CHROME_WEB_STORE_EXTENSION_ID, CHROMIUM_UNPACKED_EXTENSION_ID] as const;
+const DEFAULT_EDGE_EXTENSION_IDS = [CHROMIUM_UNPACKED_EXTENSION_ID, CHROME_WEB_STORE_EXTENSION_ID] as const;
 
 function normalizeExtensionId(id: string): string | undefined {
   const normalized = id.trim().toLowerCase();
@@ -20,10 +24,17 @@ function normalizeExtensionId(id: string): string | undefined {
   return normalized;
 }
 
-export function buildChromeAllowedOrigins(extensionIds: readonly string[] = [
-  CHROME_WEB_STORE_EXTENSION_ID,
-  CHROME_UNPACKED_EXTENSION_ID,
-]): string[] {
+function parseEnvExtensionIds(raw: string | undefined): string[] {
+  if (!raw) {
+    return [];
+  }
+  return raw
+    .split(',')
+    .map((id) => id.trim())
+    .filter((id) => id.length > 0);
+}
+
+export function buildAllowedOrigins(extensionIds: readonly string[]): string[] {
   const deduped = new Set<string>();
 
   for (const id of extensionIds) {
@@ -36,9 +47,34 @@ export function buildChromeAllowedOrigins(extensionIds: readonly string[] = [
   return Array.from(deduped).map((id) => `chrome-extension://${id}/`);
 }
 
+export function buildChromeAllowedOrigins(
+  extensionIds: readonly string[] = DEFAULT_CHROME_EXTENSION_IDS
+): string[] {
+  return buildAllowedOrigins(extensionIds);
+}
+
+export function buildEdgeAllowedOrigins(extensionIds: readonly string[] = DEFAULT_EDGE_EXTENSION_IDS): string[] {
+  return buildAllowedOrigins(extensionIds);
+}
+
+export function buildAllowedOriginsForBrowser(browser: NativeHostBrowser): string[] {
+  const extraShared = parseEnvExtensionIds(process.env.ONUI_EXTRA_EXTENSION_IDS);
+
+  if (browser === 'edge') {
+    const edgeSpecific = parseEnvExtensionIds(process.env.ONUI_EDGE_EXTENSION_IDS);
+    return buildEdgeAllowedOrigins([...DEFAULT_EDGE_EXTENSION_IDS, ...edgeSpecific, ...extraShared]);
+  }
+
+  const chromeSpecific = parseEnvExtensionIds(process.env.ONUI_CHROME_EXTENSION_IDS);
+  return buildChromeAllowedOrigins([...DEFAULT_CHROME_EXTENSION_IDS, ...chromeSpecific, ...extraShared]);
+}
+
 export interface NativeHostInstallResult {
   wrapperPath: string;
   manifestPath: string;
+  manifestPaths: Record<NativeHostBrowser, string>;
+  registeredBrowsers: NativeHostBrowser[];
+  windowsRegistryPaths: Partial<Record<NativeHostBrowser, string>>;
   hostName: string;
   nodeBinary: string;
 }
@@ -69,45 +105,59 @@ export async function installNativeHost(
     await chmod(wrapperPath, 0o755);
   }
 
-  const manifestPath = getNativeHostManifestPath(platform);
-  await mkdir(getNativeHostDir(platform), { recursive: true });
+  const browsers = [...getSupportedNativeHostBrowsers()];
+  const manifestPaths = {} as Record<NativeHostBrowser, string>;
+  const windowsRegistryPaths: Partial<Record<NativeHostBrowser, string>> = {};
 
-  const manifest = {
-    name: getNativeHostName(),
-    description: 'onUI native messaging host',
-    path: wrapperPath,
-    type: 'stdio',
-    allowed_origins: buildChromeAllowedOrigins(),
-  };
+  for (const browser of browsers) {
+    const manifestPath = getNativeHostManifestPath(platform, browser);
+    await mkdir(getNativeHostDir(platform, browser), { recursive: true });
 
-  await writeFile(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
+    const manifest = {
+      name: getNativeHostName(),
+      description: 'onUI native messaging host',
+      path: wrapperPath,
+      type: 'stdio',
+      allowed_origins: buildAllowedOriginsForBrowser(browser),
+    };
 
-  if (platform === 'win32') {
-    const regPath = getNativeHostWindowsRegistryPath();
-    const command = [
-      'add',
-      regPath,
-      '/ve',
-      '/t',
-      'REG_SZ',
-      '/d',
-      manifestPath,
-      '/f',
-    ];
+    await writeFile(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
+    manifestPaths[browser] = manifestPath;
 
-    const result = spawnSync('reg', command, {
-      stdio: 'pipe',
-      encoding: 'utf8',
-    });
+    if (platform === 'win32') {
+      const regPath = getNativeHostWindowsRegistryPath(browser);
+      const command = [
+        'add',
+        regPath,
+        '/ve',
+        '/t',
+        'REG_SZ',
+        '/d',
+        manifestPath,
+        '/f',
+      ];
 
-    if (result.status !== 0) {
-      throw new Error(`Failed to register native host in registry: ${result.stderr || result.stdout}`);
+      const result = spawnSync('reg', command, {
+        stdio: 'pipe',
+        encoding: 'utf8',
+      });
+
+      if (result.status !== 0) {
+        throw new Error(
+          `Failed to register native host for ${browser} in registry: ${result.stderr || result.stdout}`
+        );
+      }
+
+      windowsRegistryPaths[browser] = regPath;
     }
   }
 
   return {
     wrapperPath,
-    manifestPath,
+    manifestPath: manifestPaths.chrome,
+    manifestPaths,
+    registeredBrowsers: browsers,
+    windowsRegistryPaths,
     hostName: getNativeHostName(),
     nodeBinary,
   };

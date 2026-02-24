@@ -1,13 +1,14 @@
 # onUI
 ### Annotate Any UI for AI Agents
 
-Lightweight Chrome extension + local MCP bridge for annotation-first UI pair programming.
+Lightweight Chromium extension (Chrome + Edge) + local MCP bridge for annotation-first UI pair programming.
 
 Powered by [onLLM.dev](https://onllm.dev).
 
 [![GitHub stars](https://img.shields.io/github/stars/onllm-dev/onUI?style=for-the-badge)](https://github.com/onllm-dev/onUI/stargazers)
 [![GitHub license](https://img.shields.io/github/license/onllm-dev/onUI?style=for-the-badge)](https://github.com/onllm-dev/onUI/blob/main/LICENSE)
 [![Chrome Stable](https://img.shields.io/badge/Browser-Chrome_Stable-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://www.google.com/chrome/)
+[![Edge Stable](https://img.shields.io/badge/Browser-Edge_Stable-0A66C2?style=for-the-badge&logo=microsoftedge&logoColor=white)](https://www.microsoft.com/edge)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/tushar_s)
 
 > [!NOTE]
@@ -54,14 +55,14 @@ irm https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 | iex
 The installer handles extension install and can set up MCP in the same run.
 When prompted with `Set up local MCP bridge now? [y/N]`, enter `y` to enable MCP.
 
-Then load it in Chrome:
+Then load it in Chrome or Edge:
 
-1. Open `chrome://extensions`
+1. Open `chrome://extensions` or `edge://extensions`
 2. Enable **Developer mode**
 3. Click **Load unpacked**
 4. Select `~/onUI/extensions/current` (or `%USERPROFILE%\onUI\extensions\current` on Windows)
 
-> Chrome requires this final manual step for unpacked extensions.
+> Chromium browsers require this final manual step for unpacked extensions.
 
 ## 🧠 Usage
 
@@ -145,7 +146,7 @@ Setup/verification notes:
 - Run `pnpm doctor:mcp` after wiring config to confirm local setup health.
 
 - Auto-registers `onui-local` for Claude Code and Codex when those CLIs are installed.
-- Browser support in this release: **Chrome stable only**.
+- Browser support in this release: **Chrome stable + Edge stable (unpacked)**.
 - `@onui/mcp-server` is workspace-local (`private: true`), so run setup/doctor from this repo.
 
 See:
@@ -173,10 +174,11 @@ This runs:
 Artifacts:
 1. `onui-extension-unpacked-vX.Y.Z.zip`
 2. `onui-chrome-web-store-vX.Y.Z.zip` (manifest `key` stripped for CWS)
-3. `onui-mcp-bundle-vX.Y.Z.zip`
-4. `install.sh`
-5. `install.ps1`
-6. `checksums.txt`
+3. `onui-edge-add-ons-vX.Y.Z.zip` (manifest `key` stripped for Edge Add-ons)
+4. `onui-mcp-bundle-vX.Y.Z.zip`
+5. `install.sh`
+6. `install.ps1`
+7. `checksums.txt`
 
 ### Local release + GitHub publish
 
@@ -210,7 +212,7 @@ pnpm test:coverage
 ```text
 packages/
   core/        Shared annotation/report types + formatters
-  extension/   Chrome extension runtime (background/content/popup)
+  extension/   Chromium extension runtime (background/content/popup)
   mcp-server/  Local MCP server + native bridge setup/doctor tooling
 ```
 

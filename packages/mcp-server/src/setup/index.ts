@@ -19,7 +19,17 @@ export async function runSetup(options: SetupOptions = {}): Promise<void> {
 
   process.stdout.write('onui setup completed.\n');
   process.stdout.write(`- Native host: ${nativeHost.hostName}\n`);
-  process.stdout.write(`- Native manifest: ${nativeHost.manifestPath}\n`);
+  for (const browser of nativeHost.registeredBrowsers) {
+    process.stdout.write(`- Native manifest (${browser}): ${nativeHost.manifestPaths[browser]}\n`);
+  }
+  if (process.platform === 'win32') {
+    for (const browser of nativeHost.registeredBrowsers) {
+      const regPath = nativeHost.windowsRegistryPaths[browser];
+      if (regPath) {
+        process.stdout.write(`- Native registry (${browser}): ${regPath}\n`);
+      }
+    }
+  }
   process.stdout.write(`- Native wrapper: ${nativeHost.wrapperPath}\n`);
   process.stdout.write(`- Node binary: ${nativeHost.nodeBinary}\n`);
   process.stdout.write(`- Claude: ${claude.message}\n`);

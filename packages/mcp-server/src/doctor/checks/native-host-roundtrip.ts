@@ -1,6 +1,6 @@
-import { readFile } from 'node:fs/promises';
+import { access, readFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
-import { getNativeHostManifestPath } from '../../store/path.js';
+import { getNativeHostManifestPath, getSupportedNativeHostBrowsers } from '../../store/path.js';
 import type { CheckResult } from '../types.js';
 
 interface NativeResponse {
@@ -58,9 +58,31 @@ async function pingNativeHostExecutable(hostPath: string): Promise<NativeRespons
   });
 }
 
+async function resolveManifestPath(): Promise<string | undefined> {
+  for (const browser of getSupportedNativeHostBrowsers()) {
+    const manifestPath = getNativeHostManifestPath(process.platform, browser);
+    try {
+      await access(manifestPath);
+      return manifestPath;
+    } catch {
+      continue;
+    }
+  }
+  return undefined;
+}
+
 export async function checkNativeHostRoundtrip(): Promise<CheckResult> {
   try {
-    const manifestPath = getNativeHostManifestPath();
+    const manifestPath = await resolveManifestPath();
+    if (!manifestPath) {
+      return {
+        name: 'native.roundtrip',
+        status: 'warning',
+        message: 'No native manifest found for Chrome or Edge to run roundtrip check.',
+        fix: 'Run setup to install native host: pnpm --filter @onui/mcp-server setup',
+      };
+    }
+
     const manifestRaw = await readFile(manifestPath, 'utf8');
     const manifest = JSON.parse(manifestRaw) as { path?: string };
 
@@ -93,7 +115,7 @@ export async function checkNativeHostRoundtrip(): Promise<CheckResult> {
       name: 'native.roundtrip',
       status: 'warning',
       message: `Native host roundtrip failed: ${error instanceof Error ? error.message : 'unknown error'}`,
-      fix: 'Run setup and ensure Chrome native host wrapper is executable.',
+      fix: 'Run setup and ensure native host wrapper is executable.',
     };
   }
 }

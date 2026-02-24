@@ -6,7 +6,8 @@ vi.mock('node:fs/promises', () => ({
 }));
 
 vi.mock('../../store/path.js', () => ({
-  getNativeHostManifestPath: vi.fn(() => '/tmp/com.onui.native.json'),
+  getSupportedNativeHostBrowsers: vi.fn(() => ['chrome', 'edge']),
+  getNativeHostManifestPath: vi.fn((_platform: string, browser: string) => `/tmp/com.onui.native.${browser}.json`),
 }));
 
 import { access, readFile } from 'node:fs/promises';
@@ -17,70 +18,106 @@ const readFileMock = vi.mocked(readFile);
 
 describe('checkNativeHostManifest', () => {
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
-  it('returns ok when manifest includes expected Chrome origins', async () => {
-    accessMock.mockResolvedValue(undefined);
-    readFileMock.mockResolvedValue(
-      JSON.stringify({
+  function mockManifestRead(manifestByPath: Record<string, unknown>): void {
+    accessMock.mockImplementation(async (path) => {
+      if (typeof path === 'string' && manifestByPath[path]) {
+        return;
+      }
+      throw new Error('not found');
+    });
+    readFileMock.mockImplementation(async (path) => JSON.stringify(manifestByPath[String(path)]));
+  }
+
+  it('returns ok when manifests include expected origins for both browsers', async () => {
+    mockManifestRead({
+      '/tmp/com.onui.native.chrome.json': {
         name: 'com.onui.native',
         path: '/tmp/onui-native-host.sh',
         allowed_origins: [
           'chrome-extension://hllgijkdhegkpooopdhbfdjialkhlkan/',
           'chrome-extension://fnkengnadapimmlepnjienecfoekgacp/',
         ],
-      })
-    );
+      },
+      '/tmp/com.onui.native.edge.json': {
+        name: 'com.onui.native',
+        path: '/tmp/onui-native-host.sh',
+        allowed_origins: [
+          'chrome-extension://fnkengnadapimmlepnjienecfoekgacp/',
+          'chrome-extension://hllgijkdhegkpooopdhbfdjialkhlkan/',
+        ],
+      },
+    });
 
     const result = await checkNativeHostManifest();
     expect(result.status).toBe('ok');
     expect(result.name).toBe('native.manifest');
   });
 
-  it('returns warning when expected origins are missing', async () => {
-    accessMock.mockResolvedValue(undefined);
-    readFileMock.mockResolvedValue(
-      JSON.stringify({
+  it('returns warning when manifest is missing for one browser', async () => {
+    mockManifestRead({
+      '/tmp/com.onui.native.chrome.json': {
         name: 'com.onui.native',
         path: '/tmp/onui-native-host.sh',
-        allowed_origins: ['chrome-extension://fnkengnadapimmlepnjienecfoekgacp/'],
-      })
-    );
+        allowed_origins: [
+          'chrome-extension://hllgijkdhegkpooopdhbfdjialkhlkan/',
+          'chrome-extension://fnkengnadapimmlepnjienecfoekgacp/',
+        ],
+      },
+    });
 
     const result = await checkNativeHostManifest();
     expect(result.status).toBe('warning');
-    expect(result.message).toContain('missing expected Chrome origins');
+    expect(result.message).toContain('missing for');
     expect(result.fix).toContain('pnpm --filter @onui/mcp-server setup');
   });
 
-  it('returns warning when allowed_origins is absent', async () => {
-    accessMock.mockResolvedValue(undefined);
-    readFileMock.mockResolvedValue(
-      JSON.stringify({
+  it('returns warning when expected origins are missing', async () => {
+    mockManifestRead({
+      '/tmp/com.onui.native.chrome.json': {
         name: 'com.onui.native',
         path: '/tmp/onui-native-host.sh',
-      })
-    );
+        allowed_origins: ['chrome-extension://fnkengnadapimmlepnjienecfoekgacp/'],
+      },
+      '/tmp/com.onui.native.edge.json': {
+        name: 'com.onui.native',
+        path: '/tmp/onui-native-host.sh',
+        allowed_origins: ['chrome-extension://hllgijkdhegkpooopdhbfdjialkhlkan/'],
+      },
+    });
 
     const result = await checkNativeHostManifest();
     expect(result.status).toBe('warning');
+    expect(result.message).toContain('missing expected origins');
   });
 
   it('returns error when required manifest fields are invalid', async () => {
-    accessMock.mockResolvedValue(undefined);
-    readFileMock.mockResolvedValue(JSON.stringify({ name: 'com.onui.native' }));
+    mockManifestRead({
+      '/tmp/com.onui.native.chrome.json': {
+        name: 'com.onui.native',
+      },
+      '/tmp/com.onui.native.edge.json': {
+        name: 'com.onui.native',
+        path: '/tmp/onui-native-host.sh',
+        allowed_origins: [
+          'chrome-extension://fnkengnadapimmlepnjienecfoekgacp/',
+          'chrome-extension://hllgijkdhegkpooopdhbfdjialkhlkan/',
+        ],
+      },
+    });
 
     const result = await checkNativeHostManifest();
     expect(result.status).toBe('error');
-    expect(result.message).toContain('Manifest is invalid');
+    expect(result.message).toContain('invalid for');
   });
 
-  it('returns warning when manifest file does not exist', async () => {
+  it('returns warning when no manifest exists for either browser', async () => {
     accessMock.mockRejectedValue(new Error('not found'));
 
     const result = await checkNativeHostManifest();
     expect(result.status).toBe('warning');
-    expect(result.message).toContain('Native manifest not found');
+    expect(result.message).toContain('not found for Chrome or Edge');
   });
 });

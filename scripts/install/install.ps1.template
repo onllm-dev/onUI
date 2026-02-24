@@ -159,15 +159,19 @@ function Install-Mcp {
 
 function Print-FinalSteps {
   Write-Host ""
-  Write-Host "Final Chrome step (still required):"
-  Write-Host "1) Open chrome://extensions"
+  Write-Host "Final browser step (still required):"
+  Write-Host "1) Open edge://extensions or chrome://extensions"
   Write-Host "2) Enable Developer mode"
   Write-Host "3) Click Load unpacked"
   Write-Host "4) Select: $CurrentDir"
   Write-Host ""
   try {
-    Start-Process "chrome://extensions" | Out-Null
+    Start-Process "msedge.exe" "edge://extensions" | Out-Null
   } catch {
+    try {
+      Start-Process "chrome://extensions" | Out-Null
+    } catch {
+    }
   }
 }
 

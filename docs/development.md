@@ -4,7 +4,7 @@
 
 - Node.js 20+
 - pnpm 8+
-- Chrome
+- Chrome or Edge
 
 ## Setup
 
@@ -42,7 +42,7 @@ pnpm test:coverage
 
 ## Load Extension
 
-1. Open `chrome://extensions`
+1. Open `chrome://extensions` or `edge://extensions`
 2. Enable Developer mode
 3. Click Load unpacked
 4. Select `packages/extension/dist`

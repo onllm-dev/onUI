@@ -17,10 +17,11 @@
 Outputs in `artifacts/vX.Y.Z/`:
 1. `onui-extension-unpacked-vX.Y.Z.zip`
 2. `onui-chrome-web-store-vX.Y.Z.zip`
-3. `onui-mcp-bundle-vX.Y.Z.zip`
-4. `install.sh`
-5. `install.ps1`
-6. `checksums.txt`
+3. `onui-edge-add-ons-vX.Y.Z.zip`
+4. `onui-mcp-bundle-vX.Y.Z.zip`
+5. `install.sh`
+6. `install.ps1`
+7. `checksums.txt`
 
 ## Publish a Release
 
@@ -44,6 +45,19 @@ The CWS zip strips the `manifest.key` field automatically.
 
 Live listing:
 `https://chromewebstore.google.com/detail/onui/hllgijkdhegkpooopdhbfdjialkhlkan`
+
+## Edge Add-ons Upload
+
+Upload `onui-edge-add-ons-vX.Y.Z.zip` from `artifacts/vX.Y.Z/`.
+The Edge zip strips the `manifest.key` field automatically.
+
+Submission checklist (Microsoft Edge Add-ons):
+1. Partner Center developer account (publisher profile complete).
+2. Extension package zip (Manifest V3) with required icons and metadata.
+3. Store listing assets: short/long description, screenshots, categories.
+4. Privacy policy URL if the extension handles personal/sensitive data.
+5. Accurate permission justification for requested extension permissions.
+6. Pass automated validation and certification review before publish.
 
 ## Public Installer URLs
 

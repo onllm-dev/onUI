@@ -3,11 +3,11 @@
 ## Scope
 
 This release supports:
-- Chrome stable extension runtime
+- Chrome + Edge extension runtime
 - Local Native Messaging host (`com.onui.native`)
 - Local MCP server (`onui-local`) for Claude Code and Codex
 
-Browser support in this release: **Chrome stable only**.
+Browser support in this release: **Chrome stable + Edge stable (unpacked)**.
 
 ## One-Command Setup
 
@@ -32,10 +32,15 @@ pnpm --filter @onui/mcp-server run setup
 
 What setup does:
 1. Installs a local Native Messaging wrapper and manifest.
-2. Registers Chrome native host for `com.onui.native`.
+2. Registers browser native hosts for `com.onui.native` in Chrome and Edge.
 3. Registers MCP server `onui-local` in:
    - Claude Code (`claude mcp add ...`)
    - Codex (`codex mcp add ...`)
+
+Optional extension ID overrides:
+- `ONUI_CHROME_EXTENSION_IDS`: comma-separated Chrome extension IDs to append.
+- `ONUI_EDGE_EXTENSION_IDS`: comma-separated Edge extension IDs to append.
+- `ONUI_EXTRA_EXTENSION_IDS`: comma-separated IDs appended for both browsers.
 
 ## Verify Installation
 

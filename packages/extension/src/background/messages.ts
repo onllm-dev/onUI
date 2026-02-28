@@ -25,7 +25,7 @@ async function ensureContentScriptInjected(tabId: number): Promise<void> {
 }
 
 async function reInjectContentScriptIfEnabled(tabId: number, url?: string): Promise<void> {
-  const state = stateManager.getTabRuntimeState(tabId);
+  const state = await stateManager.getTabRuntimeState(tabId);
   if (!state.enabled || !isInjectableTabUrl(url)) {
     return;
   }
@@ -44,7 +44,7 @@ async function reInjectContentScriptIfEnabled(tabId: number, url?: string): Prom
 }
 
 async function notifyTabRuntimeStateChanged(tabId: number): Promise<void> {
-  const state = stateManager.getTabRuntimeState(tabId);
+  const state = await stateManager.getTabRuntimeState(tabId);
   const payload = {
     type: 'TAB_RUNTIME_STATE_CHANGED' as const,
     payload: { tabId, state },
@@ -251,7 +251,7 @@ async function handleMessage(
         };
       }
 
-      const state = stateManager.getTabRuntimeState(tabId);
+      const state = await stateManager.getTabRuntimeState(tabId);
       console.log(`${LOG_PREFIX} ${requestId} GET_TAB_RUNTIME_STATE completed`, {
         durationMs: Date.now() - receivedAt,
         tabId,
@@ -278,7 +278,7 @@ async function handleMessage(
         }
       }
 
-      const state = stateManager.setTabEnabled(tabId, message.payload.enabled);
+      const state = await stateManager.setTabEnabled(tabId, message.payload.enabled);
       await notifyTabRuntimeStateChanged(tabId);
 
       console.log(`${LOG_PREFIX} ${requestId} SET_TAB_ENABLED completed`, {
@@ -297,12 +297,12 @@ async function handleMessage(
       }
 
       // MV3 service workers are ephemeral; recover enabled state when content is already active.
-      const current = stateManager.getTabRuntimeState(tabId);
+      const current = await stateManager.getTabRuntimeState(tabId);
       if (!current.enabled && message.meta?.source === 'content') {
-        stateManager.setTabEnabled(tabId, true);
+        await stateManager.setTabEnabled(tabId, true);
       }
 
-      const state = stateManager.setAnnotateMode(tabId, message.payload.annotateMode);
+      const state = await stateManager.setAnnotateMode(tabId, message.payload.annotateMode);
       await notifyTabRuntimeStateChanged(tabId);
 
       console.log(`${LOG_PREFIX} ${requestId} SET_ANNOTATE_MODE completed`, {
@@ -321,7 +321,7 @@ async function handleMessage(
         console.warn(`${LOG_PREFIX} ${requestId} GET_STATE no tabId, returning default`);
         return { success: true, data: { isActive: false } };
       }
-      const isActive = stateManager.getState(tabId);
+      const isActive = await stateManager.getState(tabId);
       console.log(`${LOG_PREFIX} ${requestId} GET_STATE completed`, {
         durationMs: Date.now() - receivedAt,
         tabId,
@@ -338,7 +338,7 @@ async function handleMessage(
         console.warn(`${LOG_PREFIX} ${requestId} SET_STATE no tabId`);
         return { success: false, error: 'Missing tabId for SET_STATE' };
       }
-      const state = stateManager.setAnnotateMode(tabId, message.payload.isActive);
+      const state = await stateManager.setAnnotateMode(tabId, message.payload.isActive);
       await notifyTabRuntimeStateChanged(tabId);
       console.log(`${LOG_PREFIX} ${requestId} SET_STATE completed`, {
         durationMs: Date.now() - receivedAt,

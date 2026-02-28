@@ -3,7 +3,10 @@
  */
 
 import { renderApp } from './render';
+import { suppressOnUiDebugLogs } from '@/shared/logging';
 
+// Keep onUI debug logs opt-in in production builds.
+suppressOnUiDebugLogs();
 console.log('[onUI] Content script loaded');
 
 declare global {

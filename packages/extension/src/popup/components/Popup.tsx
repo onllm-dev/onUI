@@ -165,7 +165,9 @@ export function Popup() {
       <div class="popup">
         <div class="popup-header">
           <span class="popup-title">
-            <span>onUI</span>
+            <span>
+              on<span class="popup-title-accent">UI</span>
+            </span>
           </span>
         </div>
         <div style={{ textAlign: 'center', padding: '20px', color: 'var(--popup-text-secondary)' }}>
@@ -179,7 +181,9 @@ export function Popup() {
     <div class="popup">
       <div class="popup-header">
         <span class="popup-title">
-          <span>onUI</span>
+          <span>
+            on<span class="popup-title-accent">UI</span>
+          </span>
         </span>
       </div>
 
@@ -228,7 +232,7 @@ export function Popup() {
       </div>
 
       <div class="popup-footer">
-        <span>onUI v1.1.0</span>
+        <span>onUI v2.0.0</span>
         <span aria-hidden="true">•</span>
         <a href="https://github.com/onllm-dev/onUI" target="_blank" rel="noopener">
           GitHub

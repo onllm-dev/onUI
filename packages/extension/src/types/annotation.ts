@@ -13,6 +13,22 @@ export type AnnotationSeverity = 'blocking' | 'important' | 'suggestion';
  */
 export type AnnotationStatus = 'pending' | 'acknowledged' | 'resolved' | 'dismissed';
 
+export type AnnotationTargetType = 'element' | 'region';
+export type RegionShape = 'rectangle' | 'ellipse';
+
+export interface RegionGeometry {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  coordinateSpace?: 'document';
+}
+
+export interface RegionTarget {
+  shape: RegionShape;
+  geometry: RegionGeometry;
+}
+
 /**
  * Annotation type - AFS (Annotation Format Standard) v1
  */
@@ -31,6 +47,10 @@ export interface Annotation {
   batchId?: string;
   /** Selected text content (if any) */
   selectedText?: string;
+  /** Target type */
+  targetType?: AnnotationTargetType;
+  /** Region target details when targetType is region */
+  region?: RegionTarget;
   /** Element bounding box */
   boundingBox: BoundingBox;
   /** Timestamp of annotation creation */

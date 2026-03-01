@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'preact/hooks';
-import type { Annotation, OutputLevel } from '@/types';
+import type { Annotation, OutputLevel, RegionShape } from '@/types';
 import { generateOutput } from '../utils/output-generation';
 import { copyToClipboard } from '../utils/clipboard';
 
@@ -29,6 +29,25 @@ const CopyIcon = () => (
   </svg>
 );
 
+const PenIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M12 20h9" />
+    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z" />
+  </svg>
+);
+
+const RectangleIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <rect x="4" y="6" width="16" height="12" rx="1" />
+  </svg>
+);
+
+const EllipseIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <ellipse cx="12" cy="12" rx="8" ry="6" />
+  </svg>
+);
+
 const TrashIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <polyline points="3,6 5,6 21,6" />
@@ -51,8 +70,13 @@ const CheckIcon = () => (
 
 interface OnUIToolbarProps {
   isAnnotateMode: boolean;
+  isDrawMode: boolean;
+  drawShape: RegionShape;
   multiSelectCount: number;
   onToggleAnnotateMode: () => void;
+  onToggleDrawMode: () => void;
+  onSelectDrawShape: (shape: RegionShape) => void;
+  onEscape: () => void;
   annotations: Annotation[];
   outputLevel: OutputLevel;
   onOutputLevelChange: (level: OutputLevel) => void;
@@ -63,8 +87,13 @@ interface OnUIToolbarProps {
 
 export function OnUIToolbar({
   isAnnotateMode,
+  isDrawMode,
+  drawShape,
   multiSelectCount,
   onToggleAnnotateMode,
+  onToggleDrawMode,
+  onSelectDrawShape,
+  onEscape,
   annotations,
   outputLevel,
   onOutputLevelChange,
@@ -84,20 +113,6 @@ export function OnUIToolbar({
     setIsExpanded((prev) => !prev);
     setShowSettings(false);
   }, []);
-
-  // Escape key to exit annotation mode
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.defaultPrevented) {
-        return;
-      }
-      if (e.key === 'Escape' && isAnnotateMode) {
-        onToggleAnnotateMode();
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isAnnotateMode, onToggleAnnotateMode]);
 
   const handleCopy = useCallback(async () => {
     if (annotations.length === 0) {
@@ -127,111 +142,182 @@ export function OnUIToolbar({
     console.log(`${LOG_PREFIX} annotations cleared`);
   }, [annotations.length, onClearAnnotations, LOG_PREFIX]);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) {
+        return;
+      }
+
+      if (event.key !== 'Escape') {
+        return;
+      }
+
+      onEscape();
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onEscape]);
+
+  const activeHintMode = isDrawMode ? 'draw' : isAnnotateMode ? 'annotate' : null;
+  const activeHint =
+    activeHintMode === 'annotate'
+      ? multiSelectCount > 0
+        ? `Shift multi-select: ${multiSelectCount} selected. Release Shift to annotate all.`
+        : 'Tip: hold Shift and click to multi-select elements.'
+      : activeHintMode === 'draw'
+        ? `Drag to draw a ${drawShape} region.`
+        : null;
+
   return (
     <div class="onui-toolbar">
-      {/* Expandable Panel */}
       {effectiveExpanded && (
-        <div class="onui-panel">
-          <div class="onui-panel-header">
-            <span class="onui-panel-title">
-              on<span class="onui-panel-title-accent">UI</span>
+        <div class="onui-toolbar-panel">
+          <div class="onui-toolbar-header">
+            <div class="onui-toolbar-header-main">
+              <span class="onui-toolbar-title">
+                on<span class="onui-toolbar-title-accent">UI</span>
+              </span>
+            </div>
+            <span class={`onui-toolbar-count ${annotations.length === 0 ? 'is-empty' : ''}`}>
+              {annotations.length}
             </span>
-            {annotations.length > 0 && (
-              <span class="onui-panel-badge">{annotations.length}</span>
-            )}
           </div>
 
-          {/* Annotate Mode Button */}
-          <button
-            class={`onui-btn ${isAnnotateMode ? 'active' : ''}`}
-            onClick={onToggleAnnotateMode}
-          >
-            <CrosshairIcon />
-            <span class="onui-btn-label">
-              {isAnnotateMode ? 'Annotating...' : 'Annotate'}
-            </span>
-          </button>
-
-          {isAnnotateMode && (
-            <div class="onui-inline-tip" role="status" aria-live="polite">
-              {multiSelectCount > 0
-                ? `Shift multi-select: ${multiSelectCount} selected. Release Shift to annotate all.`
-                : 'Tip: hold Shift and click to multi-select elements.'}
-            </div>
-          )}
-
-          {/* Copy Button */}
-          <button
-            class={`onui-btn ${copySuccess ? 'active' : ''}`}
-            onClick={handleCopy}
-            disabled={annotations.length === 0}
-          >
-            {copySuccess ? <CheckIcon /> : <CopyIcon />}
-            <span class="onui-btn-label">
-              {copySuccess ? 'Copied!' : 'Copy'}
-            </span>
-          </button>
-
-          {/* Clear Button */}
-          <button
-            class="onui-btn"
-            onClick={handleClear}
-            disabled={annotations.length === 0}
-          >
-            <TrashIcon />
-            <span class="onui-btn-label">Clear</span>
-          </button>
-
-          <div class="onui-divider" />
-
-          {/* Settings Toggle */}
-          <button
-            class={`onui-btn ${showSettings ? 'active' : ''}`}
-            onClick={() => setShowSettings((prev) => !prev)}
-          >
-            <SettingsIcon />
-            <span class="onui-btn-label">Settings</span>
-          </button>
-
-          {/* Settings Panel */}
-          {showSettings && (
-            <div class="onui-settings">
-              <div class="onui-setting-row">
-                <label class="onui-setting-label">Output Level</label>
-                <select
-                  class="onui-select"
-                  value={outputLevel}
-                  onChange={(e) =>
-                    onOutputLevelChange(
-                      (e.target as HTMLSelectElement).value as OutputLevel
-                    )
-                  }
+          <div class="onui-toolbar-section">
+            <div class="onui-toolbar-mode-stack">
+              <div class="onui-toolbar-mode-anchor">
+                <button
+                  class={`onui-toolbar-btn onui-toolbar-btn--mode ${isAnnotateMode ? 'is-active' : ''}`}
+                  onClick={onToggleAnnotateMode}
+                  aria-label="Toggle annotate mode"
+                  title="Toggle annotate mode"
                 >
-                  <option value="compact">Compact</option>
-                  <option value="standard">Standard</option>
-                  <option value="detailed">Detailed</option>
-                  <option value="forensic">Forensic</option>
-                </select>
+                  <CrosshairIcon />
+                </button>
+
+                {activeHintMode === 'annotate' && activeHint && (
+                  <div class="onui-toolbar-hint-popup" role="status" aria-live="polite">
+                    <span class="onui-toolbar-hint-arrow" aria-hidden="true" />
+                    {activeHint}
+                  </div>
+                )}
               </div>
 
-              <label class="onui-setting-toggle-row">
-                <input
-                  class="onui-setting-checkbox"
-                  type="checkbox"
-                  checked={clearOnCopy}
-                  onChange={(e) => onClearOnCopyChange((e.target as HTMLInputElement).checked)}
-                />
-                <span class="onui-setting-label">Clear On Copy</span>
-              </label>
+              <div class="onui-toolbar-draw-block">
+                <div class="onui-toolbar-mode-anchor">
+                  <button
+                    class={`onui-toolbar-btn onui-toolbar-btn--mode ${isDrawMode ? 'is-active' : ''}`}
+                    onClick={onToggleDrawMode}
+                    aria-label="Toggle draw mode"
+                    title="Toggle draw mode"
+                  >
+                    <PenIcon />
+                  </button>
+
+                  {activeHintMode === 'draw' && activeHint && (
+                    <div class="onui-toolbar-hint-popup" role="status" aria-live="polite">
+                      <span class="onui-toolbar-hint-arrow" aria-hidden="true" />
+                      {activeHint}
+                    </div>
+                  )}
+                </div>
+
+                {isDrawMode && (
+                  <div class="onui-toolbar-shape-row" role="group" aria-label="Draw shape tools">
+                    <button
+                      class={`onui-toolbar-shape-btn ${drawShape === 'rectangle' ? 'is-active' : ''}`}
+                      onClick={() => onSelectDrawShape('rectangle')}
+                      aria-label="Draw rectangle"
+                      title="Draw rectangle"
+                    >
+                      <RectangleIcon />
+                    </button>
+                    <button
+                      class={`onui-toolbar-shape-btn ${drawShape === 'ellipse' ? 'is-active' : ''}`}
+                      onClick={() => onSelectDrawShape('ellipse')}
+                      aria-label="Draw ellipse"
+                      title="Draw ellipse"
+                    >
+                      <EllipseIcon />
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
-          )}
+          </div>
+
+          <div class="onui-toolbar-section">
+            <div class="onui-toolbar-action-stack">
+              <button
+                class={`onui-toolbar-btn ${copySuccess ? 'is-active' : ''}`}
+                onClick={handleCopy}
+                disabled={annotations.length === 0}
+                aria-label="Copy annotations"
+                title={copySuccess ? 'Copied' : 'Copy annotations'}
+              >
+                {copySuccess ? <CheckIcon /> : <CopyIcon />}
+              </button>
+
+              <button
+                class="onui-toolbar-btn onui-toolbar-btn--subtle"
+                onClick={handleClear}
+                disabled={annotations.length === 0}
+                aria-label="Clear annotations"
+                title="Clear annotations"
+              >
+                <TrashIcon />
+              </button>
+            </div>
+          </div>
+
+          <div class="onui-toolbar-section onui-toolbar-section--settings">
+            <button
+              class={`onui-toolbar-btn onui-toolbar-btn--settings ${showSettings ? 'is-active' : ''}`}
+              onClick={() => setShowSettings((prev) => !prev)}
+              aria-label="Toggle settings"
+              title="Toggle settings"
+            >
+              <SettingsIcon />
+            </button>
+
+            {showSettings && (
+              <div class="onui-toolbar-settings">
+                <div class="onui-toolbar-setting-row">
+                  <label class="onui-toolbar-setting-label">Output level</label>
+                  <select
+                    class="onui-toolbar-select"
+                    value={outputLevel}
+                    onChange={(e) =>
+                      onOutputLevelChange((e.target as HTMLSelectElement).value as OutputLevel)
+                    }
+                  >
+                    <option value="compact">Compact</option>
+                    <option value="standard">Standard</option>
+                    <option value="detailed">Detailed</option>
+                    <option value="forensic">Forensic</option>
+                  </select>
+                </div>
+
+                <label class="onui-toolbar-setting-toggle">
+                  <input
+                    class="onui-toolbar-setting-checkbox"
+                    type="checkbox"
+                    checked={clearOnCopy}
+                    onChange={(e) => onClearOnCopyChange((e.target as HTMLInputElement).checked)}
+                  />
+                  <span class="onui-toolbar-setting-label">Clear on copy</span>
+                </label>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
-      {/* Main Toggle Button */}
       <button
         class={`onui-toggle ${effectiveExpanded ? 'active' : ''}`}
         onClick={handleTogglePanel}
+        aria-label="Toggle onUI panel"
         title="Toggle onUI panel"
       >
         <OnUIIcon />

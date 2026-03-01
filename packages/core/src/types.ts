@@ -4,6 +4,22 @@ export type AnnotationStatus = 'pending' | 'acknowledged' | 'resolved' | 'dismis
 
 export type OutputLevel = 'compact' | 'standard' | 'detailed' | 'forensic';
 
+export type AnnotationTargetType = 'element' | 'region';
+export type RegionShape = 'rectangle' | 'ellipse';
+
+export interface RegionGeometry {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  coordinateSpace?: 'document';
+}
+
+export interface RegionTarget {
+  shape: RegionShape;
+  geometry: RegionGeometry;
+}
+
 export interface BoundingBox {
   top: number;
   left: number;
@@ -22,6 +38,8 @@ export interface Annotation {
   comment: string;
   batchId?: string;
   selectedText?: string;
+  targetType?: AnnotationTargetType;
+  region?: RegionTarget;
   boundingBox: BoundingBox;
   createdAt: number;
   updatedAt: number;

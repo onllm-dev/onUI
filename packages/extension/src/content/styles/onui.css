@@ -4,7 +4,8 @@
 
 /* Dark theme variables for OnUI */
 .onui-toolbar,
-.onui-dialog {
+.onui-dialog,
+.onui-region-dialog {
   --onui-bg: rgba(23, 23, 23, 0.95);
   --onui-bg-glass: rgba(38, 38, 38, 0.8);
   --onui-bg-hover: rgba(83, 87, 255, 0.16);
@@ -33,7 +34,7 @@
   display: flex;
   flex-direction: column-reverse;
   align-items: flex-end;
-  gap: 6px;
+  gap: var(--onui-spacing-sm);
   z-index: 2147483647;
   pointer-events: auto;
   font-family: var(--onui-font-family);
@@ -87,27 +88,208 @@
   height: 17px;
 }
 
-/* Expandable panel - opens upward */
-.onui-panel {
+/* Expandable panel */
+.onui-toolbar-panel {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  width: 112px;
-  padding: 5px;
+  gap: 3px;
+  width: 70px;
+  padding: 4px;
   background: linear-gradient(165deg, rgba(23, 23, 23, 0.96), rgba(28, 31, 45, 0.96));
   backdrop-filter: blur(var(--onui-blur));
   -webkit-backdrop-filter: blur(var(--onui-blur));
   border: 1px solid var(--onui-border);
-  border-radius: 12px;
+  border-radius: 14px;
   box-shadow: var(--onui-shadow);
-  animation: onui-panel-in 150ms ease;
   box-sizing: border-box;
+  transform-origin: bottom right;
+  animation: onui-panel-in 420ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes onui-panel-in {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(14px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.onui-toolbar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3px;
+}
+
+.onui-toolbar-header-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.onui-toolbar-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--onui-text);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.onui-toolbar-title-accent {
+  color: #67d3ff;
+  text-shadow: 0 0 10px rgba(103, 211, 255, 0.3);
+}
+
+.onui-toolbar-subtitle {
+  color: rgba(216, 221, 242, 0.88);
+  font-size: var(--onui-font-size-xs);
+  line-height: 1.25;
+}
+
+.onui-toolbar-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  border-radius: var(--onui-radius-full);
+  border: 1px solid rgba(130, 141, 255, 0.46);
+  background: rgba(91, 99, 255, 0.2);
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.onui-toolbar-count.is-empty {
+  color: var(--onui-text-secondary);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.onui-toolbar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.onui-toolbar-section + .onui-toolbar-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 3px;
+}
+
+.onui-toolbar-section-label {
+  color: rgba(192, 198, 224, 0.94);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.onui-toolbar-mode-stack,
+.onui-toolbar-action-stack,
+.onui-toolbar-draw-block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.onui-toolbar-mode-anchor {
+  position: relative;
+}
+
+.onui-toolbar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 28px;
+  padding: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(20, 22, 32, 0.68);
+  color: #dde2ff;
+  font-family: inherit;
+  font-size: var(--onui-font-size-sm);
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.onui-toolbar-btn:hover {
+  background: linear-gradient(140deg, rgba(91, 99, 255, 0.22), rgba(78, 199, 255, 0.12));
+  border-color: rgba(130, 141, 255, 0.45);
+  color: var(--onui-text);
+}
+
+.onui-toolbar-btn:active {
+  background: var(--onui-bg-active);
+}
+
+.onui-toolbar-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.onui-toolbar-btn:disabled:hover {
+  background: rgba(20, 22, 32, 0.68);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #dde2ff;
+}
+
+.onui-toolbar-btn:focus-visible,
+.onui-toolbar-shape-btn:focus-visible {
+  outline: 2px solid rgba(106, 210, 255, 0.7);
+  outline-offset: 2px;
+}
+
+.onui-toolbar-btn.is-active,
+.onui-toolbar-shape-btn.is-active {
+  background: linear-gradient(140deg, var(--onui-primary), #4ec7ff);
+  border-color: var(--onui-primary);
+  color: #fff;
+}
+
+.onui-toolbar-btn.is-active:hover,
+.onui-toolbar-shape-btn.is-active:hover {
+  background: linear-gradient(140deg, var(--onui-primary-hover), #6ad2ff);
+}
+
+.onui-toolbar-btn svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+.onui-toolbar-btn--mode {
+  font-weight: 600;
+}
+
+.onui-toolbar-btn--subtle {
+  color: #c7cce4;
+}
+
+.onui-toolbar-shape-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9px;
+  background: rgba(10, 12, 20, 0.56);
+  animation: onui-toolbar-shape-row-in 120ms ease;
+}
+
+@keyframes onui-toolbar-shape-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
   }
   to {
     opacity: 1;
@@ -115,44 +297,157 @@
   }
 }
 
-/* Panel header */
-.onui-panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 4px 8px 7px;
-  border-bottom: 1px solid var(--onui-border);
-  margin-bottom: 4px;
-}
-
-.onui-panel-title {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--onui-text);
-  letter-spacing: -0.01em;
-}
-
-.onui-panel-title-accent {
-  color: #67d3ff;
-  text-shadow: 0 0 12px rgba(103, 211, 255, 0.35);
-}
-
-.onui-panel-badge {
+.onui-toolbar-shape-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  font-size: 10px;
-  font-weight: 600;
-  color: white;
-  background: var(--onui-primary);
-  border-radius: 10px;
+  width: 100%;
+  min-width: 0;
+  min-height: 24px;
+  padding: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 7px;
+  background: rgba(21, 23, 34, 0.74);
+  color: #d9def9;
+  font: inherit;
+  cursor: pointer;
+  transition: all 140ms ease;
 }
 
-/* Panel buttons */
-.onui-btn {
+.onui-toolbar-shape-btn:hover {
+  background: linear-gradient(140deg, rgba(91, 99, 255, 0.22), rgba(78, 199, 255, 0.12));
+  border-color: rgba(130, 141, 255, 0.45);
+  color: var(--onui-text);
+}
+
+.onui-toolbar-shape-btn svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.onui-toolbar-hint-popup {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 10px);
+  width: max-content;
+  max-width: 168px;
+  padding: 7px 9px;
+  border: 1px solid rgba(130, 141, 255, 0.34);
+  border-radius: 10px;
+  background: linear-gradient(160deg, rgba(20, 22, 31, 0.96), rgba(31, 35, 53, 0.96));
+  color: rgba(237, 240, 255, 0.98);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.35;
+  box-shadow: 0 18px 36px -20px rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(calc(var(--onui-blur) * 0.8));
+  -webkit-backdrop-filter: blur(calc(var(--onui-blur) * 0.8));
+  transform: translate3d(0, -50%, 0);
+  animation: onui-toolbar-hint-in 220ms cubic-bezier(0.22, 1, 0.36, 1) 70ms both;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.onui-toolbar-hint-arrow {
+  position: absolute;
+  top: 50%;
+  right: -5px;
+  width: 10px;
+  height: 10px;
+  border-top: 1px solid rgba(130, 141, 255, 0.34);
+  border-right: 1px solid rgba(130, 141, 255, 0.34);
+  background: rgba(29, 33, 49, 0.98);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+@keyframes onui-toolbar-hint-in {
+  from {
+    opacity: 0;
+    transform: translate3d(8px, -50%, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, -50%, 0);
+  }
+}
+
+.onui-toolbar-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 152px;
+  max-width: min(152px, calc(100vw - 32px));
+  align-self: flex-end;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 9px;
+  background: rgba(11, 14, 24, 0.9);
+}
+
+.onui-toolbar-setting-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.onui-toolbar-setting-label {
+  font-size: 11px;
+  line-height: 1.25;
+  color: #d8ddf2;
+}
+
+.onui-toolbar-setting-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 24px;
+  cursor: pointer;
+}
+
+.onui-toolbar-setting-toggle .onui-toolbar-setting-label {
+  white-space: nowrap;
+}
+
+.onui-toolbar-setting-checkbox {
+  margin: 0;
+  accent-color: var(--onui-primary);
+  cursor: pointer;
+}
+
+.onui-toolbar-select {
+  width: 100%;
+  min-width: 0;
+  min-height: 30px;
+  padding: 0 24px 0 8px;
+  box-sizing: border-box;
+  background: rgba(15, 18, 28, 0.98);
+  border: 1px solid rgba(130, 141, 255, 0.38);
+  border-radius: 7px;
+  color: #f3f5ff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.onui-toolbar-select:hover {
+  background: rgba(19, 23, 35, 0.98);
+  border-color: rgba(130, 141, 255, 0.58);
+}
+
+.onui-toolbar-select:focus {
+  border-color: var(--onui-primary);
+  box-shadow: 0 0 0 1px rgba(91, 99, 255, 0.45);
+}
+
+/* Shared utility button used in dialogs */
+.onui-dialog .onui-btn {
   display: flex;
   align-items: center;
   gap: 7px;
@@ -170,116 +465,25 @@
   transition: all 140ms ease;
 }
 
-.onui-btn:hover {
+.onui-dialog .onui-btn:hover {
   background: linear-gradient(140deg, rgba(91, 99, 255, 0.22), rgba(78, 199, 255, 0.12));
   border-color: rgba(130, 141, 255, 0.45);
   color: var(--onui-text);
 }
 
-.onui-btn:active {
+.onui-dialog .onui-btn:active {
   background: var(--onui-bg-active);
 }
 
-.onui-btn.active {
-  background: linear-gradient(140deg, var(--onui-primary), #4ec7ff);
-  color: white;
-}
-
-.onui-btn.active:hover {
-  background: linear-gradient(140deg, var(--onui-primary-hover), #6ad2ff);
-}
-
-.onui-btn:focus-visible {
+.onui-dialog .onui-btn:focus-visible {
   outline: 2px solid rgba(106, 210, 255, 0.7);
   outline-offset: 2px;
 }
 
-.onui-btn svg {
+.onui-dialog .onui-btn svg {
   width: 14px;
   height: 14px;
   flex-shrink: 0;
-}
-
-.onui-btn-label {
-  white-space: nowrap;
-}
-
-.onui-inline-tip {
-  margin-top: 3px;
-  margin-bottom: 2px;
-  padding: 7px 8px;
-  border: 1px solid rgba(130, 141, 255, 0.32);
-  border-radius: 7px;
-  background: rgba(91, 99, 255, 0.12);
-  color: var(--onui-text-secondary);
-  font-size: 10.5px;
-  line-height: 1.35;
-}
-
-/* Divider */
-.onui-divider {
-  height: 1px;
-  background: var(--onui-border);
-  margin: 2px 0;
-}
-
-/* Settings section in panel */
-.onui-settings {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 5px;
-  margin-top: 2px;
-  border-top: 1px solid var(--onui-border);
-}
-
-.onui-setting-row {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
-}
-
-.onui-setting-toggle-row {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  width: 100%;
-  cursor: pointer;
-}
-
-.onui-setting-checkbox {
-  margin: 0;
-  accent-color: var(--onui-primary);
-  cursor: pointer;
-}
-
-.onui-setting-label {
-  font-size: 11px;
-  color: var(--onui-text-secondary);
-}
-
-/* Select dropdown */
-.onui-select {
-  width: 100%;
-  min-width: 0;
-  padding: 6px 8px;
-  background: rgba(20, 22, 29, 0.94);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 6px;
-  color: var(--onui-text);
-  font-family: inherit;
-  font-size: 11px;
-  cursor: pointer;
-  outline: none;
-}
-
-.onui-select:hover {
-  border-color: var(--onui-border-hover);
-}
-
-.onui-select:focus {
-  border-color: var(--onui-primary);
 }
 
 /* ============================================
@@ -730,6 +934,49 @@
 
 .onui-dialog ::-webkit-scrollbar-thumb:hover {
   background: var(--onui-border-hover);
+}
+
+/* Region draw/edit overlays */
+.onui-region-draw-overlay {
+  pointer-events: auto;
+  z-index: 2147483642;
+  cursor: crosshair;
+}
+
+.onui-region-outline {
+  box-sizing: border-box;
+}
+
+.onui-region-outline.selected {
+  border-color: rgba(249, 115, 22, 0.92);
+  background: rgba(249, 115, 22, 0.16);
+}
+
+.onui-region-dialog {
+  width: 280px;
+  max-height: calc(100vh - 24px);
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.onui-region-dialog .onui-dialog-header {
+  margin-bottom: 12px;
+}
+
+.onui-region-dialog .onui-dialog-footer {
+  margin-top: 12px;
+  padding-top: 12px;
+}
+
+.onui-region-transform {
+  box-sizing: border-box;
+  pointer-events: auto;
+}
+
+.onui-region-handle {
+  padding: 0;
+  margin: 0;
+  border: none;
 }
 
 /* ============================================

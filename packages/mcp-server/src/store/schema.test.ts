@@ -119,4 +119,35 @@ describe('store schema operations', () => {
     expect(changes).toHaveLength(1);
     expect(changes[0]?.type).toBe('page_clear');
   });
+
+  it('persists additive region fields in snapshot upsert', () => {
+    const regionAnnotation = {
+      ...createAnnotation('region-1'),
+      selector: 'onui-region[shape="ellipse"]',
+      elementPath: 'ellipse(40,50,200,120)',
+      tagName: 'region',
+      targetType: 'region' as const,
+      region: {
+        shape: 'ellipse' as const,
+        geometry: {
+          x: 40,
+          y: 50,
+          width: 200,
+          height: 120,
+          coordinateSpace: 'document' as const,
+        },
+      },
+    };
+
+    const next = upsertPageSnapshot(createEmptyStore(), {
+      pageUrl: 'https://example.com/region',
+      pageTitle: 'Region Page',
+      annotations: [regionAnnotation],
+    });
+
+    const stored = next.annotationsById['region-1'];
+    expect(stored?.targetType).toBe('region');
+    expect(stored?.region?.shape).toBe('ellipse');
+    expect(stored?.region?.geometry.coordinateSpace).toBe('document');
+  });
 });

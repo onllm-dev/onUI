@@ -1,7 +1,11 @@
 import type { Annotation, ReportContext } from '../types.js';
-import { truncate } from './shared.js';
+import { formatRegionGeometry, isRegionAnnotation, truncate } from './shared.js';
 
 function getElementDescription(annotation: Annotation): string {
+  if (isRegionAnnotation(annotation)) {
+    return `${annotation.region.shape} region`;
+  }
+
   const parts: string[] = [];
 
   if (annotation.attributes?.id) {
@@ -34,11 +38,18 @@ export function formatStandard(annotations: Annotation[], context: ReportContext
 
   annotations.forEach((annotation, index) => {
     lines.push(`## ${index + 1}. ${getElementDescription(annotation)}`);
-    lines.push(`- **Selector:** \`${annotation.selector}\``);
-    lines.push(`- **Tag:** \`${annotation.tagName}\``);
 
-    if (annotation.role) {
-      lines.push(`- **Role:** ${annotation.role}`);
+    if (isRegionAnnotation(annotation)) {
+      lines.push('- **Target type:** `region`');
+      lines.push(`- **Shape:** \`${annotation.region.shape}\``);
+      lines.push(`- **Geometry:** ${formatRegionGeometry(annotation.region.geometry)}`);
+    } else {
+      lines.push(`- **Selector:** \`${annotation.selector}\``);
+      lines.push(`- **Tag:** \`${annotation.tagName}\``);
+
+      if (annotation.role) {
+        lines.push(`- **Role:** ${annotation.role}`);
+      }
     }
 
     lines.push(`- **Comment:** ${annotation.comment}`);

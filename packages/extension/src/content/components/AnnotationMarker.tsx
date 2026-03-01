@@ -21,6 +21,7 @@ export function AnnotationMarker({
     return null;
   }
 
+  const isRegion = annotation.targetType === 'region';
   const markerStyle = {
     position: placement.position,
     top: `${placement.top}px`,
@@ -28,7 +29,9 @@ export function AnnotationMarker({
     width: '20px',
     height: '20px',
     borderRadius: '50%',
-    background: 'var(--onui-marker-bg, var(--onui-primary, #2563eb))',
+    background: isRegion
+      ? 'var(--onui-marker-region-bg, #7c3aed)'
+      : 'var(--onui-marker-bg, var(--onui-primary, #2563eb))',
     color: 'var(--onui-marker-text, #ffffff)',
     fontSize: '11px',
     fontWeight: '600',
@@ -66,6 +69,7 @@ export function AnnotationMarker({
       role="button"
       tabIndex={0}
       aria-label={`Annotation ${index + 1}: ${annotation.comment}`}
+      data-target-type={annotation.targetType ?? 'element'}
     >
       {index + 1}
     </div>

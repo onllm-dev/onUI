@@ -161,10 +161,18 @@ export class StoreRepository {
         return false;
       }
 
+      const regionGeometryText = annotation.region
+        ? `x ${Math.round(annotation.region.geometry.x)} y ${Math.round(annotation.region.geometry.y)} width ${Math.round(annotation.region.geometry.width)} height ${Math.round(annotation.region.geometry.height)} ${annotation.region.geometry.coordinateSpace ?? 'document'}`
+        : '';
+
       const haystack = [
         annotation.comment,
         annotation.selector,
         annotation.elementPath,
+        annotation.tagName,
+        annotation.targetType ?? 'element',
+        annotation.region?.shape ?? '',
+        regionGeometryText,
         annotation.textContent ?? '',
         annotation.selectedText ?? '',
       ]

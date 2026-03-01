@@ -27,6 +27,8 @@ Powered by [onLLM.dev](https://onllm.dev).
 - 🧩 No integration into app code
 - 🎛️ Per-tab ON/OFF control (off by default)
 - 🎯 In-page annotation dialog with intent + severity
+- ✍️ Draw mode for region annotations (rectangle + ellipse)
+- ⚙️ Compact toolbar with pop-out settings (output level + clear on copy)
 - 👀 Visual markers and hover targeting
 - 🧾 Export outputs in compact / standard / detailed / forensic formats
 - 🛡️ Shadow DOM isolation for stable styling
@@ -69,11 +71,13 @@ Then load it in Chrome or Edge:
 1. Open any supported website tab.
 2. Click the onUI extension icon.
 3. Enable `This Tab`.
-4. Use the on-page launcher to annotate and manage notes.
-5. Hold `Shift` and click multiple elements to batch-select targets.
-6. Release `Shift` to open a shared annotation dialog for selected targets.
-7. Save once to create one annotation per selected element.
-8. Copy exported output from the toolbar.
+4. Use the on-page launcher to open the compact toolbar.
+5. Toggle **Annotate mode** for element targeting or **Draw mode** for region targeting.
+6. Hold `Shift` and click multiple elements to batch-select targets.
+7. Release `Shift` to open a shared annotation dialog for selected targets.
+8. Save once to create one annotation per selected element (or one region annotation in draw flow).
+9. Open toolbar **Settings** to choose output level and configure **Clear on copy**.
+10. Copy exported output from the toolbar.
 
 ## 🔌 Local MCP Setup
 

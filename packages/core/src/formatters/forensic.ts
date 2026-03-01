@@ -1,4 +1,5 @@
 import type { Annotation, ReportContext } from '../types.js';
+import { formatRegionGeometry, isRegionAnnotation } from './shared.js';
 
 export function formatForensic(annotations: Annotation[], context: ReportContext): string {
   const lines: string[] = [
@@ -28,16 +29,28 @@ export function formatForensic(annotations: Annotation[], context: ReportContext
     }
     lines.push('');
 
-    lines.push('### Element Identification');
-    lines.push(`- **CSS Selector:** \`${annotation.selector}\``);
-    lines.push(`- **Element Path:** \`${annotation.elementPath}\``);
-    lines.push(`- **Tag Name:** \`${annotation.tagName}\``);
-    if (annotation.role) {
-      lines.push(`- **ARIA Role:** ${annotation.role}`);
+    const isRegion = isRegionAnnotation(annotation);
+
+    lines.push('### Target Identification');
+    lines.push(`- **Target Type:** \`${annotation.targetType ?? 'element'}\``);
+
+    if (isRegion) {
+      lines.push(`- **Region Shape:** \`${annotation.region.shape}\``);
+      lines.push(`- **Region Geometry:** ${formatRegionGeometry(annotation.region.geometry)}`);
+      lines.push(`- **CSS Selector (compat):** \`${annotation.selector}\``);
+      lines.push(`- **Element Path (compat):** \`${annotation.elementPath}\``);
+      lines.push(`- **Tag Name (compat):** \`${annotation.tagName}\``);
+    } else {
+      lines.push(`- **CSS Selector:** \`${annotation.selector}\``);
+      lines.push(`- **Element Path:** \`${annotation.elementPath}\``);
+      lines.push(`- **Tag Name:** \`${annotation.tagName}\``);
+      if (annotation.role) {
+        lines.push(`- **ARIA Role:** ${annotation.role}`);
+      }
     }
     lines.push('');
 
-    if (annotation.attributes && Object.keys(annotation.attributes).length > 0) {
+    if (!isRegion && annotation.attributes && Object.keys(annotation.attributes).length > 0) {
       lines.push('### Attributes');
       lines.push('```json');
       lines.push(JSON.stringify(annotation.attributes, null, 2));

@@ -1,5 +1,12 @@
 import { useState, useCallback, useEffect } from 'preact/hooks';
-import type { Annotation, AnnotationIntent, AnnotationSeverity, OutputLevel } from '@/types';
+import type {
+  Annotation,
+  AnnotationIntent,
+  AnnotationSeverity,
+  OutputLevel,
+  RegionGeometry,
+  RegionShape,
+} from '@/types';
 import { getSettings, updateSettings } from '../messaging';
 import { ElementHighlight } from './ElementHighlight';
 import { AnnotationMarkers } from './AnnotationMarkers';
@@ -10,6 +17,11 @@ import { useElementHover } from '../hooks/useElementHover';
 import { useAnnotations } from '../hooks/useAnnotations';
 import { useTabRuntimeState } from '../hooks/useTabRuntimeState';
 import { createAnnotationFromElement } from '../utils/create-annotation';
+import { createAnnotationFromRegion } from '../utils/create-region-annotation';
+import { OnUIRegionDialog } from './OnUIRegionDialog';
+import { RegionDrawOverlay } from './RegionDrawOverlay';
+import { RegionOutline } from './RegionOutline';
+import { RegionTransformHandles } from './RegionTransformHandles';
 
 const MAX_MULTI_SELECTION = 25;
 
@@ -33,6 +45,12 @@ function toAnnotationUpdate(data: SaveDialogData) {
     ...(data.intent !== undefined ? { intent: data.intent } : {}),
     ...(data.severity !== undefined ? { severity: data.severity } : {}),
   };
+}
+
+function isRegionAnnotation(
+  annotation: Annotation
+): annotation is Annotation & { targetType: 'region'; region: { shape: RegionShape; geometry: RegionGeometry } } {
+  return annotation.targetType === 'region' && annotation.region !== undefined;
 }
 
 /**
@@ -85,6 +103,16 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
   const [outputLevel, setOutputLevel] = useState<OutputLevel>('standard');
   const [clearOnCopy, setClearOnCopy] = useState(false);
 
+  // Draw mode state (local v1)
+  const [isDrawMode, setIsDrawMode] = useState(false);
+  const [drawShape, setDrawShape] = useState<RegionShape>('rectangle');
+  const [drawCancelSignal, setDrawCancelSignal] = useState(0);
+  const [isDrawingDraft, setIsDrawingDraft] = useState(false);
+
+  // Region create/edit state
+  const [pendingRegion, setPendingRegion] = useState<{ geometry: RegionGeometry; shape: RegionShape } | null>(null);
+  const [editingRegionGeometry, setEditingRegionGeometry] = useState<RegionGeometry | null>(null);
+
   // Element being annotated (popup open)
   const [selectedElement, setSelectedElement] = useState<Element | null>(null);
 
@@ -128,9 +156,16 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
     }
   }, [annotateMode]);
 
+  useEffect(() => {
+    if (!isDrawMode) {
+      setIsDrawingDraft(false);
+    }
+  }, [isDrawMode]);
+
   // Handle element click in annotation mode
   const handleElementClick = useCallback((element: Element, event: MouseEvent) => {
     setEditingAnnotation(null);
+    setPendingRegion(null);
 
     if (event.shiftKey) {
       setSelectedElement(null);
@@ -211,7 +246,13 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
   ]);
 
   const { hoveredElement } = useElementHover({
-    enabled: annotateMode && !selectedElement && !editingAnnotation && multiDialogTargets.length === 0,
+    enabled:
+      annotateMode &&
+      !isDrawMode &&
+      !selectedElement &&
+      !editingAnnotation &&
+      multiDialogTargets.length === 0 &&
+      pendingRegion === null,
     onElementClick: handleElementClick,
   });
 
@@ -237,6 +278,44 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
       setToastMessage(null);
     },
     [selectedElement, addAnnotation]
+  );
+
+  const handleRegionDrawComplete = useCallback((geometry: RegionGeometry) => {
+    setSelectedElement(null);
+    setPendingMultiSelection([]);
+    setMultiDialogTargets([]);
+    setEditingAnnotation(null);
+    setIsDrawingDraft(false);
+    setIsDrawMode(false);
+    setPendingRegion({ geometry, shape: drawShape });
+  }, [drawShape]);
+
+  const handleSaveRegionAnnotation = useCallback(
+    async (data: SaveDialogData) => {
+      if (!pendingRegion) {
+        return;
+      }
+
+      const input = createAnnotationFromRegion({
+        comment: data.comment,
+        shape: pendingRegion.shape,
+        geometry: pendingRegion.geometry,
+        intent: data.intent,
+        severity: data.severity,
+      });
+
+      const created = await addAnnotation(input);
+      if (!created) {
+        setToastMessage('Failed to add region annotation. Please try again.');
+        return;
+      }
+
+      setPendingRegion(null);
+      setIsDrawMode(false);
+      setIsDrawingDraft(false);
+      setToastMessage(null);
+    },
+    [addAnnotation, pendingRegion]
   );
 
   // Handle save multi annotation batch with shared intent/severity/comment
@@ -278,6 +357,38 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
     [multiDialogTargets, addAnnotationsBulk]
   );
 
+  const handleUpdateRegionAnnotation = useCallback(
+    async (data: SaveDialogData) => {
+      if (!editingAnnotation || !isRegionAnnotation(editingAnnotation)) {
+        return;
+      }
+
+      const regionGeometry = editingRegionGeometry ?? editingAnnotation.region.geometry;
+      await updateAnnotation(editingAnnotation.id, {
+        ...toAnnotationUpdate(data),
+        region: {
+          shape: editingAnnotation.region.shape,
+          geometry: regionGeometry,
+        },
+        targetType: 'region',
+        boundingBox: {
+          ...editingAnnotation.boundingBox,
+          top: regionGeometry.y,
+          left: regionGeometry.x,
+          width: regionGeometry.width,
+          height: regionGeometry.height,
+          bottom: regionGeometry.y + regionGeometry.height,
+          right: regionGeometry.x + regionGeometry.width,
+          isFixed: false,
+        },
+      });
+
+      setEditingAnnotation(null);
+      setEditingRegionGeometry(null);
+    },
+    [editingAnnotation, editingRegionGeometry, updateAnnotation]
+  );
+
   // Handle update existing annotation with optional intent/severity
   const handleUpdateAnnotation = useCallback(
     async (data: SaveDialogData) => {
@@ -295,6 +406,7 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
 
     await deleteAnnotation(editingAnnotation.id);
     setEditingAnnotation(null);
+    setEditingRegionGeometry(null);
   }, [editingAnnotation, deleteAnnotation]);
 
   // Handle cancel popup
@@ -303,6 +415,11 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
     setPendingMultiSelection([]);
     setMultiDialogTargets([]);
     setEditingAnnotation(null);
+    setPendingRegion(null);
+    setEditingRegionGeometry(null);
+    setIsDrawMode(false);
+    setIsDrawingDraft(false);
+    setDrawCancelSignal((value) => value + 1);
   }, []);
 
   // Handle marker click to edit
@@ -311,6 +428,13 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
     setSelectedElement(null);
     setPendingMultiSelection([]);
     setMultiDialogTargets([]);
+    setPendingRegion(null);
+
+    if (isRegionAnnotation(annotation)) {
+      setEditingRegionGeometry(annotation.region.geometry);
+    } else {
+      setEditingRegionGeometry(null);
+    }
   }, []);
 
   // Get element for editing annotation (find by selector)
@@ -323,6 +447,89 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
       return null;
     }
   }, [editingAnnotation]);
+
+  const handleToggleDrawMode = useCallback(() => {
+    setIsDrawMode((previous) => {
+      const next = !previous;
+
+      if (next) {
+        if (annotateMode) {
+          void onToggleAnnotateMode();
+        }
+        setSelectedElement(null);
+        setPendingMultiSelection([]);
+        setMultiDialogTargets([]);
+        setEditingAnnotation(null);
+        setEditingRegionGeometry(null);
+        setPendingRegion(null);
+      } else {
+        setPendingRegion(null);
+        setIsDrawingDraft(false);
+        setDrawCancelSignal((value) => value + 1);
+      }
+
+      return next;
+    });
+  }, [annotateMode, onToggleAnnotateMode]);
+
+  const handleToggleAnnotateExclusive = useCallback(() => {
+    if (!annotateMode && isDrawMode) {
+      setIsDrawMode(false);
+      setPendingRegion(null);
+      setIsDrawingDraft(false);
+      setDrawCancelSignal((value) => value + 1);
+    }
+
+    if (!annotateMode) {
+      setPendingRegion(null);
+      setEditingAnnotation(null);
+      setEditingRegionGeometry(null);
+    }
+
+    void onToggleAnnotateMode();
+  }, [annotateMode, isDrawMode, onToggleAnnotateMode]);
+
+  const handleEscape = useCallback(() => {
+    if (isDrawingDraft) {
+      setDrawCancelSignal((value) => value + 1);
+      setIsDrawingDraft(false);
+      return;
+    }
+
+    if (pendingRegion) {
+      setPendingRegion(null);
+      return;
+    }
+
+    if (isDrawMode) {
+      setIsDrawMode(false);
+      setDrawCancelSignal((value) => value + 1);
+      return;
+    }
+
+    if (editingAnnotation && editingRegionGeometry) {
+      setEditingRegionGeometry(null);
+      return;
+    }
+
+    if (pendingMultiSelection.length > 0) {
+      setPendingMultiSelection([]);
+      return;
+    }
+
+    if (annotateMode) {
+      void onToggleAnnotateMode();
+    }
+  }, [
+    annotateMode,
+    editingAnnotation,
+    editingRegionGeometry,
+    isDrawMode,
+    isDrawingDraft,
+    onToggleAnnotateMode,
+    pendingMultiSelection.length,
+    pendingRegion,
+  ]);
 
   // Handle clear all annotations
   const handleClearAnnotations = useCallback(async () => {
@@ -356,9 +563,17 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
   }, []);
 
   const editingElement = editingAnnotation ? getEditingElement() : null;
+  const editingRegion = editingAnnotation && isRegionAnnotation(editingAnnotation) ? editingAnnotation : null;
+  const regionDialogGeometry = pendingRegion?.geometry ?? editingRegionGeometry ?? editingRegion?.region.geometry ?? null;
+  const regionDialogShape = pendingRegion?.shape ?? editingRegion?.region.shape ?? null;
+  const shouldShowRegionDrawOverlay = isDrawMode && pendingRegion === null && editingAnnotation === null;
 
   // Hide toolbar when dialog is open to prevent z-index conflicts
-  const isDialogOpen = selectedElement !== null || editingAnnotation !== null || multiDialogTargets.length > 0;
+  const isDialogOpen =
+    selectedElement !== null ||
+    editingAnnotation !== null ||
+    multiDialogTargets.length > 0 ||
+    pendingRegion !== null;
 
   return (
     <>
@@ -374,10 +589,13 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
       {!isDialogOpen && (
         <OnUIToolbar
           isAnnotateMode={annotateMode}
+          isDrawMode={isDrawMode}
+          drawShape={drawShape}
           multiSelectCount={pendingMultiSelection.length}
-          onToggleAnnotateMode={() => {
-            void onToggleAnnotateMode();
-          }}
+          onToggleAnnotateMode={handleToggleAnnotateExclusive}
+          onToggleDrawMode={handleToggleDrawMode}
+          onSelectDrawShape={setDrawShape}
+          onEscape={handleEscape}
           annotations={annotations}
           outputLevel={outputLevel}
           onOutputLevelChange={setOutputLevel}
@@ -389,15 +607,36 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
         />
       )}
 
+      {/* Draw overlay */}
+      <RegionDrawOverlay
+        enabled={shouldShowRegionDrawOverlay}
+        shape={drawShape}
+        cancelSignal={drawCancelSignal}
+        onComplete={handleRegionDrawComplete}
+        onDraftStateChange={setIsDrawingDraft}
+      />
+
+      {/* Persistent region outlines */}
+      {annotations
+        .filter((annotation) => isRegionAnnotation(annotation))
+        .map((annotation) => (
+          <RegionOutline
+            key={`region-outline-${annotation.id}`}
+            annotation={annotation}
+            selected={editingAnnotation?.id === annotation.id}
+          />
+        ))}
+
       {/* Element highlight when hovering */}
-      {annotateMode && hoveredElement && !selectedElement && !editingAnnotation && multiDialogTargets.length === 0 && (
-        <ElementHighlight element={hoveredElement} />
-      )}
+      {annotateMode &&
+        hoveredElement &&
+        !selectedElement &&
+        !editingAnnotation &&
+        multiDialogTargets.length === 0 &&
+        pendingRegion === null && <ElementHighlight element={hoveredElement} />}
 
       {/* Highlight selected element */}
-      {selectedElement && (
-        <ElementHighlight element={selectedElement} selected />
-      )}
+      {selectedElement && <ElementHighlight element={selectedElement} selected />}
 
       {/* Highlight pending multi-selected elements */}
       {pendingMultiSelection.map((element, index) => (
@@ -418,8 +657,14 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
       ))}
 
       {/* Highlight element being edited */}
-      {editingElement && (
-        <ElementHighlight element={editingElement} selected />
+      {editingElement && <ElementHighlight element={editingElement} selected />}
+
+      {/* Region transform handles (edit mode) */}
+      {editingRegion && editingRegionGeometry && (
+        <RegionTransformHandles
+          geometry={editingRegionGeometry}
+          onChange={setEditingRegionGeometry}
+        />
       )}
 
       {/* New annotation dialog */}
@@ -443,7 +688,7 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
       )}
 
       {/* Edit annotation dialog */}
-      {editingAnnotation && editingElement && (
+      {editingAnnotation && editingElement && !editingRegion && (
         <OnUIDialog
           element={editingElement}
           initialComment={editingAnnotation.comment}
@@ -456,11 +701,31 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
         />
       )}
 
+      {/* Region annotation dialog (create/edit) */}
+      {regionDialogGeometry &&
+        regionDialogShape &&
+        (editingRegion ? (
+          <OnUIRegionDialog
+            geometry={regionDialogGeometry}
+            shape={regionDialogShape}
+            initialComment={editingRegion.comment}
+            {...(editingRegion.intent !== undefined ? { initialIntent: editingRegion.intent } : {})}
+            {...(editingRegion.severity !== undefined ? { initialSeverity: editingRegion.severity } : {})}
+            onSave={handleUpdateRegionAnnotation}
+            onCancel={handleCancelPopup}
+            onDelete={handleDeleteAnnotation}
+          />
+        ) : (
+          <OnUIRegionDialog
+            geometry={regionDialogGeometry}
+            shape={regionDialogShape}
+            onSave={handleSaveRegionAnnotation}
+            onCancel={handleCancelPopup}
+          />
+        ))}
+
       {/* Annotation markers */}
-      <AnnotationMarkers
-        annotations={annotations}
-        onMarkerClick={handleMarkerClick}
-      />
+      <AnnotationMarkers annotations={annotations} onMarkerClick={handleMarkerClick} />
 
       {toastMessage && (
         <ErrorToast

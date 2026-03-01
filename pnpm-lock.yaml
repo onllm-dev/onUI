@@ -12,7 +12,11 @@ importers:
         specifier: ^5.4.0
         version: 5.9.3
 
-  packages/core: {}
+  packages/core:
+    devDependencies:
+      vitest:
+        specifier: ^2.1.9
+        version: 2.1.9(@types/node@24.10.13)(jsdom@26.1.0)
 
   packages/extension:
     dependencies:

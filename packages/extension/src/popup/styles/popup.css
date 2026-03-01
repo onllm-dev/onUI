@@ -1,14 +1,16 @@
 :root {
-  --popup-primary: #6366f1;
-  --popup-primary-hover: #4f46e5;
-  --popup-text: #1f2937;
-  --popup-text-secondary: #6b7280;
-  --popup-bg: #ffffff;
-  --popup-bg-secondary: #f9fafb;
-  --popup-border: #e5e7eb;
+  --popup-primary: #5b63ff;
+  --popup-primary-hover: #737dff;
+  --popup-text: #fafafa;
+  --popup-text-secondary: #b8bad1;
+  --popup-text-muted: #71717a;
+  --popup-bg: linear-gradient(165deg, rgba(14, 15, 20, 0.985), rgba(21, 24, 36, 0.985));
+  --popup-bg-secondary: rgba(20, 22, 32, 0.68);
+  --popup-border: rgba(255, 255, 255, 0.12);
+  --popup-border-hover: rgba(130, 141, 255, 0.45);
   --popup-error: #ef4444;
-  --popup-radius: 6px;
-  --popup-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --popup-radius: 10px;
+  --popup-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.65);
 }
 
 * {
@@ -23,11 +25,27 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 14px;
   color: var(--popup-text);
-  background: var(--popup-bg);
+  background: transparent;
 }
 
 .popup {
   padding: 16px;
+  background: var(--popup-bg);
+  border: 1px solid var(--popup-border);
+  box-shadow: var(--popup-shadow);
+  transform-origin: top right;
+  animation: popup-in 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes popup-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .popup-header {
@@ -36,15 +54,22 @@ body {
   justify-content: space-between;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid var(--popup-border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .popup-title {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--popup-text);
+  letter-spacing: -0.01em;
+}
+
+.popup-title-accent {
+  color: #67d3ff;
+  text-shadow: 0 0 10px rgba(103, 211, 255, 0.3);
 }
 
 .popup-logo {
@@ -71,11 +96,11 @@ body {
 }
 
 .popup-section-title {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--popup-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(192, 198, 224, 0.94);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   margin-bottom: 8px;
 }
 
@@ -83,14 +108,17 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px;
-  background: var(--popup-bg-secondary);
-  border-radius: var(--popup-radius);
+  padding: 14px 14px;
+  background: rgba(20, 22, 32, 0.68);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
   cursor: pointer;
+  transition: all 140ms ease;
 }
 
 .popup-toggle:hover {
-  background: var(--popup-border);
+  background: linear-gradient(140deg, rgba(91, 99, 255, 0.22), rgba(78, 199, 255, 0.12));
+  border-color: var(--popup-border-hover);
 }
 
 .popup-toggle.disabled {
@@ -99,41 +127,46 @@ body {
 }
 
 .popup-toggle.disabled:hover {
-  background: var(--popup-bg-secondary);
+  background: rgba(20, 22, 32, 0.68);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 .popup-toggle-label {
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--popup-text);
 }
 
 .popup-toggle-switch {
   position: relative;
-  width: 44px;
+  width: 42px;
   height: 24px;
-  background: var(--popup-border);
-  border-radius: 12px;
-  transition: background 0.2s;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  transition: background 0.2s, border-color 0.2s;
 }
 
 .popup-toggle-switch.active {
-  background: var(--popup-primary);
+  background: linear-gradient(140deg, var(--popup-primary), #4ec7ff);
+  border-color: var(--popup-primary);
 }
 
 .popup-toggle-switch::after {
   content: '';
   position: absolute;
-  top: 2px;
-  left: 2px;
+  top: 1px;
+  left: 1px;
   width: 20px;
   height: 20px;
-  background: white;
+  background: #ffffff;
   border-radius: 50%;
-  box-shadow: var(--popup-shadow);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s;
 }
 
 .popup-toggle-switch.active::after {
-  transform: translateX(20px);
+  transform: translateX(18px);
 }
 
 .popup-stat {
@@ -159,20 +192,20 @@ body {
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 40px;
-  padding: 0 16px;
-  font-size: 14px;
-  font-weight: 500;
-  color: white;
-  background: var(--popup-primary);
-  border: none;
-  border-radius: var(--popup-radius);
+  height: 36px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(140deg, var(--popup-primary), #4ec7ff);
+  border: 1px solid var(--popup-primary);
+  border-radius: 9px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 140ms ease;
 }
 
 .popup-btn:hover {
-  background: var(--popup-primary-hover);
+  background: linear-gradient(140deg, var(--popup-primary-hover), #6ad2ff);
 }
 
 .popup-btn:disabled {
@@ -220,7 +253,7 @@ body {
 .popup-footer {
   margin-top: 16px;
   padding-top: 12px;
-  border-top: 1px solid var(--popup-border);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -231,11 +264,12 @@ body {
 }
 
 .popup-footer a {
-  color: var(--popup-primary);
+  color: #93c5fd;
   text-decoration: none;
 }
 
 .popup-footer a:hover {
+  color: #bfdbfe;
   text-decoration: underline;
 }
 
@@ -278,25 +312,27 @@ body {
 
 .popup-helper-text {
   margin-top: 8px;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--popup-text-secondary);
-  padding: 0 4px;
+  padding: 0 6px;
 }
 
 .popup-sync-status {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 12px;
-  border: 1px solid var(--popup-border);
-  border-radius: var(--popup-radius);
-  background: var(--popup-bg-secondary);
-  font-weight: 500;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: rgba(20, 22, 32, 0.68);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--popup-text);
 }
 
 .popup-sync-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 999px;
   background: var(--popup-text-secondary);
 }

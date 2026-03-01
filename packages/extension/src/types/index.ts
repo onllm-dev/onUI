@@ -6,6 +6,10 @@ export type {
   AnnotationIntent,
   AnnotationSeverity,
   AnnotationStatus,
+  AnnotationTargetType,
+  RegionShape,
+  RegionGeometry,
+  RegionTarget,
 } from './annotation';
 export type {
   Message,

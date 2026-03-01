@@ -1,5 +1,5 @@
 import type { Annotation, ReportContext } from '../types.js';
-import { truncate } from './shared.js';
+import { formatRegionGeometry, isRegionAnnotation, truncate } from './shared.js';
 
 export function formatDetailed(annotations: Annotation[], context: ReportContext): string {
   const lines: string[] = [
@@ -11,22 +11,34 @@ export function formatDetailed(annotations: Annotation[], context: ReportContext
   ];
 
   annotations.forEach((annotation, index) => {
-    lines.push(`## ${index + 1}. ${annotation.elementPath}`);
+    const isRegion = isRegionAnnotation(annotation);
+    lines.push(`## ${index + 1}. ${isRegion ? `${annotation.region.shape} region` : annotation.elementPath}`);
     lines.push('');
-    lines.push('### Element Info');
-    lines.push(`- **Selector:** \`${annotation.selector}\``);
-    lines.push(`- **Tag:** \`${annotation.tagName}\``);
-    lines.push(`- **Path:** \`${annotation.elementPath}\``);
+    lines.push('### Target Info');
 
-    if (annotation.role) {
-      lines.push(`- **Role:** ${annotation.role}`);
-    }
+    if (isRegion) {
+      lines.push('- **Target type:** `region`');
+      lines.push(`- **Shape:** \`${annotation.region.shape}\``);
+      lines.push(`- **Geometry:** ${formatRegionGeometry(annotation.region.geometry)}`);
+      lines.push(`- **Selector (compat):** \`${annotation.selector}\``);
+      lines.push(`- **Tag (compat):** \`${annotation.tagName}\``);
+      lines.push(`- **Path (compat):** \`${annotation.elementPath}\``);
+    } else {
+      lines.push('- **Target type:** `element`');
+      lines.push(`- **Selector:** \`${annotation.selector}\``);
+      lines.push(`- **Tag:** \`${annotation.tagName}\``);
+      lines.push(`- **Path:** \`${annotation.elementPath}\``);
 
-    if (annotation.attributes && Object.keys(annotation.attributes).length > 0) {
-      lines.push('');
-      lines.push('### Attributes');
-      for (const [key, value] of Object.entries(annotation.attributes)) {
-        lines.push(`- \`${key}\`: \`${truncate(value, 80)}\``);
+      if (annotation.role) {
+        lines.push(`- **Role:** ${annotation.role}`);
+      }
+
+      if (annotation.attributes && Object.keys(annotation.attributes).length > 0) {
+        lines.push('');
+        lines.push('### Attributes');
+        for (const [key, value] of Object.entries(annotation.attributes)) {
+          lines.push(`- \`${key}\`: \`${truncate(value, 80)}\``);
+        }
       }
     }
 

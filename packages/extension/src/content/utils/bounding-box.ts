@@ -1,4 +1,4 @@
-import type { BoundingBox } from '@/types';
+import type { BoundingBox, RegionGeometry } from '@/types';
 
 /**
  * Calculate bounding box for an element
@@ -69,4 +69,16 @@ export function isInViewport(box: BoundingBox): boolean {
     box.left < viewportRight &&
     box.left + box.width > viewportLeft
   );
+}
+
+export function createBoundingBoxFromRegionGeometry(geometry: RegionGeometry): BoundingBox {
+  return {
+    top: geometry.y,
+    left: geometry.x,
+    width: geometry.width,
+    height: geometry.height,
+    bottom: geometry.y + geometry.height,
+    right: geometry.x + geometry.width,
+    isFixed: false,
+  };
 }

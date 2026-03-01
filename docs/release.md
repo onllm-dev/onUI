@@ -1,5 +1,14 @@
 # onUI Local Release Runbook
 
+## Release Summary (v2.0.0)
+
+- Added a dual capture model with **Annotate mode** for element-level feedback and **Draw mode** for region-level layout and spacing issues.
+- Added draw mode shape selection (`rectangle`/`ellipse`) plus region editing UX with persistent outlines and transform handles.
+- Redesigned the floating toolbar to stay compact while opening output level and clear-on-copy controls in a readable pop-out settings card.
+- Updated report formatters (`compact`, `standard`, `detailed`, `forensic`) to emit explicit region target metadata and geometry.
+- Improved MCP/local search behavior so region annotations are queryable by target type/shape and geometry text, with report generation preserving region fields.
+- Polished toolbar/dialog behavior for mode toggles, escape handling, multi-select hints, and copy/clear settings flow.
+
 ## Preconditions
 
 1. Node 20+

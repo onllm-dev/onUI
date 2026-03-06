@@ -1,5 +1,6 @@
 import type { Annotation, Settings } from '@/types';
 import { DEFAULT_SETTINGS } from '@/types';
+import { webext } from '@/shared/webext';
 
 /**
  * Storage keys
@@ -56,7 +57,7 @@ export class StorageService {
    * Get all annotations for a specific URL
    */
   async getAnnotations(url: string): Promise<Annotation[]> {
-    const result = await chrome.storage.local.get(STORAGE_KEYS.ANNOTATIONS);
+    const result = await webext.storage.local.get(STORAGE_KEYS.ANNOTATIONS);
     const allAnnotations = (result[STORAGE_KEYS.ANNOTATIONS] ?? {}) as Record<string, Annotation[]>;
     return allAnnotations[this.normalizeUrl(url)] ?? [];
   }
@@ -65,7 +66,7 @@ export class StorageService {
    * Save annotations for a specific URL
    */
   async setAnnotations(url: string, annotations: Annotation[]): Promise<void> {
-    const result = await chrome.storage.local.get([
+    const result = await webext.storage.local.get([
       STORAGE_KEYS.ANNOTATIONS,
       STORAGE_KEYS.ANNOTATION_INDEX,
     ]);
@@ -83,7 +84,7 @@ export class StorageService {
 
     const nextIndex = this.updateIndexForUrl(currentIndex, normalizedUrl, annotations);
 
-    await chrome.storage.local.set({
+    await webext.storage.local.set({
       [STORAGE_KEYS.ANNOTATIONS]: allAnnotations,
       [STORAGE_KEYS.ANNOTATION_INDEX]: nextIndex,
     });
@@ -93,7 +94,7 @@ export class StorageService {
    * Get all annotations across all URLs
    */
   async getAllAnnotations(): Promise<Record<string, Annotation[]>> {
-    const result = await chrome.storage.local.get(STORAGE_KEYS.ANNOTATIONS);
+    const result = await webext.storage.local.get(STORAGE_KEYS.ANNOTATIONS);
     return (result[STORAGE_KEYS.ANNOTATIONS] ?? {}) as Record<string, Annotation[]>;
   }
 
@@ -101,7 +102,7 @@ export class StorageService {
    * Resolve annotation ID to normalized URL
    */
   async getAnnotationUrlById(id: string): Promise<string | null> {
-    const result = await chrome.storage.local.get([
+    const result = await webext.storage.local.get([
       STORAGE_KEYS.ANNOTATIONS,
       STORAGE_KEYS.ANNOTATION_INDEX,
     ]);
@@ -110,7 +111,7 @@ export class StorageService {
     const index = existingIndex ?? this.buildAnnotationIndex(allAnnotations);
 
     if (existingIndex === undefined) {
-      await chrome.storage.local.set({
+      await webext.storage.local.set({
         [STORAGE_KEYS.ANNOTATION_INDEX]: index,
       });
     }
@@ -122,7 +123,7 @@ export class StorageService {
    * Get settings
    */
   async getSettings(): Promise<Settings> {
-    const result = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
+    const result = await webext.storage.local.get(STORAGE_KEYS.SETTINGS);
     const stored = result[STORAGE_KEYS.SETTINGS] as Partial<Settings> | undefined;
     return { ...DEFAULT_SETTINGS, ...stored };
   }
@@ -133,7 +134,7 @@ export class StorageService {
   async updateSettings(update: Partial<Settings>): Promise<Settings> {
     const current = await this.getSettings();
     const updated = { ...current, ...update };
-    await chrome.storage.local.set({ [STORAGE_KEYS.SETTINGS]: updated });
+    await webext.storage.local.set({ [STORAGE_KEYS.SETTINGS]: updated });
     return updated;
   }
 

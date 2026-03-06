@@ -6,7 +6,7 @@ vi.mock('node:fs/promises', () => ({
 }));
 
 vi.mock('../../store/path.js', () => ({
-  getSupportedNativeHostBrowsers: vi.fn(() => ['chrome', 'edge']),
+  getSupportedNativeHostBrowsers: vi.fn(() => ['chrome', 'edge', 'firefox']),
   getNativeHostManifestPath: vi.fn((_platform: string, browser: string) => `/tmp/com.onui.native.${browser}.json`),
 }));
 
@@ -31,7 +31,7 @@ describe('checkNativeHostManifest', () => {
     readFileMock.mockImplementation(async (path) => JSON.stringify(manifestByPath[String(path)]));
   }
 
-  it('returns ok when manifests include expected origins for both browsers', async () => {
+  it('returns ok when manifests include expected allowlists for all browsers', async () => {
     mockManifestRead({
       '/tmp/com.onui.native.chrome.json': {
         name: 'com.onui.native',
@@ -48,6 +48,11 @@ describe('checkNativeHostManifest', () => {
           'chrome-extension://fnkengnadapimmlepnjienecfoekgacp/',
           'chrome-extension://hllgijkdhegkpooopdhbfdjialkhlkan/',
         ],
+      },
+      '/tmp/com.onui.native.firefox.json': {
+        name: 'com.onui.native',
+        path: '/tmp/onui-native-host.sh',
+        allowed_extensions: ['onui@onllm.dev'],
       },
     });
 
@@ -66,6 +71,11 @@ describe('checkNativeHostManifest', () => {
           'chrome-extension://fnkengnadapimmlepnjienecfoekgacp/',
         ],
       },
+      '/tmp/com.onui.native.firefox.json': {
+        name: 'com.onui.native',
+        path: '/tmp/onui-native-host.sh',
+        allowed_extensions: ['onui@onllm.dev'],
+      },
     });
 
     const result = await checkNativeHostManifest();
@@ -74,7 +84,7 @@ describe('checkNativeHostManifest', () => {
     expect(result.fix).toContain('pnpm --filter @onui/mcp-server setup');
   });
 
-  it('returns warning when expected origins are missing', async () => {
+  it('returns warning when expected allowlist entries are missing', async () => {
     mockManifestRead({
       '/tmp/com.onui.native.chrome.json': {
         name: 'com.onui.native',
@@ -86,11 +96,16 @@ describe('checkNativeHostManifest', () => {
         path: '/tmp/onui-native-host.sh',
         allowed_origins: ['chrome-extension://hllgijkdhegkpooopdhbfdjialkhlkan/'],
       },
+      '/tmp/com.onui.native.firefox.json': {
+        name: 'com.onui.native',
+        path: '/tmp/onui-native-host.sh',
+        allowed_extensions: [],
+      },
     });
 
     const result = await checkNativeHostManifest();
     expect(result.status).toBe('warning');
-    expect(result.message).toContain('missing expected origins');
+    expect(result.message).toContain('missing expected allowlist entries');
   });
 
   it('returns error when required manifest fields are invalid', async () => {
@@ -106,6 +121,11 @@ describe('checkNativeHostManifest', () => {
           'chrome-extension://hllgijkdhegkpooopdhbfdjialkhlkan/',
         ],
       },
+      '/tmp/com.onui.native.firefox.json': {
+        name: 'com.onui.native',
+        path: '/tmp/onui-native-host.sh',
+        allowed_extensions: ['onui@onllm.dev'],
+      },
     });
 
     const result = await checkNativeHostManifest();
@@ -118,6 +138,6 @@ describe('checkNativeHostManifest', () => {
 
     const result = await checkNativeHostManifest();
     expect(result.status).toBe('warning');
-    expect(result.message).toContain('not found for Chrome or Edge');
+    expect(result.message).toContain('not found for Chrome, Edge, Firefox');
   });
 });

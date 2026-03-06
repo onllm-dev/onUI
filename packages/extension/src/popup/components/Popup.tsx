@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'preact/hooks';
 import { copyToClipboard } from '@/content/utils/clipboard';
+import { webext } from '@/shared/webext';
 
 const MCP_SETUP_DOCS_URL = 'https://github.com/onllm-dev/onUI/blob/main/docs/mcp-setup.md';
 const MCP_SETUP_COMMAND_UNIX = 'curl -fsSL https://github.com/onllm-dev/onUI/releases/latest/download/install.sh | bash -s -- --mcp';
@@ -34,7 +35,7 @@ export function Popup() {
     const loadState = async () => {
       try {
         // Get current tab
-        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        const [tab] = await webext.tabs.query({ active: true, currentWindow: true });
         if (!tab?.id || !tab.url) {
           setIsLoading(false);
           return;
@@ -45,7 +46,7 @@ export function Popup() {
         setIsSupportedPage(supported);
 
         // Get tab runtime state
-        const stateResponse = await chrome.runtime.sendMessage({
+        const stateResponse = await webext.runtime.sendMessage({
           type: 'GET_TAB_RUNTIME_STATE',
           payload: { tabId: tab.id },
         });
@@ -54,7 +55,7 @@ export function Popup() {
           setTabEnabled(stateResponse.data?.enabled || false);
         }
 
-        const syncResponse = await chrome.runtime.sendMessage({
+        const syncResponse = await webext.runtime.sendMessage({
           type: 'GET_SYNC_STATUS',
         });
 
@@ -75,7 +76,7 @@ export function Popup() {
   useEffect(() => {
     const timer = setInterval(async () => {
       try {
-        const syncResponse = await chrome.runtime.sendMessage({
+        const syncResponse = await webext.runtime.sendMessage({
           type: 'GET_SYNC_STATUS',
         });
         if (syncResponse?.success && syncResponse.data) {
@@ -121,20 +122,20 @@ export function Popup() {
       setTabEnabled(Boolean(nextState.enabled));
     };
 
-    chrome.runtime.onMessage.addListener(handleRuntimeStateChanged);
-    return () => chrome.runtime.onMessage.removeListener(handleRuntimeStateChanged);
+    webext.runtime.onMessage.addListener(handleRuntimeStateChanged);
+    return () => webext.runtime.onMessage.removeListener(handleRuntimeStateChanged);
   }, [activeTabId]);
 
   const handleToggleTabEnabled = async () => {
     try {
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      const [tab] = await webext.tabs.query({ active: true, currentWindow: true });
       if (!tab?.id) return;
       if (!isSupportedPage) return;
 
       const nextEnabled = !tabEnabled;
       setTabEnabled(nextEnabled);
 
-      const response = await chrome.runtime.sendMessage({
+      const response = await webext.runtime.sendMessage({
         type: 'SET_TAB_ENABLED',
         payload: { tabId: tab.id, enabled: nextEnabled },
       });
@@ -232,7 +233,7 @@ export function Popup() {
       </div>
 
       <div class="popup-footer">
-        <span>onUI v2.0.0</span>
+        <span>onUI v2.1.0</span>
         <span aria-hidden="true">•</span>
         <a href="https://github.com/onllm-dev/onUI" target="_blank" rel="noopener">
           GitHub

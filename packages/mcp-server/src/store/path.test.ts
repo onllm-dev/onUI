@@ -10,6 +10,9 @@ describe('path resolver', () => {
     expect(getNativeHostManifestPath('darwin', 'edge')).toContain(
       'Microsoft Edge/NativeMessagingHosts/com.onui.native.json'
     );
+    expect(getNativeHostManifestPath('darwin', 'firefox')).toContain(
+      'Mozilla/NativeMessagingHosts/com.onui.native.json'
+    );
   });
 
   it('resolves linux paths', () => {
@@ -22,6 +25,9 @@ describe('path resolver', () => {
     expect(getNativeHostManifestPath('linux', 'edge')).toContain(
       'microsoft-edge/NativeMessagingHosts/com.onui.native.json'
     );
+    expect(getNativeHostManifestPath('linux', 'firefox')).toContain(
+      '.mozilla/native-messaging-hosts/com.onui.native.json'
+    );
   });
 
   it('resolves browser-specific windows registry paths', () => {
@@ -30,6 +36,9 @@ describe('path resolver', () => {
     );
     expect(getNativeHostWindowsRegistryPath('edge')).toContain(
       'HKCU\\Software\\Microsoft\\Edge\\NativeMessagingHosts\\com.onui.native'
+    );
+    expect(getNativeHostWindowsRegistryPath('firefox')).toContain(
+      'HKCU\\Software\\Mozilla\\NativeMessagingHosts\\com.onui.native'
     );
   });
 });

@@ -109,11 +109,13 @@ package_artifacts() {
   local version="$1"
   local artifacts_dir="artifacts/v${version}"
   local ext_dist_dir="packages/extension/dist"
+  local ext_firefox_dist_dir="packages/extension/dist-firefox"
   local mcp_bundle_dir
   local sh_template="scripts/install/install.sh.template"
   local ps_template="scripts/install/install.ps1.template"
 
   [ -d "$ext_dist_dir" ] || fail "Missing extension dist at $ext_dist_dir"
+  [ -d "$ext_firefox_dist_dir" ] || fail "Missing Firefox extension dist at $ext_firefox_dist_dir"
   [ -f "$sh_template" ] || fail "Missing installer template: $sh_template"
   [ -f "$ps_template" ] || fail "Missing installer template: $ps_template"
 
@@ -124,6 +126,7 @@ package_artifacts() {
   local unpacked_zip="$artifacts_dir/onui-extension-unpacked-v${version}.zip"
   local cws_zip="$artifacts_dir/onui-chrome-web-store-v${version}.zip"
   local edge_zip="$artifacts_dir/onui-edge-add-ons-v${version}.zip"
+  local firefox_zip="$artifacts_dir/onui-firefox-add-ons-v${version}.zip"
   local mcp_bundle_zip="$artifacts_dir/onui-mcp-bundle-v${version}.zip"
   local install_sh="$artifacts_dir/install.sh"
   local install_ps1="$artifacts_dir/install.ps1"
@@ -131,6 +134,11 @@ package_artifacts() {
   (
     cd "$ext_dist_dir"
     zip -qr "../../../$unpacked_zip" .
+  )
+
+  (
+    cd "$ext_firefox_dist_dir"
+    zip -qr "../../../$firefox_zip" .
   )
 
   local tmp_dir
@@ -172,6 +180,7 @@ package_artifacts() {
     sha256_file "$unpacked_zip"
     sha256_file "$cws_zip"
     sha256_file "$edge_zip"
+    sha256_file "$firefox_zip"
     sha256_file "$mcp_bundle_zip"
     sha256_file "$install_sh"
     sha256_file "$install_ps1"
@@ -210,6 +219,7 @@ release_to_github() {
     "$artifacts_dir/onui-extension-unpacked-v${version}.zip" \
     "$artifacts_dir/onui-chrome-web-store-v${version}.zip" \
     "$artifacts_dir/onui-edge-add-ons-v${version}.zip" \
+    "$artifacts_dir/onui-firefox-add-ons-v${version}.zip" \
     "$artifacts_dir/onui-mcp-bundle-v${version}.zip" \
     "$artifacts_dir/install.sh" \
     "$artifacts_dir/install.ps1" \

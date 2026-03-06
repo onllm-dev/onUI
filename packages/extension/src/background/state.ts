@@ -2,12 +2,14 @@
  * Per-tab state manager
  * Tracks tab runtime state (enabled + annotate mode) for each tab
  */
+import { webext } from '@/shared/webext';
+
 export class StateManager {
   private tabStates: Map<number, { enabled: boolean; annotateMode: boolean }> = new Map();
 
   constructor() {
     // Clean up state when tabs are closed
-    chrome.tabs.onRemoved.addListener((tabId) => {
+    webext.tabs.onRemoved.addListener((tabId) => {
       this.tabStates.delete(tabId);
     });
   }

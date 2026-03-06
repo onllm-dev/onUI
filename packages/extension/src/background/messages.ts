@@ -1,4 +1,5 @@
 import type { Message, MessageResponse } from '@/types';
+import { webext } from '@/shared/webext';
 import { annotationManager } from './annotations';
 import { getNativeSyncStatus } from './native-sync';
 import { storageService } from './storage';
@@ -12,13 +13,13 @@ function isInjectableTabUrl(url?: string): boolean {
 }
 
 async function ensureContentScriptInjected(tabId: number): Promise<void> {
-  const tab = await chrome.tabs.get(tabId);
+  const tab = await webext.tabs.get(tabId);
   if (!isInjectableTabUrl(tab.url)) {
     throw new Error('onUI can only run on http/https pages.');
   }
 
   // Inject content script only after explicit user action.
-  await chrome.scripting.executeScript({
+  await webext.scripting.executeScript({
     target: { tabId },
     files: [CONTENT_SCRIPT_ENTRY_FILE],
   });
@@ -31,7 +32,7 @@ async function reInjectContentScriptIfEnabled(tabId: number, url?: string): Prom
   }
 
   try {
-    await chrome.scripting.executeScript({
+    await webext.scripting.executeScript({
       target: { tabId },
       files: [CONTENT_SCRIPT_ENTRY_FILE],
     });
@@ -52,13 +53,13 @@ async function notifyTabRuntimeStateChanged(tabId: number): Promise<void> {
   };
 
   try {
-    await chrome.tabs.sendMessage(tabId, payload);
+    await webext.tabs.sendMessage(tabId, payload);
   } catch {
     // Content script may not be available for this tab URL; ignore.
   }
 
   try {
-    await chrome.runtime.sendMessage(payload);
+    await webext.runtime.sendMessage(payload);
   } catch {
     // Popup/extension page listeners may not exist; ignore.
   }
@@ -83,14 +84,14 @@ function sanitizeUrlForLog(url?: string): string | undefined {
  * even if the service worker becomes inactive (Manifest V3 limitation)
  */
 export function setupMessageHandler(): void {
-  chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  webext.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status !== 'complete') {
       return;
     }
     void reInjectContentScriptIfEnabled(tabId, tab.url);
   });
 
-  chrome.runtime.onMessage.addListener(
+  webext.runtime.onMessage.addListener(
     (
       message: Message,
       sender: chrome.runtime.MessageSender,
@@ -144,7 +145,7 @@ export function setupMessageHandler(): void {
 /**
  * Route messages to appropriate handlers
  * Note: For GET_STATE and SET_STATE, tabId is extracted from sender.tab.id
- * since content scripts cannot access chrome.tabs API
+ * since content scripts cannot access webext.tabs API
  */
 async function handleMessage(
   message: Message,
@@ -314,7 +315,7 @@ async function handleMessage(
     }
 
     case 'GET_STATE': {
-      // Extract tabId from sender (content scripts can't access chrome.tabs)
+      // Extract tabId from sender (content scripts can't access webext.tabs)
       const tabId = message.payload?.tabId ?? sender.tab?.id;
       // Return safe default if no tabId (don't fail)
       if (!tabId) {
@@ -331,7 +332,7 @@ async function handleMessage(
     }
 
     case 'SET_STATE': {
-      // Extract tabId from sender (content scripts can't access chrome.tabs)
+      // Extract tabId from sender (content scripts can't access webext.tabs)
       const tabId = message.payload?.tabId ?? sender.tab?.id;
       // Return failure if no tabId so caller can handle rollback
       if (!tabId) {

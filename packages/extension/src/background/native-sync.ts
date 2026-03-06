@@ -1,4 +1,5 @@
 import type { Annotation } from '@/types';
+import { webext } from '@/shared/webext';
 import { storageService } from './storage';
 
 const LOG_PREFIX = '[onUI][background][native-sync]';
@@ -96,7 +97,7 @@ function isHostUnavailableError(errorMessage: string): boolean {
 }
 
 async function sendNativeRequest<T = unknown>(request: NativeRequest): Promise<T> {
-  const response = (await chrome.runtime.sendNativeMessage(
+  const response = (await webext.runtime.sendNativeMessage(
     NATIVE_HOST_NAME,
     request
   )) as NativeResponse<T>;
@@ -109,13 +110,13 @@ async function sendNativeRequest<T = unknown>(request: NativeRequest): Promise<T
 }
 
 async function getCursor(): Promise<number> {
-  const result = await chrome.storage.local.get(CURSOR_STORAGE_KEY);
+  const result = await webext.storage.local.get(CURSOR_STORAGE_KEY);
   const cursor = result[CURSOR_STORAGE_KEY];
   return typeof cursor === 'number' ? cursor : 0;
 }
 
 async function setCursor(cursor: number): Promise<void> {
-  await chrome.storage.local.set({ [CURSOR_STORAGE_KEY]: cursor });
+  await webext.storage.local.set({ [CURSOR_STORAGE_KEY]: cursor });
   syncStatus.cursor = cursor;
 }
 
@@ -291,7 +292,7 @@ export function getNativeSyncStatus(): SyncStatus {
 
 async function ensureAlarmPolling(): Promise<void> {
   if (!alarmListenerRegistered) {
-    chrome.alarms.onAlarm.addListener((alarm) => {
+    webext.alarms.onAlarm.addListener((alarm) => {
       if (alarm.name !== SYNC_ALARM_NAME) {
         return;
       }
@@ -300,7 +301,7 @@ async function ensureAlarmPolling(): Promise<void> {
     alarmListenerRegistered = true;
   }
 
-  await chrome.alarms.create(SYNC_ALARM_NAME, {
+  await webext.alarms.create(SYNC_ALARM_NAME, {
     periodInMinutes: SYNC_INTERVAL_MINUTES,
   });
 }

@@ -13,12 +13,22 @@ import {
 
 const CHROME_WEB_STORE_EXTENSION_ID = 'hllgijkdhegkpooopdhbfdjialkhlkan';
 const CHROMIUM_UNPACKED_EXTENSION_ID = 'fnkengnadapimmlepnjienecfoekgacp';
+const FIREFOX_ADDON_ID = 'onui@onllm.dev';
 const DEFAULT_CHROME_EXTENSION_IDS = [CHROME_WEB_STORE_EXTENSION_ID, CHROMIUM_UNPACKED_EXTENSION_ID] as const;
 const DEFAULT_EDGE_EXTENSION_IDS = [CHROMIUM_UNPACKED_EXTENSION_ID, CHROME_WEB_STORE_EXTENSION_ID] as const;
+const DEFAULT_FIREFOX_EXTENSION_IDS = [FIREFOX_ADDON_ID] as const;
 
 function normalizeExtensionId(id: string): string | undefined {
   const normalized = id.trim().toLowerCase();
   if (!/^[a-p]{32}$/.test(normalized)) {
+    return undefined;
+  }
+  return normalized;
+}
+
+function normalizeFirefoxExtensionId(id: string): string | undefined {
+  const normalized = id.trim();
+  if (normalized.length === 0) {
     return undefined;
   }
   return normalized;
@@ -47,6 +57,19 @@ export function buildAllowedOrigins(extensionIds: readonly string[]): string[] {
   return Array.from(deduped).map((id) => `chrome-extension://${id}/`);
 }
 
+export function buildAllowedExtensions(extensionIds: readonly string[]): string[] {
+  const deduped = new Set<string>();
+
+  for (const id of extensionIds) {
+    const normalized = normalizeFirefoxExtensionId(id);
+    if (normalized) {
+      deduped.add(normalized);
+    }
+  }
+
+  return Array.from(deduped);
+}
+
 export function buildChromeAllowedOrigins(
   extensionIds: readonly string[] = DEFAULT_CHROME_EXTENSION_IDS
 ): string[] {
@@ -57,7 +80,17 @@ export function buildEdgeAllowedOrigins(extensionIds: readonly string[] = DEFAUL
   return buildAllowedOrigins(extensionIds);
 }
 
+export function buildFirefoxAllowedExtensions(
+  extensionIds: readonly string[] = DEFAULT_FIREFOX_EXTENSION_IDS
+): string[] {
+  return buildAllowedExtensions(extensionIds);
+}
+
 export function buildAllowedOriginsForBrowser(browser: NativeHostBrowser): string[] {
+  if (browser === 'firefox') {
+    return [];
+  }
+
   const extraShared = parseEnvExtensionIds(process.env.ONUI_EXTRA_EXTENSION_IDS);
 
   if (browser === 'edge') {
@@ -67,6 +100,23 @@ export function buildAllowedOriginsForBrowser(browser: NativeHostBrowser): strin
 
   const chromeSpecific = parseEnvExtensionIds(process.env.ONUI_CHROME_EXTENSION_IDS);
   return buildChromeAllowedOrigins([...DEFAULT_CHROME_EXTENSION_IDS, ...chromeSpecific, ...extraShared]);
+}
+
+export function buildAllowedExtensionsForBrowser(browser: NativeHostBrowser): string[] {
+  if (browser !== 'firefox') {
+    return [];
+  }
+
+  const extraShared = parseEnvExtensionIds(process.env.ONUI_EXTRA_EXTENSION_IDS);
+  const firefoxSpecific = parseEnvExtensionIds(process.env.ONUI_FIREFOX_EXTENSION_IDS);
+  const firefoxSingle = parseEnvExtensionIds(process.env.ONUI_FIREFOX_EXTENSION_ID);
+
+  return buildFirefoxAllowedExtensions([
+    ...DEFAULT_FIREFOX_EXTENSION_IDS,
+    ...firefoxSpecific,
+    ...firefoxSingle,
+    ...extraShared,
+  ]);
 }
 
 export interface NativeHostInstallResult {
@@ -113,13 +163,21 @@ export async function installNativeHost(
     const manifestPath = getNativeHostManifestPath(platform, browser);
     await mkdir(getNativeHostDir(platform, browser), { recursive: true });
 
-    const manifest = {
+    const manifestBase = {
       name: getNativeHostName(),
       description: 'onUI native messaging host',
       path: wrapperPath,
       type: 'stdio',
-      allowed_origins: buildAllowedOriginsForBrowser(browser),
     };
+    const manifest = browser === 'firefox'
+      ? {
+          ...manifestBase,
+          allowed_extensions: buildAllowedExtensionsForBrowser(browser),
+        }
+      : {
+          ...manifestBase,
+          allowed_origins: buildAllowedOriginsForBrowser(browser),
+        };
 
     await writeFile(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
     manifestPaths[browser] = manifestPath;

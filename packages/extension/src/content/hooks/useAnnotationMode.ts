@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'preact/hooks';
+import { webext } from '@/shared/webext';
 import { isContextInvalidatedError } from '../messaging';
 
 const LOG_PREFIX = '[onUI][useAnnotationMode]';
@@ -41,7 +42,7 @@ export function useAnnotationMode(): UseAnnotationModeReturn {
   }, [isActive, isContextInvalid]);
 
   // Sync state with background on mount
-  // Note: Content scripts cannot use chrome.tabs API - background extracts tabId from sender
+  // Note: Content scripts cannot use webext.tabs API - background extracts tabId from sender
   useEffect(() => {
     const syncState = async () => {
       const operationId = nextOperationId('sync');
@@ -50,7 +51,7 @@ export function useAnnotationMode(): UseAnnotationModeReturn {
       console.log(`${LOG_PREFIX} ${operationId} start`);
 
       try {
-        const response = await chrome.runtime.sendMessage({
+        const response = await webext.runtime.sendMessage({
           type: 'GET_STATE',
           meta: {
             requestId: operationId,
@@ -91,7 +92,7 @@ export function useAnnotationMode(): UseAnnotationModeReturn {
     void syncState();
   }, [nextOperationId]);
 
-  // Note: Content scripts cannot use chrome.tabs API - background extracts tabId from sender
+  // Note: Content scripts cannot use webext.tabs API - background extracts tabId from sender
   const updateState = useCallback(
     async (newState: boolean, source: 'toggle' | 'activate' | 'deactivate') => {
       const operationId = nextOperationId('updateState');
@@ -119,7 +120,7 @@ export function useAnnotationMode(): UseAnnotationModeReturn {
       setIsActive(newState);
 
       try {
-        const response = await chrome.runtime.sendMessage({
+        const response = await webext.runtime.sendMessage({
           type: 'SET_STATE',
           payload: { isActive: newState },
           meta: {

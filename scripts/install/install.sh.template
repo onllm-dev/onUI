@@ -8,11 +8,13 @@ ONUI_HOME="${ONUI_HOME:-$HOME/onUI}"
 EXT_ROOT="${ONUI_HOME}/extensions"
 EXT_DIR="${EXT_ROOT}/v${VERSION}"
 CURRENT_LINK="${EXT_ROOT}/current"
-EXT_URL="${BASE_URL}/releases/download/v${VERSION}/onui-extension-unpacked-v${VERSION}.zip"
+CHROMIUM_EXT_URL="${BASE_URL}/releases/download/v${VERSION}/onui-extension-unpacked-v${VERSION}.zip"
+FIREFOX_EXT_URL="${BASE_URL}/releases/download/v${VERSION}/onui-firefox-add-ons-v${VERSION}.zip"
 MCP_URL="${BASE_URL}/releases/download/v${VERSION}/onui-mcp-bundle-v${VERSION}.zip"
 MCP_DIR="${ONUI_HOME}/mcp/v${VERSION}"
 
 INSTALL_MCP=0
+BROWSER_TARGET="${ONUI_BROWSER_TARGET:-chromium}"
 
 log() {
   printf '[onui-install] %s\n' "$1"
@@ -60,6 +62,22 @@ require_cmd() {
 }
 
 open_browser_extensions() {
+  if [ "$BROWSER_TARGET" = "firefox" ]; then
+    if command -v firefox >/dev/null 2>&1; then
+      firefox "about:debugging#/runtime/this-firefox" >/dev/null 2>&1 &
+      return
+    fi
+    if command -v open >/dev/null 2>&1; then
+      open -a "Firefox" "about:debugging#/runtime/this-firefox" >/dev/null 2>&1 && return
+      open "about:debugging#/runtime/this-firefox" >/dev/null 2>&1 || true
+      return
+    fi
+    if command -v xdg-open >/dev/null 2>&1; then
+      xdg-open "about:debugging#/runtime/this-firefox" >/dev/null 2>&1 || true
+    fi
+    return
+  fi
+
   if command -v microsoft-edge >/dev/null 2>&1; then
     microsoft-edge "edge://extensions" >/dev/null 2>&1 &
     return
@@ -87,11 +105,13 @@ open_browser_extensions() {
 usage() {
   cat <<'EOF'
 Usage:
-  install.sh [--mcp] [--help]
+  install.sh [--mcp] [--firefox] [--chromium] [--help]
 
 Options:
-  --mcp   Also run local MCP setup.
-  --help  Show this help.
+  --mcp       Also run local MCP setup.
+  --firefox   Install Firefox-compatible extension artifact.
+  --chromium  Install Chromium-compatible extension artifact (default).
+  --help      Show this help.
 EOF
 }
 
@@ -100,6 +120,12 @@ parse_args() {
     case "$1" in
       --mcp)
         INSTALL_MCP=1
+        ;;
+      --firefox)
+        BROWSER_TARGET="firefox"
+        ;;
+      --chromium)
+        BROWSER_TARGET="chromium"
         ;;
       --help|-h)
         usage
@@ -119,10 +145,17 @@ install_extension() {
 
   mkdir -p "$EXT_ROOT"
   local tmp_zip
+  local ext_url
   tmp_zip="$(mktemp)"
 
-  log "Downloading extension release artifact v${VERSION}"
-  curl -fsSL "$EXT_URL" -o "$tmp_zip"
+  if [ "$BROWSER_TARGET" = "firefox" ]; then
+    ext_url="$FIREFOX_EXT_URL"
+  else
+    ext_url="$CHROMIUM_EXT_URL"
+  fi
+
+  log "Downloading ${BROWSER_TARGET} extension release artifact v${VERSION}"
+  curl -fsSL "$ext_url" -o "$tmp_zip"
 
   log "Installing extension files to $EXT_DIR"
   rm -rf "$EXT_DIR"
@@ -242,10 +275,16 @@ install_mcp() {
 
 print_final_steps() {
   printf '\nFinal browser step (still required):\n'
-  printf '1) Open edge://extensions or chrome://extensions\n'
-  printf '2) Enable Developer mode\n'
-  printf '3) Click Load unpacked\n'
-  printf '4) Select: %s\n' "$CURRENT_LINK"
+  if [ "$BROWSER_TARGET" = "firefox" ]; then
+    printf '1) Open about:debugging#/runtime/this-firefox\n'
+    printf '2) Click Load Temporary Add-on...\n'
+    printf '3) Select: %s\n' "$CURRENT_LINK/manifest.json"
+  else
+    printf '1) Open edge://extensions or chrome://extensions\n'
+    printf '2) Enable Developer mode\n'
+    printf '3) Click Load unpacked\n'
+    printf '4) Select: %s\n' "$CURRENT_LINK"
+  fi
   printf '\n'
   open_browser_extensions
 }

@@ -4,6 +4,7 @@
 
 import { setupMessageHandler } from './messages';
 import { bootstrapNativeSync } from './native-sync';
+import { webext } from '@/shared/webext';
 
 console.log('[onUI] Background service worker initialized');
 
@@ -12,6 +13,6 @@ setupMessageHandler();
 void bootstrapNativeSync();
 
 // Listen for extension install/update
-chrome.runtime.onInstalled.addListener((details) => {
+webext.runtime.onInstalled.addListener((details) => {
   console.log('[onUI] Extension installed/updated:', details.reason);
 });

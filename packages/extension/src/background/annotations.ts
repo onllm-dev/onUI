@@ -1,4 +1,5 @@
 import type { Annotation, AnnotationInput, AnnotationUpdate } from '@/types';
+import { webext } from '@/shared/webext';
 import { storageService } from './storage';
 import {
   deletePageSnapshotFromNativeHost,
@@ -264,22 +265,22 @@ export class AnnotationManager {
 
     try {
       // Find tabs with this URL
-      const tabs = await chrome.tabs.query({ url });
+      const tabs = await webext.tabs.query({ url });
 
       for (const tab of tabs) {
         if (tab.id === undefined) continue;
 
         if (count > 0) {
-          await chrome.action.setBadgeText({
+          await webext.action.setBadgeText({
             text: count.toString(),
             tabId: tab.id,
           });
-          await chrome.action.setBadgeBackgroundColor({
+          await webext.action.setBadgeBackgroundColor({
             color: '#6366f1',
             tabId: tab.id,
           });
         } else {
-          await chrome.action.setBadgeText({
+          await webext.action.setBadgeText({
             text: '',
             tabId: tab.id,
           });

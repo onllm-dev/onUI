@@ -1,5 +1,7 @@
 param(
-  [switch]$Mcp
+  [switch]$Mcp,
+  [switch]$Firefox,
+  [switch]$Chromium
 )
 
 $ErrorActionPreference = "Stop"
@@ -11,11 +13,14 @@ $OnuiHome = if ($env:ONUI_HOME) { $env:ONUI_HOME } else { Join-Path $HOME "onUI"
 $ExtRoot = Join-Path $OnuiHome "extensions"
 $ExtDir = Join-Path $ExtRoot "v$Version"
 $CurrentDir = Join-Path $ExtRoot "current"
-$ExtUrl = "$BaseUrl/releases/download/v$Version/onui-extension-unpacked-v$Version.zip"
+$ChromiumExtUrl = "$BaseUrl/releases/download/v$Version/onui-extension-unpacked-v$Version.zip"
+$FirefoxExtUrl = "$BaseUrl/releases/download/v$Version/onui-firefox-add-ons-v$Version.zip"
 $McpUrl = "$BaseUrl/releases/download/v$Version/onui-mcp-bundle-v$Version.zip"
 $McpDir = Join-Path (Join-Path $OnuiHome "mcp") "v$Version"
 $mcpEnv = if ($env:ONUI_INSTALL_MCP) { $env:ONUI_INSTALL_MCP.ToLowerInvariant() } else { "" }
 $InstallMcp = $Mcp -or (@("1", "true", "yes", "y") -contains $mcpEnv)
+$browserEnv = if ($env:ONUI_BROWSER_TARGET) { $env:ONUI_BROWSER_TARGET.ToLowerInvariant() } else { "" }
+$BrowserTarget = if ($Firefox -or $browserEnv -eq "firefox") { "firefox" } elseif ($Chromium -or $browserEnv -eq "chromium") { "chromium" } else { "chromium" }
 
 function Write-Log($Message) {
   Write-Host "[onui-install] $Message"
@@ -47,9 +52,10 @@ function Install-Extension {
 
   New-Item -ItemType Directory -Path $ExtRoot -Force | Out-Null
   $tmpZip = Join-Path $env:TEMP "onui-extension-$Version.zip"
+  $extUrl = if ($BrowserTarget -eq "firefox") { $FirefoxExtUrl } else { $ChromiumExtUrl }
 
-  Write-Log "Downloading extension release artifact v$Version"
-  Invoke-WebRequest -Uri $ExtUrl -OutFile $tmpZip
+  Write-Log "Downloading $BrowserTarget extension release artifact v$Version"
+  Invoke-WebRequest -Uri $extUrl -OutFile $tmpZip
 
   if (Test-Path $ExtDir) {
     Remove-Item -Path $ExtDir -Recurse -Force
@@ -160,11 +166,24 @@ function Install-Mcp {
 function Print-FinalSteps {
   Write-Host ""
   Write-Host "Final browser step (still required):"
-  Write-Host "1) Open edge://extensions or chrome://extensions"
-  Write-Host "2) Enable Developer mode"
-  Write-Host "3) Click Load unpacked"
-  Write-Host "4) Select: $CurrentDir"
+  if ($BrowserTarget -eq "firefox") {
+    Write-Host "1) Open about:debugging#/runtime/this-firefox"
+    Write-Host "2) Click Load Temporary Add-on..."
+    Write-Host "3) Select: $CurrentDir\manifest.json"
+  } else {
+    Write-Host "1) Open edge://extensions or chrome://extensions"
+    Write-Host "2) Enable Developer mode"
+    Write-Host "3) Click Load unpacked"
+    Write-Host "4) Select: $CurrentDir"
+  }
   Write-Host ""
+  if ($BrowserTarget -eq "firefox") {
+    try {
+      Start-Process "firefox.exe" "about:debugging#/runtime/this-firefox" | Out-Null
+    } catch {
+    }
+    return
+  }
   try {
     Start-Process "msedge.exe" "edge://extensions" | Out-Null
   } catch {

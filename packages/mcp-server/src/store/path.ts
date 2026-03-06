@@ -2,9 +2,9 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 
 export type SupportedPlatform = 'darwin' | 'linux' | 'win32';
-export type NativeHostBrowser = 'chrome' | 'edge';
+export type NativeHostBrowser = 'chrome' | 'edge' | 'firefox';
 
-const SUPPORTED_NATIVE_HOST_BROWSERS: readonly NativeHostBrowser[] = ['chrome', 'edge'] as const;
+const SUPPORTED_NATIVE_HOST_BROWSERS: readonly NativeHostBrowser[] = ['chrome', 'edge', 'firefox'] as const;
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -51,10 +51,18 @@ export function getNativeHostDir(
 
   switch (platform) {
     case 'darwin': {
+      if (browser === 'firefox') {
+        return join(home, 'Library', 'Application Support', 'Mozilla', 'NativeMessagingHosts');
+      }
+
       const browserRoot = browser === 'edge' ? join('Microsoft Edge') : join('Google', 'Chrome');
       return join(home, 'Library', 'Application Support', browserRoot, 'NativeMessagingHosts');
     }
     case 'linux': {
+      if (browser === 'firefox') {
+        return join(home, '.mozilla', 'native-messaging-hosts');
+      }
+
       const configHome = process.env.XDG_CONFIG_HOME ?? join(home, '.config');
       const browserDir = browser === 'edge' ? 'microsoft-edge' : 'google-chrome';
       return join(configHome, browserDir, 'NativeMessagingHosts');
@@ -74,9 +82,10 @@ export function getNativeHostManifestPath(
 }
 
 export function getNativeHostWindowsRegistryPath(browser: NativeHostBrowser = 'chrome'): string {
-  const browserRegistryRoot =
-    browser === 'edge'
-      ? 'HKCU\\Software\\Microsoft\\Edge\\NativeMessagingHosts'
+  const browserRegistryRoot = browser === 'edge'
+    ? 'HKCU\\Software\\Microsoft\\Edge\\NativeMessagingHosts'
+    : browser === 'firefox'
+      ? 'HKCU\\Software\\Mozilla\\NativeMessagingHosts'
       : 'HKCU\\Software\\Google\\Chrome\\NativeMessagingHosts';
   return `${browserRegistryRoot}\\${getNativeHostName()}`;
 }

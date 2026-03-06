@@ -73,12 +73,13 @@ async function resolveManifestPath(): Promise<string | undefined> {
 
 export async function checkNativeHostRoundtrip(): Promise<CheckResult> {
   try {
+    const browsers = [...getSupportedNativeHostBrowsers()];
     const manifestPath = await resolveManifestPath();
     if (!manifestPath) {
       return {
         name: 'native.roundtrip',
         status: 'warning',
-        message: 'No native manifest found for Chrome or Edge to run roundtrip check.',
+        message: `No native manifest found for ${browsers.join(', ')} to run roundtrip check.`,
         fix: 'Run setup to install native host: pnpm --filter @onui/mcp-server setup',
       };
     }

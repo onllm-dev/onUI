@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
+import { webext } from '@/shared/webext';
 import {
   getTabRuntimeState,
   isContextInvalidatedError,
@@ -63,8 +64,8 @@ export function useTabRuntimeState(): UseTabRuntimeStateReturn {
       setAnnotateModeState(nextState.annotateMode);
     };
 
-    chrome.runtime.onMessage.addListener(handleMessage);
-    return () => chrome.runtime.onMessage.removeListener(handleMessage);
+    webext.runtime.onMessage.addListener(handleMessage);
+    return () => webext.runtime.onMessage.removeListener(handleMessage);
   }, []);
 
   const updateEnabled = useCallback(async (nextEnabled: boolean) => {

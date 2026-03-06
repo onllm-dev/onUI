@@ -16,6 +16,7 @@ import type {
   AnnotationUpdate,
   Settings,
 } from '@/types';
+import { webext } from '@/shared/webext';
 
 const LOG_PREFIX = '[onUI][messaging]';
 const REQUEST_TIMEOUT_MS = 15000;
@@ -41,11 +42,7 @@ function nextRequestId(): string {
  */
 export function isExtensionContextValid(): boolean {
   try {
-    return (
-      typeof chrome !== 'undefined' &&
-      typeof chrome.runtime !== 'undefined' &&
-      typeof chrome.runtime.id !== 'undefined'
-    );
+    return typeof webext.runtime !== 'undefined' && typeof webext.runtime.id !== 'undefined';
   } catch {
     return false;
   }
@@ -131,7 +128,7 @@ async function sendMessage<T>(message: Message): Promise<T> {
 
   try {
     const response = (await Promise.race([
-      chrome.runtime.sendMessage(enrichedMessage),
+      webext.runtime.sendMessage(enrichedMessage),
       timeoutPromise,
     ])) as T | undefined;
 

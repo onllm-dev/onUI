@@ -79,4 +79,4 @@ Each annotation supports:
 
 - onUI is tab-scoped: enabling one tab does not enable others.
 - New tabs start with onUI off.
-- Restricted browser pages (for example `chrome://`) are unsupported.
+- Restricted browser pages (for example `chrome://`, `edge://`, or `about:`) are unsupported.

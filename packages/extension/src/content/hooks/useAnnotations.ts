@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'preact/hooks';
 import type { Annotation, AnnotationInput, AnnotationUpdate } from '@/types';
+import { webext } from '@/shared/webext';
 import {
   getAnnotations as fetchAnnotations,
   createAnnotation,
@@ -160,8 +161,8 @@ export function useAnnotations(): UseAnnotationsReturn {
       setAnnotations(nextAnnotations);
     };
 
-    chrome.storage.onChanged.addListener(handleStorageChange);
-    return () => chrome.storage.onChanged.removeListener(handleStorageChange);
+    webext.storage.onChanged.addListener(handleStorageChange);
+    return () => webext.storage.onChanged.removeListener(handleStorageChange);
   }, []);
 
   // Add a new annotation

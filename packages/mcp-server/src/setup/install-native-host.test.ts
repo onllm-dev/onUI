@@ -1,9 +1,12 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import {
+  buildAllowedExtensions,
+  buildAllowedExtensionsForBrowser,
   buildAllowedOrigins,
   buildAllowedOriginsForBrowser,
   buildChromeAllowedOrigins,
   buildEdgeAllowedOrigins,
+  buildFirefoxAllowedExtensions,
 } from './install-native-host.js';
 
 describe('buildChromeAllowedOrigins', () => {
@@ -58,11 +61,42 @@ describe('buildAllowedOrigins', () => {
   });
 });
 
+describe('buildFirefoxAllowedExtensions', () => {
+  it('includes onUI addon id by default', () => {
+    const addonIds = buildFirefoxAllowedExtensions();
+    expect(addonIds).toEqual(['onui@onllm.dev']);
+  });
+
+  it('deduplicates and trims addon ids', () => {
+    const addonIds = buildFirefoxAllowedExtensions([
+      ' onui@onllm.dev ',
+      'onui@onllm.dev',
+      'custom-addon@example.org',
+    ]);
+    expect(addonIds).toEqual(['onui@onllm.dev', 'custom-addon@example.org']);
+  });
+});
+
+describe('buildAllowedExtensions', () => {
+  it('keeps non-empty addon ids and deduplicates values', () => {
+    const addonIds = buildAllowedExtensions([
+      'onui@onllm.dev',
+      '',
+      ' ',
+      'custom-addon@example.org',
+      'onui@onllm.dev',
+    ]);
+    expect(addonIds).toEqual(['onui@onllm.dev', 'custom-addon@example.org']);
+  });
+});
+
 describe('buildAllowedOriginsForBrowser', () => {
   afterEach(() => {
     delete process.env.ONUI_EXTRA_EXTENSION_IDS;
     delete process.env.ONUI_CHROME_EXTENSION_IDS;
     delete process.env.ONUI_EDGE_EXTENSION_IDS;
+    delete process.env.ONUI_FIREFOX_EXTENSION_IDS;
+    delete process.env.ONUI_FIREFOX_EXTENSION_ID;
   });
 
   it('includes env-provided Chrome extension ids', () => {
@@ -83,5 +117,36 @@ describe('buildAllowedOriginsForBrowser', () => {
     expect(origins).toContain('chrome-extension://cccccccccccccccccccccccccccccccc/');
     expect(origins).toContain('chrome-extension://dddddddddddddddddddddddddddddddd/');
     expect(origins).toContain('chrome-extension://fnkengnadapimmlepnjienecfoekgacp/');
+  });
+
+  it('returns no origins for Firefox browser manifests', () => {
+    const origins = buildAllowedOriginsForBrowser('firefox');
+    expect(origins).toEqual([]);
+  });
+});
+
+describe('buildAllowedExtensionsForBrowser', () => {
+  afterEach(() => {
+    delete process.env.ONUI_EXTRA_EXTENSION_IDS;
+    delete process.env.ONUI_FIREFOX_EXTENSION_IDS;
+    delete process.env.ONUI_FIREFOX_EXTENSION_ID;
+  });
+
+  it('includes env-provided Firefox addon ids', () => {
+    process.env.ONUI_FIREFOX_EXTENSION_IDS = 'custom-addon@example.org';
+    process.env.ONUI_FIREFOX_EXTENSION_ID = 'singleton-addon@example.org';
+    process.env.ONUI_EXTRA_EXTENSION_IDS = 'shared-addon@example.org';
+
+    const addonIds = buildAllowedExtensionsForBrowser('firefox');
+
+    expect(addonIds).toContain('onui@onllm.dev');
+    expect(addonIds).toContain('custom-addon@example.org');
+    expect(addonIds).toContain('singleton-addon@example.org');
+    expect(addonIds).toContain('shared-addon@example.org');
+  });
+
+  it('returns no addon ids for Chromium browsers', () => {
+    expect(buildAllowedExtensionsForBrowser('chrome')).toEqual([]);
+    expect(buildAllowedExtensionsForBrowser('edge')).toEqual([]);
   });
 });

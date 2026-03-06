@@ -5,7 +5,7 @@ vi.mock('node:child_process', () => ({
 }));
 
 vi.mock('../../store/path.js', () => ({
-  getSupportedNativeHostBrowsers: vi.fn(() => ['chrome', 'edge']),
+  getSupportedNativeHostBrowsers: vi.fn(() => ['chrome', 'edge', 'firefox']),
   getNativeHostWindowsRegistryPath: vi.fn((browser: string) => `HKCU\\Software\\${browser}\\NativeMessagingHosts\\com.onui.native`),
 }));
 
@@ -26,30 +26,33 @@ describe('checkWindowsRegistry', () => {
     expect(spawnSyncMock).not.toHaveBeenCalled();
   });
 
-  it('returns ok when both browser registry keys exist', async () => {
+  it('returns ok when all browser registry keys exist', async () => {
+    spawnSyncMock.mockReturnValueOnce({ status: 0 } as unknown as ReturnType<typeof spawnSync>);
     spawnSyncMock.mockReturnValueOnce({ status: 0 } as unknown as ReturnType<typeof spawnSync>);
     spawnSyncMock.mockReturnValueOnce({ status: 0 } as unknown as ReturnType<typeof spawnSync>);
 
     const result = await checkWindowsRegistry('win32');
     expect(result.status).toBe('ok');
-    expect(result.message).toContain('Chrome and Edge');
+    expect(result.message).toContain('Chrome, Edge, Firefox');
   });
 
   it('returns warning when one browser registry key is missing', async () => {
     spawnSyncMock.mockReturnValueOnce({ status: 0 } as unknown as ReturnType<typeof spawnSync>);
     spawnSyncMock.mockReturnValueOnce({ status: 1 } as unknown as ReturnType<typeof spawnSync>);
+    spawnSyncMock.mockReturnValueOnce({ status: 0 } as unknown as ReturnType<typeof spawnSync>);
 
     const result = await checkWindowsRegistry('win32');
     expect(result.status).toBe('warning');
-    expect(result.message).toContain('edge');
+    expect(result.message).toContain('Edge');
   });
 
   it('returns error when all browser registry keys are missing', async () => {
     spawnSyncMock.mockReturnValueOnce({ status: 1 } as unknown as ReturnType<typeof spawnSync>);
     spawnSyncMock.mockReturnValueOnce({ status: 1 } as unknown as ReturnType<typeof spawnSync>);
+    spawnSyncMock.mockReturnValueOnce({ status: 1 } as unknown as ReturnType<typeof spawnSync>);
 
     const result = await checkWindowsRegistry('win32');
     expect(result.status).toBe('error');
-    expect(result.message).toContain('missing for Chrome and Edge');
+    expect(result.message).toContain('missing for Chrome, Edge, Firefox');
   });
 });

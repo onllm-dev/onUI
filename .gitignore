@@ -59,3 +59,4 @@ coverage/
 !packages/extension/public/icons/icon48.png
 !packages/extension/public/icons/icon128.png
 *.mov
+growth/

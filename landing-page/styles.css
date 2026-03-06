@@ -442,6 +442,7 @@ h1 {
   justify-content: center;
   flex-wrap: wrap;
   gap: clamp(0.375rem, 1vw, 0.5rem);
+  margin-bottom: clamp(1rem, 3vw, 1.5rem);
 }
 
 .chip {
@@ -478,6 +479,85 @@ h1 {
   border: 1px solid var(--amber-border);
 }
 
+/* Browser Showcase */
+.browser-showcase {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.5rem, 1.5vw, 0.75rem);
+  max-width: min(100%, 58rem);
+  margin: 0 auto;
+}
+
+.browser-card {
+  padding: clamp(0.8rem, 2vw, 1rem);
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  text-align: left;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.browser-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.browser-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.browser-dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.browser-card h3 {
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  line-height: 1.2;
+}
+
+.browser-card p {
+  font-size: clamp(0.78rem, 1.6vw, 0.85rem);
+  color: var(--text-secondary);
+}
+
+.browser-card-chrome {
+  border-color: rgba(59, 130, 246, 0.45);
+}
+
+.browser-card-chrome .browser-dot {
+  background: var(--blue);
+}
+
+.browser-card-edge {
+  border-color: rgba(20, 184, 166, 0.45);
+}
+
+.browser-card-edge .browser-dot {
+  background: var(--accent);
+}
+
+.browser-card-firefox {
+  border-color: rgba(245, 158, 11, 0.5);
+}
+
+.browser-card-firefox .browser-dot {
+  background: var(--amber);
+}
+
+@media (max-width: 52rem) {
+  .browser-showcase {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Sections */
 .section {
   padding: clamp(2.5rem, 6vw, 4rem) 0;
@@ -502,6 +582,8 @@ h1 {
 
 /* Video Section */
 .video-container {
+  max-width: min(100%, 56rem);
+  margin: 0 auto;
   padding: clamp(0.5rem, 1.5vw, 0.75rem);
   background: var(--glass);
   border: 1px solid var(--glass-border);
@@ -726,6 +808,13 @@ h1 {
   gap: clamp(0.5rem, 1.5vw, 0.75rem);
 }
 
+.install-quick-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(0.5rem, 1.5vw, 0.75rem);
+}
+
 .install-store-btn {
   width: fit-content;
 }
@@ -802,10 +891,46 @@ h1 {
   gap: clamp(0.5rem, 1.5vw, 0.75rem);
 }
 
+.install-command-label {
+  margin-top: 0.35rem;
+  font-size: clamp(0.78rem, 1.6vw, 0.85rem);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.install-command-label:first-child {
+  margin-top: 0;
+}
+
+.install-browser-paths {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.75rem, 2vw, 1rem);
+}
+
+.install-browser-path {
+  padding: clamp(0.75rem, 2vw, 1rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.install-browser-path h4 {
+  font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+  margin-bottom: 0.5rem;
+  color: var(--text);
+}
+
 /* Chrome Steps */
 .install-chrome-steps {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+  gap: clamp(0.5rem, 1.5vw, 0.75rem);
+}
+
+.install-firefox-steps {
+  display: grid;
+  grid-template-columns: 1fr;
   gap: clamp(0.5rem, 1.5vw, 0.75rem);
 }
 
@@ -896,6 +1021,12 @@ h1 {
 
 @media (max-width: 40rem) {
   .install-chrome-steps {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 52rem) {
+  .install-browser-paths {
     grid-template-columns: 1fr;
   }
 }

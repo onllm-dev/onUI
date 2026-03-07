@@ -109,6 +109,26 @@
   });
 
   // ============================================
+  // Demo video playback speed
+  // ============================================
+
+  const demoVideo = document.querySelector('.video-container video');
+
+  if (demoVideo) {
+    const playbackRate = 1.25;
+    const applyPlaybackRate = () => {
+      demoVideo.defaultPlaybackRate = playbackRate;
+      demoVideo.playbackRate = playbackRate;
+    };
+
+    if (demoVideo.readyState >= 1) {
+      applyPlaybackRate();
+    }
+
+    demoVideo.addEventListener('loadedmetadata', applyPlaybackRate);
+  }
+
+  // ============================================
   // Smooth scroll for anchor links
   // ============================================
 

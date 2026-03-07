@@ -73,7 +73,7 @@ Then load it in Chrome or Edge:
 1. Open `chrome://extensions` or `edge://extensions`
 2. Enable **Developer mode**
 3. Click **Load unpacked**
-4. Select `~/onUI/extensions/current` (or `%USERPROFILE%\onUI\extensions\current` on Windows)
+4. Select `~/.onui/extensions/current` (or `%USERPROFILE%\.onui\extensions\current` on Windows)
 
 > Chromium browsers require this final manual step for unpacked extensions.
 

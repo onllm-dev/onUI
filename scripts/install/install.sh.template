@@ -4,7 +4,12 @@ set -euo pipefail
 VERSION="__VERSION__"
 REPO="onllm-dev/onUI"
 BASE_URL="${ONUI_RELEASE_BASE_URL:-https://github.com/${REPO}}"
-ONUI_HOME="${ONUI_HOME:-$HOME/onUI}"
+DEFAULT_ONUI_HOME="$HOME/.onui"
+ONUI_HOME="${ONUI_HOME:-$DEFAULT_ONUI_HOME}"
+ONUI_HOME_IS_DEFAULT=1
+if [ "${ONUI_HOME:-$DEFAULT_ONUI_HOME}" != "$DEFAULT_ONUI_HOME" ]; then
+  ONUI_HOME_IS_DEFAULT=0
+fi
 EXT_ROOT="${ONUI_HOME}/extensions"
 EXT_DIR="${EXT_ROOT}/v${VERSION}"
 CURRENT_LINK="${EXT_ROOT}/current"
@@ -27,6 +32,46 @@ fail() {
 
 warn() {
   printf '[onui-install] WARN: %s\n' "$1" >&2
+}
+
+migrate_legacy_home() {
+  [ "$ONUI_HOME_IS_DEFAULT" -eq 1 ] || return 0
+
+  local legacy_dirs=("$HOME/onUI" "$HOME/onui")
+  local legacy
+  for legacy in "${legacy_dirs[@]}"; do
+    [ -e "$legacy" ] || continue
+    [ "$legacy" = "$ONUI_HOME" ] && continue
+
+    if [ ! -e "$ONUI_HOME" ]; then
+      log "Migrating legacy install directory $legacy to $ONUI_HOME"
+      mv "$legacy" "$ONUI_HOME"
+      continue
+    fi
+
+    if [ ! -d "$legacy" ]; then
+      warn "Removing unexpected legacy install path $legacy"
+      rm -rf "$legacy"
+      continue
+    fi
+
+    log "Cleaning legacy install directory $legacy"
+    mkdir -p "$ONUI_HOME"
+
+    local entry
+    for entry in "$legacy"/* "$legacy"/.[!.]* "$legacy"/..?*; do
+      [ -e "$entry" ] || continue
+      local name
+      name="$(basename "$entry")"
+      if [ ! -e "$ONUI_HOME/$name" ]; then
+        mv "$entry" "$ONUI_HOME/$name"
+      else
+        rm -rf "$entry"
+      fi
+    done
+
+    rm -rf "$legacy"
+  done
 }
 
 print_node_install_help() {
@@ -175,7 +220,7 @@ prompt_for_mcp() {
   fi
 
   local answer=""
-  if [ -r /dev/tty ]; then
+  if [ -t 1 ] && [ -r /dev/tty ] && [ -w /dev/tty ]; then
     printf 'Set up local MCP bridge now? [y/N]: ' > /dev/tty
     IFS= read -r answer < /dev/tty || true
   elif [ -t 0 ]; then
@@ -291,6 +336,7 @@ print_final_steps() {
 
 main() {
   parse_args "$@"
+  migrate_legacy_home
   install_extension
   prompt_for_mcp
   install_mcp

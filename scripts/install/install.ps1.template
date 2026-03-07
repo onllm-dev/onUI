@@ -9,7 +9,9 @@ $ErrorActionPreference = "Stop"
 $Version = "__VERSION__"
 $Repo = "onllm-dev/onUI"
 $BaseUrl = if ($env:ONUI_RELEASE_BASE_URL) { $env:ONUI_RELEASE_BASE_URL } else { "https://github.com/$Repo" }
-$OnuiHome = if ($env:ONUI_HOME) { $env:ONUI_HOME } else { Join-Path $HOME "onUI" }
+$DefaultOnuiHome = Join-Path $HOME ".onui"
+$OnuiHome = if ($env:ONUI_HOME) { $env:ONUI_HOME } else { $DefaultOnuiHome }
+$OnuiHomeIsDefault = $OnuiHome -eq $DefaultOnuiHome
 $ExtRoot = Join-Path $OnuiHome "extensions"
 $ExtDir = Join-Path $ExtRoot "v$Version"
 $CurrentDir = Join-Path $ExtRoot "current"
@@ -44,6 +46,55 @@ function Show-NodeInstallHelp {
     Write-Host "Install Node 20+ from: https://nodejs.org/en/download"
   }
   Write-Host "After installation, open a new PowerShell window and rerun this installer command."
+}
+
+function Migrate-LegacyInstallHome {
+  if (-not $OnuiHomeIsDefault) {
+    return
+  }
+
+  $legacyHomes = @(
+    (Join-Path $HOME "onUI"),
+    (Join-Path $HOME "onui")
+  )
+
+  foreach ($legacyHome in $legacyHomes) {
+    if (-not (Test-Path $legacyHome)) {
+      continue
+    }
+
+    if ((Resolve-Path $legacyHome).Path -eq $OnuiHome) {
+      continue
+    }
+
+    if (-not (Test-Path $OnuiHome)) {
+      Write-Log "Migrating legacy install directory $legacyHome to $OnuiHome"
+      Move-Item -Path $legacyHome -Destination $OnuiHome -Force
+      continue
+    }
+
+    if (-not (Test-Path $legacyHome -PathType Container)) {
+      Write-Log "Removing unexpected legacy install path $legacyHome"
+      Remove-Item -Path $legacyHome -Force
+      continue
+    }
+
+    Write-Log "Cleaning legacy install directory $legacyHome"
+    New-Item -ItemType Directory -Path $OnuiHome -Force | Out-Null
+
+    foreach ($item in Get-ChildItem -Path $legacyHome -Force) {
+      $destination = Join-Path $OnuiHome $item.Name
+      if (-not (Test-Path $destination)) {
+        Move-Item -Path $item.FullName -Destination $destination -Force
+      } else {
+        Remove-Item -Path $item.FullName -Recurse -Force
+      }
+    }
+
+    if (Test-Path $legacyHome) {
+      Remove-Item -Path $legacyHome -Recurse -Force
+    }
+  }
 }
 
 function Install-Extension {
@@ -194,6 +245,7 @@ function Print-FinalSteps {
   }
 }
 
+Migrate-LegacyInstallHome
 Install-Extension
 
 if (Should-InstallMcp) {

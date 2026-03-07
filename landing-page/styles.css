@@ -896,88 +896,189 @@ h1 {
   font-size: clamp(0.78rem, 1.6vw, 0.85rem);
   font-weight: 600;
   color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .install-command-label:first-child {
   margin-top: 0;
 }
 
-.install-browser-paths {
+.browser-install-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(0.75rem, 2vw, 1rem);
 }
 
-.install-browser-path {
-  padding: clamp(0.75rem, 2vw, 1rem);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-}
-
-.install-browser-path h4 {
-  font-size: clamp(0.85rem, 1.8vw, 0.95rem);
-  margin-bottom: 0.5rem;
-  color: var(--text);
-}
-
-/* Chrome Steps */
-.install-chrome-steps {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: clamp(0.5rem, 1.5vw, 0.75rem);
-}
-
-.install-firefox-steps {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: clamp(0.5rem, 1.5vw, 0.75rem);
-}
-
-.chrome-step {
+.browser-install-card {
   display: flex;
-  align-items: center;
-  gap: clamp(0.5rem, 1.5vw, 0.75rem);
-  padding: clamp(0.625rem, 1.5vw, 0.75rem) clamp(0.75rem, 2vw, 1rem);
-  background: var(--surface);
+  flex-direction: column;
+  gap: clamp(0.75rem, 2vw, 0.875rem);
+  min-height: 100%;
+  padding: clamp(1rem, 2.5vw, 1.25rem);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.08) 100%),
+    var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  font-size: clamp(0.8rem, 1.75vw, 0.875rem);
-  color: var(--text-secondary);
-  cursor: default;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
 }
 
-.chrome-step:hover {
-  border-color: var(--blue-border);
-  box-shadow: var(--shadow-md);
+.browser-install-card:hover {
   transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
-.chrome-step-num {
-  display: flex;
+.browser-install-topline {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 0.25rem 0.55rem;
+  border-radius: var(--radius-full);
+  font-size: clamp(0.68rem, 1.4vw, 0.74rem);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.browser-install-card h4 {
+  font-size: clamp(1rem, 2vw, 1.1rem);
+  line-height: 1.2;
+}
+
+.browser-install-card p {
+  font-size: clamp(0.82rem, 1.8vw, 0.9rem);
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.browser-install-link {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: clamp(1.25rem, 3vw, 1.5rem);
-  height: clamp(1.25rem, 3vw, 1.5rem);
-  font-size: clamp(0.7rem, 1.5vw, 0.75rem);
-  font-weight: 600;
-  background: var(--blue-bg);
-  color: var(--blue);
-  border-radius: var(--radius-full);
-  flex-shrink: 0;
+  width: fit-content;
+  min-height: 2.75rem;
+  margin-top: auto;
+  padding: 0.7rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: clamp(0.82rem, 1.8vw, 0.9rem);
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--border);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s, color 0.2s;
 }
 
-.chrome-step code {
+.browser-install-link:hover,
+.browser-install-link:focus-visible {
+  transform: translateY(-1px);
+  outline: none;
+  box-shadow: var(--shadow-md);
+}
+
+.browser-install-card-chrome {
+  border-color: rgba(59, 130, 246, 0.35);
+  background:
+    linear-gradient(180deg, rgba(147, 197, 253, 0.22) 0%, rgba(147, 197, 253, 0.04) 100%),
+    var(--surface);
+}
+
+.browser-install-card-chrome .browser-install-topline {
+  background: rgba(59, 130, 246, 0.14);
+  color: #1d4ed8;
+}
+
+.browser-install-card-chrome .browser-install-link {
+  color: #0b3a74;
+  border-color: rgba(59, 130, 246, 0.32);
+}
+
+.browser-install-card-chrome .browser-install-link:hover,
+.browser-install-card-chrome .browser-install-link:focus-visible {
+  border-color: rgba(59, 130, 246, 0.52);
+}
+
+.browser-install-card-edge {
+  border-color: rgba(20, 184, 166, 0.35);
+  background:
+    linear-gradient(180deg, rgba(45, 212, 191, 0.18) 0%, rgba(45, 212, 191, 0.04) 100%),
+    var(--surface);
+}
+
+.browser-install-card-edge .browser-install-topline {
+  background: rgba(20, 184, 166, 0.14);
+  color: #0f766e;
+}
+
+.browser-install-card-edge:hover {
+  border-color: var(--accent-border);
+  box-shadow: var(--shadow-glow);
+}
+
+.browser-install-card-firefox {
+  border-color: rgba(245, 158, 11, 0.38);
+  background:
+    linear-gradient(180deg, rgba(251, 191, 36, 0.2) 0%, rgba(251, 191, 36, 0.05) 100%),
+    var(--surface);
+}
+
+.browser-install-card-firefox .browser-install-topline {
+  background: rgba(245, 158, 11, 0.16);
+  color: #b45309;
+}
+
+.finish-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  gap: clamp(0.75rem, 2vw, 1rem);
+}
+
+.finish-card {
+  padding: clamp(1rem, 2.5vw, 1.25rem);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.06) 100%),
+    var(--surface);
+}
+
+.finish-card h4 {
+  font-size: clamp(0.98rem, 2vw, 1.05rem);
+  margin-bottom: 0.75rem;
+}
+
+.finish-card-chromium {
+  border-color: rgba(59, 130, 246, 0.32);
+}
+
+.finish-card-firefox {
+  border-color: rgba(245, 158, 11, 0.36);
+}
+
+.finish-list {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.finish-list li {
+  color: var(--text-secondary);
+  font-size: clamp(0.82rem, 1.8vw, 0.9rem);
+  line-height: 1.55;
+}
+
+.finish-list code {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.9em;
-  padding: 0.125em 0.375em;
-  background: var(--accent-bg);
-  border-radius: var(--radius-sm);
   color: var(--accent);
+  background: var(--accent-bg);
+  padding: 0.125em 0.375em;
+  border-radius: var(--radius-sm);
 }
 
-.chrome-step strong {
+.finish-list strong {
   color: var(--text);
 }
 
@@ -1019,14 +1120,19 @@ h1 {
   text-decoration: underline;
 }
 
-@media (max-width: 40rem) {
-  .install-chrome-steps {
-    grid-template-columns: 1fr;
+@media (max-width: 64rem) {
+  .browser-install-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .browser-install-card-chrome {
+    grid-column: 1 / -1;
   }
 }
 
 @media (max-width: 52rem) {
-  .install-browser-paths {
+  .browser-install-grid,
+  .finish-grid {
     grid-template-columns: 1fr;
   }
 }

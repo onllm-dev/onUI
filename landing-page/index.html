@@ -100,9 +100,6 @@
       </div>
 
       <div class="hero-chips">
-        <span class="chip chip-teal">Chrome Stable</span>
-        <span class="chip chip-teal">Edge Stable (Unpacked)</span>
-        <span class="chip chip-teal">Firefox Stable (Unpacked)</span>
         <span class="chip chip-teal">Annotate + multi-select</span>
         <span class="chip chip-teal">Draw mode regions</span>
         <span class="chip chip-blue">Redesigned toolbar UI</span>
@@ -242,108 +239,100 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19 4H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2zm0 14H5V8h14v10z"/></svg>
             Add to Chrome
           </a>
-          <a class="btn btn-secondary install-store-btn" href="https://github.com/onllm-dev/onUI/releases/latest" target="_blank" rel="noreferrer">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13 3v10.59l3.29-3.3 1.42 1.42-5.71 5.7-5.71-5.7 1.42-1.42L10 13.59V3h3z"/><path fill="currentColor" d="M4 19h16v2H4z"/></svg>
-            Firefox Release Bundle
-          </a>
         </div>
-        <p class="install-quick-note">Chrome installs from Web Store. Edge and Firefox use the command paths below.</p>
+        <p class="install-quick-note">Chrome installs instantly from Web Store. Edge and Firefox follow the browser-specific setup paths below.</p>
       </div>
 
       <div class="install-steps">
-        <!-- Step 1: Browser-specific install command -->
         <div class="install-step-card">
           <div class="install-step-header">
             <span class="install-num">1</span>
-            <h3>Run the command for your browser</h3>
+            <h3>Pick your browser and follow one path</h3>
           </div>
-          <div class="install-commands">
-            <p class="install-command-label">Chrome + Edge (macOS/Linux)</p>
-            <div class="command-block">
-              <code>curl -fsSL https://github.com/onllm-dev/onUI/releases/latest/download/install.sh | bash</code>
-              <button type="button" class="copy-btn" data-copy="curl -fsSL https://github.com/onllm-dev/onUI/releases/latest/download/install.sh | bash" aria-label="Copy command">
-                <svg viewBox="0 0 24 24" class="icon-copy"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                <svg viewBox="0 0 24 24" class="icon-check"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-              </button>
-            </div>
+          <div class="browser-install-grid">
+            <article class="browser-install-card browser-install-card-chrome">
+              <div class="browser-install-topline">Fastest path</div>
+              <h4>Chrome</h4>
+              <p>Install directly from Chrome Web Store, then open any page and enable onUI for that tab.</p>
+              <a class="browser-install-link" href="https://chromewebstore.google.com/detail/onui/hllgijkdhegkpooopdhbfdjialkhlkan?authuser=0&hl=en-GB" target="_blank" rel="noreferrer">Open Chrome Web Store</a>
+            </article>
 
-            <p class="install-command-label">Firefox (macOS/Linux)</p>
-            <div class="command-block">
-              <code>curl -fsSL https://github.com/onllm-dev/onUI/releases/latest/download/install.sh | bash -s -- --firefox</code>
-              <button type="button" class="copy-btn" data-copy="curl -fsSL https://github.com/onllm-dev/onUI/releases/latest/download/install.sh | bash -s -- --firefox" aria-label="Copy command">
-                <svg viewBox="0 0 24 24" class="icon-copy"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                <svg viewBox="0 0 24 24" class="icon-check"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-              </button>
-            </div>
+            <article class="browser-install-card browser-install-card-edge">
+              <div class="browser-install-topline">Unpacked flow</div>
+              <h4>Edge</h4>
+              <p>Run the installer, then load the unpacked extension from the generated local folder.</p>
+              <div class="install-commands">
+                <p class="install-command-label">macOS/Linux</p>
+                <div class="command-block">
+                  <code>curl -fsSL https://github.com/onllm-dev/onUI/releases/latest/download/install.sh | bash</code>
+                  <button type="button" class="copy-btn" data-copy="curl -fsSL https://github.com/onllm-dev/onUI/releases/latest/download/install.sh | bash" aria-label="Copy command">
+                    <svg viewBox="0 0 24 24" class="icon-copy"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    <svg viewBox="0 0 24 24" class="icon-check"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                  </button>
+                </div>
+                <p class="install-command-label">Windows PowerShell</p>
+                <div class="command-block">
+                  <code>irm https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 | iex</code>
+                  <button type="button" class="copy-btn" data-copy="irm https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 | iex" aria-label="Copy command">
+                    <svg viewBox="0 0 24 24" class="icon-copy"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    <svg viewBox="0 0 24 24" class="icon-check"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                  </button>
+                </div>
+              </div>
+            </article>
 
-            <p class="install-command-label">Chrome + Edge (Windows PowerShell)</p>
-            <div class="command-block">
-              <code>irm https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 | iex</code>
-              <button type="button" class="copy-btn" data-copy="irm https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 | iex" aria-label="Copy command">
-                <svg viewBox="0 0 24 24" class="icon-copy"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                <svg viewBox="0 0 24 24" class="icon-check"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-              </button>
-            </div>
-
-            <p class="install-command-label">Firefox (Windows PowerShell)</p>
-            <div class="command-block">
-              <code>iwr https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 -OutFile install.ps1; .\install.ps1 -Firefox</code>
-              <button type="button" class="copy-btn" data-copy="iwr https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 -OutFile install.ps1; .\install.ps1 -Firefox" aria-label="Copy command">
-                <svg viewBox="0 0 24 24" class="icon-copy"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                <svg viewBox="0 0 24 24" class="icon-check"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-              </button>
-            </div>
+            <article class="browser-install-card browser-install-card-firefox">
+              <div class="browser-install-topline">Firefox-specific build</div>
+              <h4>Firefox</h4>
+              <p>Run the Firefox installer path, then load the temporary add-on using the generated Firefox manifest.</p>
+              <div class="install-commands">
+                <p class="install-command-label">macOS/Linux</p>
+                <div class="command-block">
+                  <code>curl -fsSL https://github.com/onllm-dev/onUI/releases/latest/download/install.sh | bash -s -- --firefox</code>
+                  <button type="button" class="copy-btn" data-copy="curl -fsSL https://github.com/onllm-dev/onUI/releases/latest/download/install.sh | bash -s -- --firefox" aria-label="Copy command">
+                    <svg viewBox="0 0 24 24" class="icon-copy"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    <svg viewBox="0 0 24 24" class="icon-check"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                  </button>
+                </div>
+                <p class="install-command-label">Windows PowerShell</p>
+                <div class="command-block">
+                  <code>iwr https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 -OutFile install.ps1; .\install.ps1 -Firefox</code>
+                  <button type="button" class="copy-btn" data-copy="iwr https://github.com/onllm-dev/onUI/releases/latest/download/install.ps1 -OutFile install.ps1; .\install.ps1 -Firefox" aria-label="Copy command">
+                    <svg viewBox="0 0 24 24" class="icon-copy"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    <svg viewBox="0 0 24 24" class="icon-check"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                  </button>
+                </div>
+              </div>
+            </article>
           </div>
           <p class="install-step-desc">
-            The installer handles extension setup and will ask if you want MCP setup too. Enter <code>y</code> at the prompt to register <code>onui-local</code> (Node 20+ required).
+            Every installer path can also set up <code>onui-local</code>. Enter <code>y</code> when prompted if you want the local MCP bridge registered too.
           </p>
         </div>
 
-        <!-- Step 2: Load in browser -->
         <div class="install-step-card">
           <div class="install-step-header">
             <span class="install-num">2</span>
-            <h3>Load extension in browser</h3>
+            <h3>Finish the browser-side step</h3>
           </div>
-          <div class="install-browser-paths">
-            <div class="install-browser-path">
+          <div class="finish-grid">
+            <article class="finish-card finish-card-chromium">
               <h4>Chrome + Edge</h4>
-              <div class="install-chrome-steps">
-                <div class="chrome-step">
-                  <span class="chrome-step-num">a</span>
-                  <span>Open <code>edge://extensions</code> or <code>chrome://extensions</code></span>
-                </div>
-                <div class="chrome-step">
-                  <span class="chrome-step-num">b</span>
-                  <span>Enable <strong>Developer mode</strong> (top right toggle)</span>
-                </div>
-                <div class="chrome-step">
-                  <span class="chrome-step-num">c</span>
-                  <span>Click <strong>Load unpacked</strong> button</span>
-                </div>
-                <div class="chrome-step">
-                  <span class="chrome-step-num">d</span>
-                  <span>Select <code>~/onUI/extensions/current</code> (or <code>%USERPROFILE%\onUI\extensions\current</code> on Windows)</span>
-                </div>
-              </div>
-            </div>
-            <div class="install-browser-path">
+              <ol class="finish-list">
+                <li>Open <code>edge://extensions</code> or <code>chrome://extensions</code></li>
+                <li>Enable <strong>Developer mode</strong></li>
+                <li>Click <strong>Load unpacked</strong></li>
+                <li>Select <code>~/onUI/extensions/current</code> or <code>%USERPROFILE%\onUI\extensions\current</code></li>
+              </ol>
+            </article>
+            <article class="finish-card finish-card-firefox">
               <h4>Firefox</h4>
-              <div class="install-firefox-steps">
-                <div class="chrome-step">
-                  <span class="chrome-step-num">a</span>
-                  <span>Open <code>about:debugging#/runtime/this-firefox</code></span>
-                </div>
-                <div class="chrome-step">
-                  <span class="chrome-step-num">b</span>
-                  <span>Click <strong>Load Temporary Add-on...</strong></span>
-                </div>
-                <div class="chrome-step">
-                  <span class="chrome-step-num">c</span>
-                  <span>Select <code>~/onUI/extensions/current/manifest.json</code></span>
-                </div>
-              </div>
-            </div>
+              <ol class="finish-list">
+                <li>Open <code>about:debugging#/runtime/this-firefox</code></li>
+                <li>Click <strong>Load Temporary Add-on...</strong></li>
+                <li>Select <code>~/onUI/extensions/current/manifest.json</code></li>
+              </ol>
+            </article>
           </div>
         </div>
 
@@ -353,10 +342,6 @@
         <a href="https://chromewebstore.google.com/detail/onui/hllgijkdhegkpooopdhbfdjialkhlkan?authuser=0&hl=en-GB" target="_blank" rel="noreferrer">
           <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 4H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2zm0 14H5V8h14v10z"/></svg>
           Chrome Web Store
-        </a>
-        <a href="https://github.com/onllm-dev/onUI/releases/latest" target="_blank" rel="noreferrer">
-          <svg viewBox="0 0 24 24"><path fill="currentColor" d="M13 3v10.59l3.29-3.3 1.42 1.42-5.71 5.7-5.71-5.7 1.42-1.42L10 13.59V3h3z"/><path fill="currentColor" d="M4 19h16v2H4z"/></svg>
-          Firefox Bundle
         </a>
         <a href="https://github.com/onllm-dev/onUI" target="_blank" rel="noreferrer">
           <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>

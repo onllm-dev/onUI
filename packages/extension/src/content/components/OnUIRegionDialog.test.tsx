@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { OnUIRegionDialog } from './OnUIRegionDialog';
 
 describe('OnUIRegionDialog', () => {
-  it('closes on Escape', async () => {
+  it('closes when the dialog close button is clicked', async () => {
     const onCancel = vi.fn();
 
     const { container } = render(
@@ -20,7 +20,7 @@ describe('OnUIRegionDialog', () => {
     expect(dialog).toBeTruthy();
 
     const user = userEvent.setup();
-    await user.keyboard('{Escape}');
+    await user.click(screen.getByRole('button', { name: 'Close' }));
 
     expect(onCancel).toHaveBeenCalledTimes(1);
   });

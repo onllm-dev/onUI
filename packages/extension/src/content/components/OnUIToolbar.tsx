@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'preact/hooks';
+import { useState, useCallback } from 'preact/hooks';
 import type { Annotation, OutputLevel, RegionShape } from '@/types';
 import { generateOutput } from '../utils/output-generation';
 import { copyToClipboard } from '../utils/clipboard';
@@ -76,7 +76,6 @@ interface OnUIToolbarProps {
   onToggleAnnotateMode: () => void;
   onToggleDrawMode: () => void;
   onSelectDrawShape: (shape: RegionShape) => void;
-  onEscape: () => void;
   annotations: Annotation[];
   outputLevel: OutputLevel;
   onOutputLevelChange: (level: OutputLevel) => void;
@@ -93,7 +92,6 @@ export function OnUIToolbar({
   onToggleAnnotateMode,
   onToggleDrawMode,
   onSelectDrawShape,
-  onEscape,
   annotations,
   outputLevel,
   onOutputLevelChange,
@@ -141,23 +139,6 @@ export function OnUIToolbar({
     onClearAnnotations();
     console.log(`${LOG_PREFIX} annotations cleared`);
   }, [annotations.length, onClearAnnotations, LOG_PREFIX]);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.defaultPrevented) {
-        return;
-      }
-
-      if (event.key !== 'Escape') {
-        return;
-      }
-
-      onEscape();
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onEscape]);
 
   const activeHintMode = isDrawMode ? 'draw' : isAnnotateMode ? 'annotate' : null;
   const activeHint =

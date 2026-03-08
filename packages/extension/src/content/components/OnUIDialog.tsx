@@ -186,11 +186,7 @@ export function OnUIDialog({
   // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        e.stopPropagation();
-        onCancel();
-      } else if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
         const shouldSave = Boolean(commentRef.current.trim()) && (!isMultiCreate || hasTargets);
         if (!shouldSave || isSavingRef.current) {
           return;
@@ -202,7 +198,7 @@ export function OnUIDialog({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onCancel, runSave, isMultiCreate, hasTargets]);
+  }, [runSave, isMultiCreate, hasTargets]);
 
   const elementPath = getElementPath(element);
   const selector = getCssSelector(element);

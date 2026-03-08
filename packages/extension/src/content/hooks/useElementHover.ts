@@ -1,34 +1,20 @@
 import { useState, useEffect, useCallback, useRef } from 'preact/hooks';
 import { getElementAtPoint } from '../utils/element-detection';
+import { isOnUiOverlayEvent, stopEventPropagation } from '../utils/overlay-events';
 import { throttle } from '../utils/throttle';
 
 interface UseElementHoverOptions {
   enabled: boolean;
   throttleMs?: number;
-  onElementClick?: (element: Element, event: MouseEvent) => void;
+  onElementClick?: (element: Element, event: MouseEvent | PointerEvent) => void;
 }
 
 interface UseElementHoverReturn {
   hoveredElement: Element | null;
 }
 
-const ONUI_SHADOW_HOST_ID = 'onui-shadow-host';
-
-function isOnUiOverlayEvent(event: MouseEvent): boolean {
-  const target = event.target;
-  if (target instanceof Element) {
-    if (target.id === ONUI_SHADOW_HOST_ID) {
-      return true;
-    }
-
-    if (target.closest(`#${ONUI_SHADOW_HOST_ID}`)) {
-      return true;
-    }
-  }
-
-  return event.composedPath().some((node) => {
-    return node instanceof Element && node.id === ONUI_SHADOW_HOST_ID;
-  });
+function isPrimarySelectionEvent(event: MouseEvent | PointerEvent): boolean {
+  return event.button === 0;
 }
 
 /**
@@ -89,16 +75,16 @@ export function useElementHover(
   // Stable reference to the throttled handler
   const handleMouseMove = throttleRef.current.throttled;
 
-  const handleClick = useCallback(
-    (e: MouseEvent) => {
+  const handleSelect = useCallback(
+    (event: MouseEvent | PointerEvent) => {
       if (!enabledRef.current || !onElementClickRef.current) return;
-      if (isOnUiOverlayEvent(e)) return;
+      if (!isPrimarySelectionEvent(event)) return;
+      if (isOnUiOverlayEvent(event)) return;
 
-      const element = getElementAtPoint(e.clientX, e.clientY);
+      const element = getElementAtPoint(event.clientX, event.clientY);
       if (element) {
-        e.preventDefault();
-        e.stopPropagation();
-        onElementClickRef.current(element, e);
+        stopEventPropagation(event, true);
+        onElementClickRef.current(element, event);
       }
     },
     [] // Stable - uses refs internally
@@ -112,15 +98,27 @@ export function useElementHover(
     }
 
     document.addEventListener('mousemove', handleMouseMove, { passive: true });
-    document.addEventListener('click', handleClick, { capture: true });
+    if (typeof window.PointerEvent === 'function') {
+      window.addEventListener('pointerdown', handleSelect as EventListener, true);
+      document.addEventListener('pointerdown', handleSelect as EventListener, true);
+    } else {
+      window.addEventListener('mousedown', handleSelect as EventListener, true);
+      document.addEventListener('mousedown', handleSelect as EventListener, true);
+    }
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('click', handleClick, { capture: true });
+      if (typeof window.PointerEvent === 'function') {
+        window.removeEventListener('pointerdown', handleSelect as EventListener, true);
+        document.removeEventListener('pointerdown', handleSelect as EventListener, true);
+      } else {
+        window.removeEventListener('mousedown', handleSelect as EventListener, true);
+        document.removeEventListener('mousedown', handleSelect as EventListener, true);
+      }
       // Cancel any pending throttled calls on cleanup
       throttleRef.current?.cancel();
     };
-  }, [enabled, handleMouseMove, handleClick]);
+  }, [enabled, handleMouseMove, handleSelect]);
 
   return {
     hoveredElement,

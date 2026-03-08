@@ -42,7 +42,6 @@ function renderToolbar({
   onToggleAnnotateMode = vi.fn(),
   onToggleDrawMode = vi.fn(),
   onSelectDrawShape = vi.fn(),
-  onEscape = vi.fn(),
   clearOnCopy = false,
   onClearOnCopyChange = vi.fn(),
   onClearAnnotations = vi.fn(),
@@ -55,7 +54,6 @@ function renderToolbar({
   onToggleAnnotateMode?: () => void;
   onToggleDrawMode?: () => void;
   onSelectDrawShape?: (shape: 'rectangle' | 'ellipse') => void;
-  onEscape?: () => void;
   clearOnCopy?: boolean;
   onClearOnCopyChange?: (enabled: boolean) => void;
   onClearAnnotations?: () => void | Promise<void>;
@@ -70,7 +68,6 @@ function renderToolbar({
       onToggleAnnotateMode={onToggleAnnotateMode}
       onToggleDrawMode={onToggleDrawMode}
       onSelectDrawShape={onSelectDrawShape}
-      onEscape={onEscape}
       annotations={annotations}
       outputLevel="standard"
       onOutputLevelChange={vi.fn()}
@@ -148,16 +145,6 @@ describe('OnUIToolbar', () => {
     expect(screen.queryByRole('status')).toBeNull();
     expect(screen.queryByText('Tip: hold Shift and click to multi-select elements.')).toBeNull();
     expect(screen.queryByText('Shift multi-select: 4 selected. Release Shift to annotate all.')).toBeNull();
-  });
-
-  it('delegates Escape handling to app-level callback once per key press', async () => {
-    const onEscape = vi.fn();
-    renderToolbar({ isAnnotateMode: true, onEscape });
-    const user = userEvent.setup();
-
-    await user.keyboard('{Escape}');
-
-    expect(onEscape).toHaveBeenCalledTimes(1);
   });
 
   it('clears annotations after successful copy when clear-on-copy is enabled', async () => {

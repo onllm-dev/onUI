@@ -94,13 +94,6 @@ export function OnUIRegionDialog({
         return;
       }
 
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        event.stopPropagation();
-        onCancel();
-        return;
-      }
-
       if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
         event.preventDefault();
         event.stopPropagation();
@@ -110,7 +103,7 @@ export function OnUIRegionDialog({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [handleSave, onCancel]);
+  }, [handleSave]);
 
   const position = getDialogPosition(geometry);
 

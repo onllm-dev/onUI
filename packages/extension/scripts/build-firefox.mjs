@@ -12,6 +12,7 @@ const extensionRoot = resolve(scriptDir, '..');
 const chromiumDistDir = join(extensionRoot, 'dist');
 const firefoxDistDir = join(extensionRoot, 'dist-firefox');
 const firefoxManifestPath = join(firefoxDistDir, 'manifest.json');
+const firefoxViteDir = join(firefoxDistDir, '.vite');
 
 const firefoxExtensionId = process.env.ONUI_FIREFOX_EXTENSION_ID?.trim() || DEFAULT_FIREFOX_EXTENSION_ID;
 
@@ -21,6 +22,7 @@ if (!firefoxExtensionId) {
 
 await rm(firefoxDistDir, { recursive: true, force: true });
 await cp(chromiumDistDir, firefoxDistDir, { recursive: true });
+await rm(firefoxViteDir, { recursive: true, force: true });
 
 const manifestRaw = await readFile(firefoxManifestPath, 'utf8');
 const manifest = JSON.parse(manifestRaw);

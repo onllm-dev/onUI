@@ -130,20 +130,26 @@ package_artifacts() {
   local mcp_bundle_zip="$artifacts_dir/onui-mcp-bundle-v${version}.zip"
   local install_sh="$artifacts_dir/install.sh"
   local install_ps1="$artifacts_dir/install.ps1"
+  local firefox_tmp_dir
 
   (
     cd "$ext_dist_dir"
     zip -qr "../../../$unpacked_zip" .
   )
 
+  firefox_tmp_dir="$(mktemp -d)"
+  cp -R "$ext_firefox_dist_dir/." "$firefox_tmp_dir/"
+  rm -rf "$firefox_tmp_dir/.vite"
   (
-    cd "$ext_firefox_dist_dir"
-    zip -qr "../../../$firefox_zip" .
+    cd "$firefox_tmp_dir"
+    zip -qr "$ROOT_DIR/$firefox_zip" .
   )
+  rm -rf "$firefox_tmp_dir"
 
   local tmp_dir
   tmp_dir="$(mktemp -d)"
   cp -R "$ext_dist_dir/." "$tmp_dir/"
+  rm -rf "$tmp_dir/.vite"
   node -e "
     const fs = require('node:fs');
     const p = '$tmp_dir/manifest.json';

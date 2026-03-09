@@ -81,56 +81,56 @@ const SEVERITY_OPTIONS: Option<AnnotationSeverity>[] = [
 
 interface OnUIAnnotationDialogProps {
   title: string;
-  subtitle?: string;
-  subtitleTitle?: string;
+  subtitle?: string | undefined;
+  subtitleTitle?: string | undefined;
   onCancel: () => void;
-  position?: JSX.CSSProperties;
-  className?: string;
-  width?: string;
-  showBackdrop?: boolean;
-  dialogRef?: Ref<HTMLDivElement>;
-  children: ComponentChildren;
+  position?: JSX.CSSProperties | undefined;
+  className?: string | undefined;
+  width?: string | undefined;
+  showBackdrop?: boolean | undefined;
+  dialogRef?: Ref<HTMLDivElement> | undefined;
+  children?: ComponentChildren;
 }
 
 type OnUIAnnotationDialogShellProps = OnUIAnnotationDialogProps;
 
 interface OnUIAnnotationFormProps {
   comment: string;
-  intent?: AnnotationIntent;
-  severity?: AnnotationSeverity;
+  intent?: AnnotationIntent | undefined;
+  severity?: AnnotationSeverity | undefined;
   onCommentChange: (value: string) => void;
   onIntentChange: (value: AnnotationIntent | undefined) => void;
   onSeverityChange: (value: AnnotationSeverity | undefined) => void;
   onSave: () => void;
   onCancel: () => void;
-  onDelete?: () => void;
-  commentLabel?: string;
-  commentPlaceholder?: string;
-  intentLabel?: string;
-  severityLabel?: string;
-  cancelLabel?: string;
-  saveLabel?: string;
-  deleteLabel?: string;
-  saveDisabled?: boolean;
-  isSaving?: boolean;
-  textareaRef?: Ref<HTMLTextAreaElement>;
+  onDelete?: (() => void) | undefined;
+  commentLabel?: string | undefined;
+  commentPlaceholder?: string | undefined;
+  intentLabel?: string | undefined;
+  severityLabel?: string | undefined;
+  cancelLabel?: string | undefined;
+  saveLabel?: string | undefined;
+  deleteLabel?: string | undefined;
+  saveDisabled?: boolean | undefined;
+  isSaving?: boolean | undefined;
+  textareaRef?: Ref<HTMLTextAreaElement> | undefined;
   children?: ComponentChildren;
 }
 
 interface OnUIAnnotationFormDialogProps extends OnUIAnnotationDialogProps {
   comment: string;
-  intent?: AnnotationIntent;
-  severity?: AnnotationSeverity;
+  intent?: AnnotationIntent | undefined;
+  severity?: AnnotationSeverity | undefined;
   onCommentChange: (value: string) => void;
   onIntentChange: (value: AnnotationIntent | undefined) => void;
   onSeverityChange: (value: AnnotationSeverity | undefined) => void;
   onSave: () => void;
-  onDelete?: () => void;
-  commentPlaceholder?: string;
+  onDelete?: (() => void) | undefined;
+  commentPlaceholder?: string | undefined;
   saveLabel: string;
-  saveDisabled?: boolean;
-  isSaving?: boolean;
-  textareaRef?: Ref<HTMLTextAreaElement>;
+  saveDisabled?: boolean | undefined;
+  isSaving?: boolean | undefined;
+  textareaRef?: Ref<HTMLTextAreaElement> | undefined;
   children?: ComponentChildren;
 }
 
@@ -169,7 +169,7 @@ export function OnUIAnnotationDialogShell({
   return (
     <>
       {showBackdrop && <div class="onui-dialog-backdrop" onClick={onCancel} />}
-      <div class={dialogClassName} style={dialogStyle} ref={dialogRef}>
+      <div class={dialogClassName} style={dialogStyle} {...(dialogRef ? { ref: dialogRef } : {})}>
         <div class="onui-dialog-header">
           <div>
             <div class="onui-dialog-title">{title}</div>
@@ -256,7 +256,7 @@ export function OnUIAnnotationForm({
       <span class="onui-textarea-label">{commentLabel}</span>
       <div class="onui-textarea-wrap">
         <textarea
-          ref={textareaRef}
+          {...(textareaRef ? { ref: textareaRef } : {})}
           class="onui-textarea"
           placeholder={commentPlaceholder}
           value={comment}

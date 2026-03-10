@@ -18,6 +18,7 @@ import { useAnnotations } from '../hooks/useAnnotations';
 import { useTabRuntimeState } from '../hooks/useTabRuntimeState';
 import { createAnnotationFromElement } from '../utils/create-annotation';
 import { createAnnotationFromRegion } from '../utils/create-region-annotation';
+import { ONUI_SHADOW_HOST_ID, stopEventPropagation } from '../utils/overlay-events';
 import { OnUIRegionDialog } from './OnUIRegionDialog';
 import { RegionDrawOverlay } from './RegionDrawOverlay';
 import { RegionOutline } from './RegionOutline';
@@ -32,6 +33,8 @@ function isSameElement(a: Element, b: Element): boolean {
 function createBatchId(): string {
   return `batch-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
+
+type SelectionEvent = MouseEvent | PointerEvent;
 
 interface SaveDialogData {
   comment: string;
@@ -163,7 +166,7 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
   }, [isDrawMode]);
 
   // Handle element click in annotation mode
-  const handleElementClick = useCallback((element: Element, event: MouseEvent) => {
+  const handleElementClick = useCallback((element: Element, event: SelectionEvent) => {
     setEditingAnnotation(null);
     setPendingRegion(null);
 
@@ -192,6 +195,27 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
     setSelectedElement(element);
   }, []);
 
+  useEffect(() => {
+    const host = document.getElementById(ONUI_SHADOW_HOST_ID);
+    if (!host) {
+      return;
+    }
+
+    const stopOverlayPointerEvent = (event: Event) => {
+      stopEventPropagation(event);
+    };
+
+    host.addEventListener('pointerdown', stopOverlayPointerEvent);
+    host.addEventListener('mousedown', stopOverlayPointerEvent);
+    host.addEventListener('click', stopOverlayPointerEvent);
+
+    return () => {
+      host.removeEventListener('pointerdown', stopOverlayPointerEvent);
+      host.removeEventListener('mousedown', stopOverlayPointerEvent);
+      host.removeEventListener('click', stopOverlayPointerEvent);
+    };
+  }, []);
+
   // Open multi-target dialog when shift is released
   useEffect(() => {
     const handleShiftRelease = (event: KeyboardEvent) => {
@@ -218,30 +242,6 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
     selectedElement,
     editingAnnotation,
     pendingMultiSelection,
-    multiDialogTargets.length,
-  ]);
-
-  // Esc while selecting clears pending multi targets before toolbar exits annotate mode
-  useEffect(() => {
-    const handleEscapeClearSelection = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return;
-      if (!annotateMode) return;
-      if (pendingMultiSelection.length === 0) return;
-      if (selectedElement || editingAnnotation || multiDialogTargets.length > 0) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      setPendingMultiSelection([]);
-    };
-
-    document.addEventListener('keydown', handleEscapeClearSelection, true);
-    return () => document.removeEventListener('keydown', handleEscapeClearSelection, true);
-  }, [
-    annotateMode,
-    pendingMultiSelection.length,
-    selectedElement,
-    editingAnnotation,
     multiDialogTargets.length,
   ]);
 
@@ -496,19 +496,14 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
       return;
     }
 
-    if (pendingRegion) {
-      setPendingRegion(null);
+    if (pendingRegion || selectedElement || editingAnnotation || multiDialogTargets.length > 0) {
+      handleCancelPopup();
       return;
     }
 
     if (isDrawMode) {
       setIsDrawMode(false);
       setDrawCancelSignal((value) => value + 1);
-      return;
-    }
-
-    if (editingAnnotation && editingRegionGeometry) {
-      setEditingRegionGeometry(null);
       return;
     }
 
@@ -523,13 +518,43 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
   }, [
     annotateMode,
     editingAnnotation,
-    editingRegionGeometry,
+    handleCancelPopup,
     isDrawMode,
     isDrawingDraft,
+    multiDialogTargets.length,
     onToggleAnnotateMode,
     pendingMultiSelection.length,
     pendingRegion,
+    selectedElement,
   ]);
+
+  const shouldOwnEscape =
+    annotateMode ||
+    isDrawMode ||
+    isDrawingDraft ||
+    pendingRegion !== null ||
+    selectedElement !== null ||
+    editingAnnotation !== null ||
+    multiDialogTargets.length > 0 ||
+    pendingMultiSelection.length > 0;
+
+  useEffect(() => {
+    if (!shouldOwnEscape) {
+      return;
+    }
+
+    const handleEscapeKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') {
+        return;
+      }
+
+      stopEventPropagation(event, true);
+      handleEscape();
+    };
+
+    window.addEventListener('keydown', handleEscapeKeyDown, true);
+    return () => window.removeEventListener('keydown', handleEscapeKeyDown, true);
+  }, [handleEscape, shouldOwnEscape]);
 
   // Handle clear all annotations
   const handleClearAnnotations = useCallback(async () => {
@@ -595,7 +620,6 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
           onToggleAnnotateMode={handleToggleAnnotateExclusive}
           onToggleDrawMode={handleToggleDrawMode}
           onSelectDrawShape={setDrawShape}
-          onEscape={handleEscape}
           annotations={annotations}
           outputLevel={outputLevel}
           onOutputLevelChange={setOutputLevel}

@@ -16,6 +16,7 @@ export type {
   MessageType,
   MessageResponse,
   TabRuntimeState,
+  ViewportCapture,
   GetAnnotationsMessage,
   CreateAnnotationMessage,
   CreateAnnotationsBulkMessage,
@@ -31,6 +32,7 @@ export type {
   TabRuntimeStateChangedMessage,
   GetStateMessage,
   SetStateMessage,
+  CaptureViewportMessage,
   GetAnnotationsResponse,
   CreateAnnotationResponse,
   CreateAnnotationsBulkResponse,
@@ -45,6 +47,7 @@ export type {
   SetTabEnabledResponse,
   SetAnnotateModeResponse,
   GetSyncStatusResponse,
+  CaptureViewportResponse,
 } from './messages';
 export type { OutputLevel, Settings } from './settings';
 export { DEFAULT_SETTINGS } from './settings';

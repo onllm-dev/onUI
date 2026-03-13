@@ -354,6 +354,36 @@ async function handleMessage(
       return { success: true };
     }
 
+    case 'CAPTURE_VIEWPORT': {
+      const tabId = sender.tab?.id;
+      if (!tabId) {
+        return { success: false, error: 'Missing tabId for CAPTURE_VIEWPORT' };
+      }
+
+      const dataUrl = await webext.tabs.captureVisibleTab({ format: 'png' });
+      const tab = await webext.tabs.get(tabId);
+
+      console.log(`${LOG_PREFIX} ${requestId} CAPTURE_VIEWPORT completed`, {
+        durationMs: Date.now() - receivedAt,
+        tabId,
+        width: tab.width,
+        height: tab.height,
+      });
+
+      return {
+        success: true,
+        data: {
+          dataUrl,
+          viewport: {
+            width: tab.width ?? 0,
+            height: tab.height ?? 0,
+            scrollX: 0,
+            scrollY: 0,
+          },
+        },
+      };
+    }
+
     default:
       return {
         success: false,

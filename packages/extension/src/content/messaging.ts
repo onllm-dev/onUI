@@ -12,6 +12,7 @@ import type {
   GetTabRuntimeStateResponse,
   SetTabEnabledResponse,
   SetAnnotateModeResponse,
+  CaptureViewportResponse,
   AnnotationInput,
   AnnotationUpdate,
   Settings,
@@ -294,6 +295,15 @@ export async function setAnnotateMode(
   return sendMessage({
     type: 'SET_ANNOTATE_MODE',
     payload: { annotateMode },
+  });
+}
+
+/**
+ * Capture visible viewport screenshot
+ */
+export async function captureViewport(): Promise<CaptureViewportResponse> {
+  return sendMessage({
+    type: 'CAPTURE_VIEWPORT',
   });
 }
 

@@ -4,6 +4,7 @@ interface ElementHighlightProps {
   element: Element;
   color?: string;
   selected?: boolean;
+  frozenRect?: DOMRect | undefined;
 }
 
 interface ElementRect {
@@ -33,12 +34,35 @@ function isSameRect(a: ElementRect, b: ElementRect): boolean {
 }
 
 /**
- * Highlight overlay for hovered elements
+ * Highlight overlay for hovered elements.
+ * If frozenRect is provided, uses that instead of live tracking.
  */
-export function ElementHighlight({ element, color = '#6366f1', selected = false }: ElementHighlightProps) {
-  const [rect, setRect] = useState<ElementRect>(() => getElementRect(element));
+export function ElementHighlight({ element, color = '#6366f1', selected = false, frozenRect }: ElementHighlightProps) {
+  const [rect, setRect] = useState<ElementRect>(() => {
+    // Use frozen rect if available, otherwise get live rect
+    if (frozenRect) {
+      return {
+        top: frozenRect.top,
+        left: frozenRect.left,
+        width: frozenRect.width,
+        height: frozenRect.height,
+      };
+    }
+    return getElementRect(element);
+  });
 
   useLayoutEffect(() => {
+    // Skip live rect tracking when frozen
+    if (frozenRect) {
+      setRect({
+        top: frozenRect.top,
+        left: frozenRect.left,
+        width: frozenRect.width,
+        height: frozenRect.height,
+      });
+      return;
+    }
+
     let rafId: number | null = null;
     let isCancelled = false;
 
@@ -60,7 +84,7 @@ export function ElementHighlight({ element, color = '#6366f1', selected = false 
         window.cancelAnimationFrame(rafId);
       }
     };
-  }, [element]);
+  }, [element, frozenRect]);
 
   // Use a more prominent color when selected
   const highlightColor = selected ? '#f97316' : color;

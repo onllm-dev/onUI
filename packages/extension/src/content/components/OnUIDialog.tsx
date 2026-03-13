@@ -40,6 +40,7 @@ interface OnUIDialogProps {
   onDelete?: () => void;
   multiTargets?: Element[] | undefined;
   onRemoveTarget?: ((target: Element) => void) | undefined;
+  frozenRect?: DOMRect | undefined;
 }
 
 export function OnUIDialog({
@@ -53,6 +54,7 @@ export function OnUIDialog({
   onDelete,
   multiTargets,
   onRemoveTarget,
+  frozenRect,
 }: OnUIDialogProps) {
   const tick = useViewportTick();
   const [comment, setComment] = useState(initialComment);
@@ -151,7 +153,8 @@ export function OnUIDialog({
   useEffect(() => {
     if (!dialogRef.current) return;
 
-    const rect = element.getBoundingClientRect();
+    // Use frozen rect if available, otherwise get live rect
+    const rect = frozenRect ?? element.getBoundingClientRect();
     const dialog = dialogRef.current;
     const dialogRect = dialog.getBoundingClientRect();
 
@@ -181,7 +184,7 @@ export function OnUIDialog({
 
     dialog.style.left = `${left}px`;
     dialog.style.top = `${top}px`;
-  }, [element, tick]);
+  }, [element, tick, frozenRect]);
 
   // Handle keyboard shortcuts
   useEffect(() => {

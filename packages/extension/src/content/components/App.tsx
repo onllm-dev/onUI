@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'preact/hooks';
+import { useState, useCallback, useEffect, useMemo } from 'preact/hooks';
 import type {
   Annotation,
   AnnotationIntent,
@@ -13,9 +13,11 @@ import { AnnotationMarkers } from './AnnotationMarkers';
 import { OnUIToolbar } from './OnUIToolbar';
 import { OnUIDialog } from './OnUIDialog';
 import { ErrorToast } from './ErrorToast';
+import { FrozenOverlay } from './FrozenOverlay';
 import { useElementHover } from '../hooks/useElementHover';
 import { useAnnotations } from '../hooks/useAnnotations';
 import { useTabRuntimeState } from '../hooks/useTabRuntimeState';
+import { useFreezeSession } from '../hooks/useFreezeSession';
 import { createAnnotationFromElement } from '../utils/create-annotation';
 import { createAnnotationFromRegion } from '../utils/create-region-annotation';
 import { ONUI_SHADOW_HOST_ID, stopEventPropagation } from '../utils/overlay-events';
@@ -23,6 +25,7 @@ import { OnUIRegionDialog } from './OnUIRegionDialog';
 import { RegionDrawOverlay } from './RegionDrawOverlay';
 import { RegionOutline } from './RegionOutline';
 import { RegionTransformHandles } from './RegionTransformHandles';
+import { getElementAtPoint } from '../utils/element-detection';
 
 const MAX_MULTI_SELECTION = 25;
 
@@ -102,6 +105,9 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
     isContextInvalid,
   } = useAnnotations();
 
+  // Freeze session for stable element selection
+  const freezeSession = useFreezeSession({ enabled: annotateMode });
+
   // Output level for onUI
   const [outputLevel, setOutputLevel] = useState<OutputLevel>('standard');
   const [clearOnCopy, setClearOnCopy] = useState(false);
@@ -129,6 +135,7 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
   const [editingAnnotation, setEditingAnnotation] = useState<Annotation | null>(null);
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [frozenHoveredElement, setFrozenHoveredElement] = useState<Element | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -165,10 +172,20 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
     }
   }, [isDrawMode]);
 
+  useEffect(() => {
+    if (!freezeSession.isActive) {
+      setFrozenHoveredElement(null);
+    }
+  }, [freezeSession.isActive]);
+
   // Handle element click in annotation mode
   const handleElementClick = useCallback((element: Element, event: SelectionEvent) => {
     setEditingAnnotation(null);
     setPendingRegion(null);
+
+    if (freezeSession.isActive) {
+      freezeSession.cacheElementRect(element);
+    }
 
     if (event.shiftKey) {
       setSelectedElement(null);
@@ -193,7 +210,7 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
     setPendingMultiSelection([]);
     setMultiDialogTargets([]);
     setSelectedElement(element);
-  }, []);
+  }, [freezeSession]);
 
   useEffect(() => {
     const host = document.getElementById(ONUI_SHADOW_HOST_ID);
@@ -245,9 +262,10 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
     multiDialogTargets.length,
   ]);
 
-  const { hoveredElement } = useElementHover({
+  const { hoveredElement: liveHoveredElement } = useElementHover({
     enabled:
       annotateMode &&
+      !freezeSession.isActive &&
       !isDrawMode &&
       !selectedElement &&
       !editingAnnotation &&
@@ -255,6 +273,35 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
       pendingRegion === null,
     onElementClick: handleElementClick,
   });
+
+  const hoveredElement = freezeSession.isActive ? frozenHoveredElement : liveHoveredElement;
+
+  const handleFrozenPointerMove = useCallback((event: PointerEvent) => {
+    if (!annotateMode || !freezeSession.isActive) {
+      return;
+    }
+
+    const element = getElementAtPoint(event.clientX, event.clientY);
+    setFrozenHoveredElement(element);
+  }, [annotateMode, freezeSession.isActive]);
+
+  const handleFrozenPointerDown = useCallback((event: PointerEvent) => {
+    if (!annotateMode || !freezeSession.isActive) {
+      return;
+    }
+
+    if (event.button !== 0) {
+      return;
+    }
+
+    const element = getElementAtPoint(event.clientX, event.clientY);
+    if (!element) {
+      return;
+    }
+
+    stopEventPropagation(event, true);
+    handleElementClick(element, event);
+  }, [annotateMode, freezeSession.isActive, handleElementClick]);
 
   // Handle save new annotation with optional intent/severity
   const handleSaveAnnotation = useCallback(
@@ -593,6 +640,16 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
   const regionDialogShape = pendingRegion?.shape ?? editingRegion?.region.shape ?? null;
   const shouldShowRegionDrawOverlay = isDrawMode && pendingRegion === null && editingAnnotation === null;
 
+  const selectedFrozenRect = useMemo(
+    () => (selectedElement && freezeSession.isActive ? freezeSession.getFrozenRect(selectedElement) ?? undefined : undefined),
+    [selectedElement, freezeSession]
+  );
+
+  const editingFrozenRect = useMemo(
+    () => (editingElement && freezeSession.isActive ? freezeSession.getFrozenRect(editingElement) ?? undefined : undefined),
+    [editingElement, freezeSession]
+  );
+
   // Hide toolbar when dialog is open to prevent z-index conflicts
   const isDialogOpen =
     selectedElement !== null ||
@@ -631,6 +688,15 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
         />
       )}
 
+      {/* Frozen viewport overlay */}
+      {annotateMode && freezeSession.isActive && freezeSession.screenshot && !isDrawMode && (
+        <FrozenOverlay
+          screenshot={freezeSession.screenshot}
+          onPointerMove={handleFrozenPointerMove}
+          onPointerDown={handleFrozenPointerDown}
+        />
+      )}
+
       {/* Draw overlay */}
       <RegionDrawOverlay
         enabled={shouldShowRegionDrawOverlay}
@@ -657,10 +723,19 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
         !selectedElement &&
         !editingAnnotation &&
         multiDialogTargets.length === 0 &&
-        pendingRegion === null && <ElementHighlight element={hoveredElement} />}
+        pendingRegion === null && (
+          <ElementHighlight
+            element={hoveredElement}
+            frozenRect={
+              freezeSession.isActive ? freezeSession.getFrozenRect(hoveredElement) ?? undefined : undefined
+            }
+          />
+        )}
 
       {/* Highlight selected element */}
-      {selectedElement && <ElementHighlight element={selectedElement} selected />}
+      {selectedElement && (
+        <ElementHighlight element={selectedElement} selected frozenRect={selectedFrozenRect} />
+      )}
 
       {/* Highlight pending multi-selected elements */}
       {pendingMultiSelection.map((element, index) => (
@@ -668,6 +743,9 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
           key={`pending-${element.tagName.toLowerCase()}-${index}`}
           element={element}
           selected
+          frozenRect={
+            freezeSession.isActive ? freezeSession.getFrozenRect(element) ?? undefined : undefined
+          }
         />
       ))}
 
@@ -677,11 +755,16 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
           key={`multi-${element.tagName.toLowerCase()}-${index}`}
           element={element}
           selected
+          frozenRect={
+            freezeSession.isActive ? freezeSession.getFrozenRect(element) ?? undefined : undefined
+          }
         />
       ))}
 
       {/* Highlight element being edited */}
-      {editingElement && <ElementHighlight element={editingElement} selected />}
+      {editingElement && (
+        <ElementHighlight element={editingElement} selected frozenRect={editingFrozenRect} />
+      )}
 
       {/* Region transform handles (edit mode) */}
       {editingRegion && editingRegionGeometry && (
@@ -695,6 +778,7 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
       {selectedElement && (
         <OnUIDialog
           element={selectedElement}
+          frozenRect={selectedFrozenRect}
           onSave={handleSaveAnnotation}
           onCancel={handleCancelPopup}
         />
@@ -706,6 +790,11 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
           element={multiDialogTargets[0]!}
           multiTargets={multiDialogTargets}
           onRemoveTarget={handleRemoveMultiTarget}
+          frozenRect={
+            freezeSession.isActive
+              ? freezeSession.getFrozenRect(multiDialogTargets[0]!) ?? undefined
+              : undefined
+          }
           onSave={handleSaveMultiAnnotation}
           onCancel={handleCancelPopup}
         />
@@ -715,6 +804,7 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
       {editingAnnotation && editingElement && !editingRegion && (
         <OnUIDialog
           element={editingElement}
+          frozenRect={editingFrozenRect}
           initialComment={editingAnnotation.comment}
           initialIntent={editingAnnotation.intent}
           initialSeverity={editingAnnotation.severity}

@@ -19,7 +19,8 @@ export type MessageType =
   | 'TAB_RUNTIME_STATE_CHANGED'
   | 'GET_SYNC_STATUS'
   | 'GET_STATE'
-  | 'SET_STATE';
+  | 'SET_STATE'
+  | 'CAPTURE_VIEWPORT';
 
 /**
  * Runtime state for a single tab
@@ -187,6 +188,26 @@ export interface GetSyncStatusMessage extends BaseMessage {
 }
 
 /**
+ * Viewport capture metadata
+ */
+export interface ViewportCapture {
+  dataUrl: string;
+  viewport: {
+    width: number;
+    height: number;
+    scrollX: number;
+    scrollY: number;
+  };
+}
+
+/**
+ * Capture visible viewport screenshot
+ */
+export interface CaptureViewportMessage extends BaseMessage {
+  type: 'CAPTURE_VIEWPORT';
+}
+
+/**
  * Union of all message types
  */
 export type Message =
@@ -204,7 +225,8 @@ export type Message =
   | GetSyncStatusMessage
   | TabRuntimeStateChangedMessage
   | GetStateMessage
-  | SetStateMessage;
+  | SetStateMessage
+  | CaptureViewportMessage;
 
 /**
  * Message response wrapper
@@ -238,3 +260,4 @@ export type GetSyncStatusResponse = MessageResponse<{
   lastError?: string;
   cursor: number;
 }>;
+export type CaptureViewportResponse = MessageResponse<ViewportCapture>;

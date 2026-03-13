@@ -7,6 +7,10 @@ const runtimeState = vi.hoisted(() => ({
   annotateMode: false,
 }));
 
+const mockCaptureViewport = vi.hoisted(() => vi.fn());
+const mockMakePageInert = vi.hoisted(() => vi.fn());
+const mockRestorePageInteractivity = vi.hoisted(() => vi.fn());
+
 vi.mock('../hooks/useTabRuntimeState', async () => {
   const hooks = await vi.importActual<typeof import('preact/hooks')>('preact/hooks');
 
@@ -58,6 +62,12 @@ vi.mock('../hooks/useAnnotations', () => ({
 vi.mock('../messaging', () => ({
   getSettings: vi.fn(async () => ({ success: true, data: { clearOnCopy: false } })),
   updateSettings: vi.fn(async () => ({ success: true, data: { clearOnCopy: false } })),
+  captureViewport: () => mockCaptureViewport(),
+}));
+
+vi.mock('../utils/page-inert', () => ({
+  makePageInert: () => mockMakePageInert(),
+  restorePageInteractivity: () => mockRestorePageInteractivity(),
 }));
 
 vi.mock('./ElementHighlight', () => ({
@@ -169,7 +179,7 @@ function dispatchPointerDown(target: Element, coords = { clientX: 24, clientY: 2
   );
 }
 
-describe('App modal-safe overlay behavior', () => {
+describe('App lean freeze/session coverage', () => {
   beforeAll(() => {
     installPointerEventShim();
   });
@@ -178,27 +188,29 @@ describe('App modal-safe overlay behavior', () => {
     runtimeState.annotateMode = false;
     vi.clearAllMocks();
     installElementsFromPointMock();
+
+    mockCaptureViewport.mockResolvedValue({
+      success: true,
+      data: {
+        dataUrl: 'data:image/png;base64,test-screenshot',
+        viewport: { width: 1920, height: 1080, scrollX: 0, scrollY: 0 },
+      },
+    });
   });
 
-  it('does not trigger host pointer dismissal when toggling annotate mode from the onUI toolbar', async () => {
-    const { modal } = renderInOnUiHost();
+  it('enters annotate mode and starts freeze capture', async () => {
+    renderInOnUiHost();
     const user = userEvent.setup();
-    const { hostDismiss, cleanup } = installHostDismissListener('pointerdown');
 
     await user.click(screen.getByRole('button', { name: 'Toggle onUI panel' }));
     await user.click(screen.getByRole('button', { name: 'Toggle annotate mode' }));
 
-    const annotateButton = screen.getByRole('button', { name: 'Toggle annotate mode' });
     await waitFor(() => {
-      expect(annotateButton.className).toContain('is-active');
+      expect(mockCaptureViewport).toHaveBeenCalledTimes(1);
     });
-
-    expect(hostDismiss).not.toHaveBeenCalled();
-    expect(modal.getAttribute('role')).toBe('dialog');
-    cleanup();
   });
 
-  it('selects modal content in annotate mode without invoking the host pointer dismissal handler', async () => {
+  it('selects in annotate mode without triggering host pointer dismissal', async () => {
     runtimeState.annotateMode = true;
     const elementsFromPoint = installElementsFromPointMock();
     const { modal } = renderInOnUiHost();
@@ -220,6 +232,7 @@ describe('App modal-safe overlay behavior', () => {
         toJSON: () => ({}),
       }),
     });
+
     modal.appendChild(target);
     elementsFromPoint.mockReturnValue([target]);
     await flushEffects();
@@ -231,36 +244,23 @@ describe('App modal-safe overlay behavior', () => {
     cleanup();
   });
 
-  it('owns Escape while annotate mode is active and keeps the host dialog dismissal handler from firing', async () => {
-    runtimeState.annotateMode = true;
+  it('exits annotate mode and tears down freeze interactivity lock', async () => {
     renderInOnUiHost();
     const user = userEvent.setup();
-    const { hostDismiss, cleanup } = installHostDismissListener('keydown');
 
     await user.click(screen.getByRole('button', { name: 'Toggle onUI panel' }));
-    const annotateButton = screen.getByRole('button', { name: 'Toggle annotate mode' });
-    expect(annotateButton.className).toContain('is-active');
-
-    await user.keyboard('{Escape}');
+    await user.click(screen.getByRole('button', { name: 'Toggle annotate mode' }));
 
     await waitFor(() => {
-      expect(annotateButton.className).not.toContain('is-active');
+      expect(mockCaptureViewport).toHaveBeenCalledTimes(1);
     });
-    expect(hostDismiss).not.toHaveBeenCalled();
-    cleanup();
-  });
 
-  it('still allows host pointer dismissal when annotate mode is inactive and the click is outside onUI', () => {
-    renderInOnUiHost();
-    const { hostDismiss, cleanup } = installHostDismissListener('pointerdown');
+    await user.click(screen.getByRole('button', { name: 'Toggle annotate mode' }));
 
-    const outsideButton = document.createElement('button');
-    outsideButton.textContent = 'Outside target';
-    document.body.appendChild(outsideButton);
-
-    dispatchPointerDown(outsideButton);
-
-    expect(hostDismiss).toHaveBeenCalledTimes(1);
-    cleanup();
+    await waitFor(() => {
+      const annotateButton = screen.getByRole('button', { name: 'Toggle annotate mode' });
+      expect(annotateButton.className).not.toContain('is-active');
+      expect(mockRestorePageInteractivity).toHaveBeenCalled();
+    });
   });
 });

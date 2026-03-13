@@ -1,6 +1,6 @@
 {
   "name": "onui",
-  "version": "2.1.2",
+  "version": "2.2.0",
   "private": true,
   "description": "Browser extension for annotating UI elements for AI agents",
   "packageManager": "pnpm@9.15.0",

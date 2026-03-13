@@ -150,13 +150,14 @@ open_browser_extensions() {
 usage() {
   cat <<'EOF'
 Usage:
-  install.sh [--mcp] [--firefox] [--chromium] [--help]
+  install.sh [--mcp] [--firefox] [--chromium] [--path PATH] [--help]
 
 Options:
-  --mcp       Also run local MCP setup.
-  --firefox   Install Firefox-compatible extension artifact.
-  --chromium  Install Chromium-compatible extension artifact (default).
-  --help      Show this help.
+  --mcp          Also run local MCP setup.
+  --firefox      Install Firefox-compatible extension artifact.
+  --chromium     Install Chromium-compatible extension artifact (default).
+  --path PATH    Set custom install directory (default: ~/.onui).
+  --help         Show this help.
 EOF
 }
 
@@ -171,6 +172,18 @@ parse_args() {
         ;;
       --chromium)
         BROWSER_TARGET="chromium"
+        ;;
+      --path)
+        shift
+        if [ "$#" -eq 0 ]; then
+          fail "--path requires an argument"
+        fi
+        ONUI_HOME="$1"
+        ONUI_HOME_IS_DEFAULT=0
+        EXT_ROOT="${ONUI_HOME}/extensions"
+        EXT_DIR="${EXT_ROOT}/v${VERSION}"
+        CURRENT_LINK="${EXT_ROOT}/current"
+        MCP_DIR="${ONUI_HOME}/mcp/v${VERSION}"
         ;;
       --help|-h)
         usage

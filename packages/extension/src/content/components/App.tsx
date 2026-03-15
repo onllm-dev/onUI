@@ -7,7 +7,8 @@ import type {
   RegionGeometry,
   RegionShape,
 } from '@/types';
-import { getSettings, updateSettings } from '../messaging';
+import { getSettings, updateSettings, isToggleDrawModeMessage } from '../messaging';
+import { webext } from '@/shared/webext';
 import { ElementHighlight } from './ElementHighlight';
 import { AnnotationMarkers } from './AnnotationMarkers';
 import { OnUIToolbar } from './OnUIToolbar';
@@ -177,6 +178,36 @@ function EnabledApp({ annotateMode, onToggleAnnotateMode }: EnabledAppProps) {
       setFrozenHoveredElement(null);
     }
   }, [freezeSession.isActive]);
+
+  // Listen for keyboard shortcut to toggle draw mode
+  useEffect(() => {
+    const handleMessage = (message: unknown) => {
+      if (isToggleDrawModeMessage(message)) {
+        setIsDrawMode((previous) => {
+          const next = !previous;
+          if (next) {
+            if (annotateMode) {
+              void onToggleAnnotateMode();
+            }
+            setSelectedElement(null);
+            setPendingMultiSelection([]);
+            setMultiDialogTargets([]);
+            setEditingAnnotation(null);
+            setEditingRegionGeometry(null);
+            setPendingRegion(null);
+          } else {
+            setPendingRegion(null);
+            setIsDrawingDraft(false);
+            setDrawCancelSignal((value) => value + 1);
+          }
+          return next;
+        });
+      }
+    };
+
+    webext.runtime.onMessage.addListener(handleMessage);
+    return () => webext.runtime.onMessage.removeListener(handleMessage);
+  }, [annotateMode, onToggleAnnotateMode]);
 
   // Handle element click in annotation mode
   const handleElementClick = useCallback((element: Element, event: SelectionEvent) => {

@@ -323,3 +323,12 @@ export function isTabRuntimeStateChangedMessage(
   const state = payload.state as { enabled?: unknown; annotateMode?: unknown };
   return typeof state.enabled === 'boolean' && typeof state.annotateMode === 'boolean';
 }
+
+/**
+ * Type guard for toggle draw mode push messages
+ */
+export function isToggleDrawModeMessage(value: unknown): value is { type: 'TOGGLE_DRAW_MODE' } {
+  if (!value || typeof value !== 'object') return false;
+  const maybe = value as { type?: unknown };
+  return maybe.type === 'TOGGLE_DRAW_MODE';
+}

@@ -22,6 +22,22 @@
     "service_worker": "src/background/index.ts",
     "type": "module"
   },
+  "commands": {
+    "toggle-annotate-mode": {
+      "suggested_key": {
+        "default": "Alt+A",
+        "mac": "Alt+A"
+      },
+      "description": "Toggle annotate mode in the active tab"
+    },
+    "toggle-draw-mode": {
+      "suggested_key": {
+        "default": "Alt+D",
+        "mac": "Alt+D"
+      },
+      "description": "Toggle draw mode in the active tab"
+    }
+  },
   "permissions": [
     "activeTab",
     "scripting",

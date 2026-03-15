@@ -84,6 +84,10 @@ interface OnUIToolbarProps {
   onClearAnnotations: () => void | Promise<void>;
 }
 
+const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.platform);
+const ANNOTATE_SHORTCUT = isMac ? '⌥A' : 'Alt+A';
+const DRAW_SHORTCUT = isMac ? '⌥D' : 'Alt+D';
+
 export function OnUIToolbar({
   isAnnotateMode,
   isDrawMode,
@@ -172,7 +176,7 @@ export function OnUIToolbar({
                   class={`onui-toolbar-btn onui-toolbar-btn--mode ${isAnnotateMode ? 'is-active' : ''}`}
                   onClick={onToggleAnnotateMode}
                   aria-label="Toggle annotate mode"
-                  title="Toggle annotate mode"
+                  title={`Toggle annotate mode (${ANNOTATE_SHORTCUT})`}
                 >
                   <CrosshairIcon />
                 </button>
@@ -191,7 +195,7 @@ export function OnUIToolbar({
                     class={`onui-toolbar-btn onui-toolbar-btn--mode ${isDrawMode ? 'is-active' : ''}`}
                     onClick={onToggleDrawMode}
                     aria-label="Toggle draw mode"
-                    title="Toggle draw mode"
+                    title={`Toggle draw mode (${DRAW_SHORTCUT})`}
                   >
                     <PenIcon />
                   </button>

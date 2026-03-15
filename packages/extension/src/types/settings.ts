@@ -24,7 +24,7 @@ export interface Settings {
  */
 export const DEFAULT_SETTINGS: Settings = {
   outputLevel: 'standard',
-  clearOnCopy: false,
+  clearOnCopy: true,
   showMarkers: true,
   markerColor: '#6366f1',
   markerSize: 24,

@@ -41,8 +41,20 @@ vi.mock('../hooks/useAnnotations', () => ({
 }));
 
 vi.mock('../messaging', () => ({
-  getSettings: vi.fn(async () => ({ success: true, data: { clearOnCopy: false } })),
-  updateSettings: vi.fn(async () => ({ success: true, data: { clearOnCopy: false } })),
+  getSettings: vi.fn(async () => ({ success: true, data: { clearOnCopy: true } })),
+  updateSettings: vi.fn(async () => ({ success: true, data: { clearOnCopy: true } })),
+  isToggleDrawModeMessage: () => false,
+}));
+
+vi.mock('@/shared/webext', () => ({
+  webext: {
+    runtime: {
+      onMessage: {
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+      },
+    },
+  },
 }));
 
 vi.mock('./ElementHighlight', () => ({

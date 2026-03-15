@@ -17,6 +17,7 @@ export type MessageType =
   | 'SET_TAB_ENABLED'
   | 'SET_ANNOTATE_MODE'
   | 'TAB_RUNTIME_STATE_CHANGED'
+  | 'TOGGLE_DRAW_MODE'
   | 'GET_SYNC_STATUS'
   | 'GET_STATE'
   | 'SET_STATE'
@@ -181,6 +182,13 @@ export interface TabRuntimeStateChangedMessage extends BaseMessage {
 }
 
 /**
+ * Toggle draw mode in content script (background -> content)
+ */
+export interface ToggleDrawModeMessage extends BaseMessage {
+  type: 'TOGGLE_DRAW_MODE';
+}
+
+/**
  * Get local native sync status
  */
 export interface GetSyncStatusMessage extends BaseMessage {
@@ -224,6 +232,7 @@ export type Message =
   | SetAnnotateModeMessage
   | GetSyncStatusMessage
   | TabRuntimeStateChangedMessage
+  | ToggleDrawModeMessage
   | GetStateMessage
   | SetStateMessage
   | CaptureViewportMessage;

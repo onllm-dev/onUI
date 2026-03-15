@@ -91,8 +91,8 @@ describe('OnUIToolbar', () => {
     const clearButton = screen.getByRole('button', { name: 'Clear annotations' });
     const settingsButton = screen.getByRole('button', { name: 'Toggle settings' });
 
-    expect(annotateButton.getAttribute('title')).toBe('Toggle annotate mode');
-    expect(drawButton.getAttribute('title')).toBe('Toggle draw mode');
+    expect(annotateButton.getAttribute('title')).toMatch(/Toggle annotate mode \((⌥A|Alt\+A)\)/);
+    expect(drawButton.getAttribute('title')).toMatch(/Toggle draw mode \((⌥D|Alt\+D)\)/);
     expect(copyButton.getAttribute('title')).toBe('Copy annotations');
     expect(clearButton.getAttribute('title')).toBe('Clear annotations');
     expect(settingsButton.getAttribute('title')).toBe('Toggle settings');

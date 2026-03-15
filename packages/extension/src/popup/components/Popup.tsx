@@ -233,7 +233,7 @@ export function Popup() {
       </div>
 
       <div class="popup-footer">
-        <span>onUI v2.2.2</span>
+        <span>onUI v2.2.3</span>
         <span aria-hidden="true">•</span>
         <a href="https://github.com/onllm-dev/onUI" target="_blank" rel="noopener">
           GitHub

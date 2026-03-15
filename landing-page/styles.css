@@ -310,6 +310,26 @@ main {
   color: #dbeafe;
 }
 
+.badge-store-edge {
+  background: linear-gradient(135deg, rgba(0, 120, 212, 0.3) 0%, rgba(0, 180, 180, 0.26) 50%, rgba(0, 120, 212, 0.3) 100%);
+  border-color: rgba(0, 120, 212, 0.5);
+  box-shadow:
+    0 0 0 rgba(0, 120, 212, 0),
+    0 0.4rem 1rem rgba(0, 120, 212, 0.22);
+}
+
+.badge-store-edge:hover,
+.badge-store-edge:focus-visible {
+  border-color: rgba(0, 120, 212, 0.7);
+  box-shadow:
+    0 0 0 0.35rem rgba(0, 120, 212, 0.2),
+    0 0.6rem 1.5rem rgba(0, 120, 212, 0.35);
+}
+
+[data-theme="dark"] .badge-store-edge {
+  color: #b3e0ff;
+}
+
 .badge-oss {
   background: var(--glass);
   color: var(--text-secondary);
@@ -1217,6 +1237,48 @@ h1 {
 .browser-install-card-edge:hover {
   border-color: var(--accent-border);
   box-shadow: var(--shadow-glow);
+}
+
+.browser-install-card-edge .browser-install-link {
+  color: #0f766e;
+  border-color: rgba(20, 184, 166, 0.32);
+}
+
+.browser-install-card-edge .browser-install-link:hover,
+.browser-install-card-edge .browser-install-link:focus-visible {
+  border-color: rgba(20, 184, 166, 0.52);
+}
+
+.install-alternative {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.install-alternative summary {
+  cursor: pointer;
+  font-size: clamp(0.75rem, 1.6vw, 0.82rem);
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+
+.install-alternative summary:hover {
+  color: var(--text-secondary);
+}
+
+.install-alternative[open] summary {
+  margin-bottom: 0.75rem;
+}
+
+.install-alternative > p {
+  font-size: clamp(0.72rem, 1.5vw, 0.78rem);
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.install-alternative .install-commands {
+  margin-top: 0.5rem;
 }
 
 .browser-install-card-firefox {

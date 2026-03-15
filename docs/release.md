@@ -61,6 +61,9 @@ Live listing:
 Upload `onui-edge-add-ons-vX.Y.Z.zip` from `artifacts/vX.Y.Z/`.
 The Edge zip strips the `manifest.key` field automatically.
 
+Live listing:
+`https://microsoftedge.microsoft.com/addons/detail/onui/fkcmlckehjhcicihbnmhkadfhjhfnond`
+
 Submission checklist (Microsoft Edge Add-ons):
 1. Partner Center developer account (publisher profile complete).
 2. Extension package zip (Manifest V3) with required icons and metadata.

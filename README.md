@@ -37,13 +37,17 @@ Powered by [onLLM.dev](https://onllm.dev).
 
 ## Install (Current)
 
-### Option A: Chrome Web Store (recommended)
+### Option A: Browser Extension Stores (recommended)
 
-Install directly from Chrome Web Store:
-
+**Chrome Web Store:**
 https://chromewebstore.google.com/detail/onui/hllgijkdhegkpooopdhbfdjialkhlkan?authuser=0&hl=en-GB
 
+**Microsoft Edge Add-ons:**
+https://microsoftedge.microsoft.com/addons/detail/onui/fkcmlckehjhcicihbnmhkadfhjhfnond
+
 ### Option B: One-command installer from latest GitHub release
+
+Use this if you want the latest version (store updates may lag) or for Firefox:
 
 macOS/Linux:
 ```bash

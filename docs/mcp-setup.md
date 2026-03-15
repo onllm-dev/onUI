@@ -5,7 +5,7 @@
 This release supports:
 - Chrome + Edge + Firefox extension runtime
 - Local Native Messaging host (`com.onui.native`)
-- Local MCP server (`onui-local`) for Claude Code and Codex
+- Local MCP server (`onui-local`) for Claude Code, Codex, VS Code, and other MCP clients
 
 Browser support in this release: **Chrome stable + Edge stable + Firefox stable (unpacked)**.
 
@@ -53,6 +53,93 @@ Optional extension ID overrides:
 - `ONUI_FIREFOX_EXTENSION_IDS`: comma-separated Firefox add-on IDs to append.
 - `ONUI_FIREFOX_EXTENSION_ID`: single Firefox add-on ID override.
 - `ONUI_EXTRA_EXTENSION_IDS`: comma-separated IDs appended for all browsers.
+
+## AI Agent Setup
+
+After running the install script with `--mcp`, configure your AI agent to use onUI.
+
+The MCP CLI is installed at:
+- **macOS/Linux**: `~/.onui/mcp/v2.2.3/dist/bin/onui-cli.js`
+- **Windows**: `%USERPROFILE%\.onui\mcp\v2.2.3\dist\bin\onui-cli.js`
+
+### Claude Desktop
+
+Config file location:
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "onui-local": {
+      "command": "node",
+      "args": ["~/.onui/mcp/v2.2.3/dist/bin/onui-cli.js", "mcp"]
+    }
+  }
+}
+```
+
+Restart Claude Desktop after saving.
+
+### VS Code / GitHub Copilot
+
+Requires VS Code 1.99+.
+
+Config file location:
+- **macOS**: `~/Library/Application Support/Code/User/mcp.json`
+- **Linux**: `~/.config/Code/User/mcp.json`
+- **Windows**: `%APPDATA%\Code\User\mcp.json`
+
+```json
+{
+  "servers": {
+    "onui-local": {
+      "command": "node",
+      "args": ["~/.onui/mcp/v2.2.3/dist/bin/onui-cli.js", "mcp"]
+    }
+  }
+}
+```
+
+Reload VS Code → open Copilot Chat in **Agent** mode → click the tools icon to verify.
+
+### Cursor
+
+Config file location:
+- **Global**: `~/.cursor/mcp.json`
+- **Project**: `.cursor/mcp.json` (in project root)
+
+```json
+{
+  "mcpServers": {
+    "onui-local": {
+      "command": "node",
+      "args": ["~/.onui/mcp/v2.2.3/dist/bin/onui-cli.js", "mcp"]
+    }
+  }
+}
+```
+
+Restart Cursor after saving. Open Settings → Features → MCP to verify.
+
+### Windsurf
+
+Config file location:
+- **macOS/Linux**: `~/.codeium/windsurf/mcp_config.json`
+- **Windows**: `%USERPROFILE%\.codeium\windsurf\mcp_config.json`
+
+```json
+{
+  "mcpServers": {
+    "onui-local": {
+      "command": "node",
+      "args": ["~/.onui/mcp/v2.2.3/dist/bin/onui-cli.js", "mcp"]
+    }
+  }
+}
+```
+
+Restart Windsurf after saving. Click the MCPs icon in Cascade panel to verify.
 
 ## Verify Installation
 

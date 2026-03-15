@@ -56,6 +56,23 @@ Each annotation supports:
    5. During pending Shift multi-select (before dialog): clear pending selection.
    6. In annotate mode with no higher-priority state: exit annotate mode.
 
+## Keyboard Shortcuts
+
+onUI supports keyboard shortcuts for quick mode toggling:
+
+| Action              | macOS       | Windows/Linux |
+|---------------------|-------------|---------------|
+| Toggle Annotate Mode | `⌥A` (Option+A) | `Alt+A`       |
+| Toggle Draw Mode     | `⌥D` (Option+D) | `Alt+D`       |
+
+### Customizing Shortcuts
+
+Browser extensions don't allow in-app shortcut customization, but you can change the shortcuts through your browser's extension settings:
+
+- **Chrome**: Navigate to `chrome://extensions/shortcuts`
+- **Edge**: Navigate to `edge://extensions/shortcuts`
+- **Firefox**: Navigate to `about:addons`, click the gear icon, then "Manage Extension Shortcuts"
+
 ## Toolbar Settings (Compact Pop-out)
 
 1. The floating toolbar remains compact by default.
@@ -74,6 +91,22 @@ Each annotation supports:
    3. **detailed**: includes target type/shape/geometry plus compatibility selector/tag/path fields.
    4. **forensic**: includes region identification fields and region geometry in target identification.
 3. Region edits update geometry used in subsequent report/export output.
+
+## Frozen Page in Annotate Mode
+
+When you enter annotate mode, the page **freezes**:
+
+- **Scrolling is disabled** — the viewport locks in place
+- **Page interactions are blocked** — clicks and inputs only affect the annotation overlay
+- **Element positions stay stable** — ensures accurate targeting
+
+This is intentional. The freeze captures a snapshot of the current viewport so element positions remain consistent while you annotate. To scroll to a different part of the page:
+
+1. Exit annotate mode (click the annotate button or press `Alt+A` / `⌥A`)
+2. Scroll to the desired location
+3. Re-enter annotate mode
+
+Draw mode does **not** freeze the page — only annotate mode does.
 
 ## Notes
 

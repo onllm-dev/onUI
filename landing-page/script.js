@@ -129,6 +129,53 @@
   }
 
   // ============================================
+  // Keyboard Shortcuts OS Toggle
+  // ============================================
+
+  const shortcutsOsButtons = document.querySelectorAll('.shortcuts-os-btn');
+  const shortcutKeysElements = document.querySelectorAll('.shortcut-keys, .shortcuts-customize-text span');
+
+  // Detect user's OS for initial state
+  function detectOS() {
+    const platform = navigator.platform || '';
+    const userAgent = navigator.userAgent || '';
+    if (/Mac|iPhone|iPad|iPod/.test(platform) || /Mac/.test(userAgent)) {
+      return 'mac';
+    }
+    return 'win';
+  }
+
+  function setShortcutsOS(os) {
+    // Update toggle buttons
+    shortcutsOsButtons.forEach((btn) => {
+      const isActive = btn.getAttribute('data-os') === os;
+      btn.classList.toggle('active', isActive);
+      btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+
+    // Show/hide appropriate key displays
+    shortcutKeysElements.forEach((el) => {
+      const elOs = el.getAttribute('data-os');
+      if (elOs === os) {
+        el.removeAttribute('hidden');
+      } else {
+        el.setAttribute('hidden', '');
+      }
+    });
+  }
+
+  // Initialize with detected OS
+  setShortcutsOS(detectOS());
+
+  // Handle toggle clicks
+  shortcutsOsButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const os = btn.getAttribute('data-os');
+      if (os) setShortcutsOS(os);
+    });
+  });
+
+  // ============================================
   // Smooth scroll for anchor links
   // ============================================
 

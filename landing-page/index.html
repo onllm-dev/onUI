@@ -31,6 +31,7 @@
         <a href="#demo">Demo</a>
         <a href="#features">Features</a>
         <a href="#install">Install</a>
+        <a href="#shortcuts">Shortcuts</a>
         <a href="#faq">FAQ</a>
         <a href="https://github.com/onllm-dev/onUI" target="_blank" rel="noreferrer" class="nav-github" aria-label="View on GitHub">
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -163,7 +164,7 @@
             <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
           </div>
           <h3>Annotate mode for precise UI fixes</h3>
-          <p>Target individual elements, attach intent and severity, and use Shift multi-select when one issue spans multiple components.</p>
+          <p>Target individual elements, attach intent and severity, and use Shift multi-select when one issue spans multiple components. The page freezes while annotating to keep element positions stable.</p>
         </article>
         <article class="feature-card">
           <div class="feature-icon feature-icon-blue">
@@ -358,6 +359,73 @@
       </div>
     </section>
 
+    <section id="shortcuts" class="section">
+      <div class="section-header">
+        <h2>Keyboard shortcuts</h2>
+        <p>Quick access to annotation modes — works across all browsers</p>
+      </div>
+
+      <div class="shortcuts-container">
+        <div class="shortcuts-os-toggle" role="tablist" aria-label="Select operating system">
+          <button type="button" role="tab" class="shortcuts-os-btn active" data-os="mac" aria-selected="true">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+            macOS
+          </button>
+          <button type="button" role="tab" class="shortcuts-os-btn" data-os="win" aria-selected="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 12V6.75l6-1.32v6.48L3 12m17-9v8.75l-10 .15V5.21L20 3M3 13l6 .09v6.81l-6-1.15V13m17 .25V22l-10-1.91V13.1l10 .15z"/></svg>
+            Windows / Linux
+          </button>
+        </div>
+
+        <div class="shortcuts-grid">
+          <article class="shortcut-card shortcut-card-teal">
+            <div class="shortcut-keys" data-os="mac">
+              <kbd class="key key-mod">⌥</kbd>
+              <span class="key-plus">+</span>
+              <kbd class="key">A</kbd>
+            </div>
+            <div class="shortcut-keys" data-os="win" hidden>
+              <kbd class="key key-mod">Alt</kbd>
+              <span class="key-plus">+</span>
+              <kbd class="key">A</kbd>
+            </div>
+            <div class="shortcut-info">
+              <h3>Toggle Annotate Mode</h3>
+              <p>Click elements to annotate. Hold Shift to multi-select.</p>
+            </div>
+          </article>
+
+          <article class="shortcut-card shortcut-card-blue">
+            <div class="shortcut-keys" data-os="mac">
+              <kbd class="key key-mod">⌥</kbd>
+              <span class="key-plus">+</span>
+              <kbd class="key">D</kbd>
+            </div>
+            <div class="shortcut-keys" data-os="win" hidden>
+              <kbd class="key key-mod">Alt</kbd>
+              <span class="key-plus">+</span>
+              <kbd class="key">D</kbd>
+            </div>
+            <div class="shortcut-info">
+              <h3>Toggle Draw Mode</h3>
+              <p>Drag to draw rectangle or ellipse regions for layout feedback.</p>
+            </div>
+          </article>
+        </div>
+
+        <div class="shortcuts-customize">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+          <div class="shortcuts-customize-text">
+            <strong>Customize shortcuts</strong>
+            <p>
+              <span data-os="mac">Open <code>chrome://extensions/shortcuts</code> in Chrome, <code>edge://extensions/shortcuts</code> in Edge, or <code>about:addons</code> → gear icon in Firefox.</span>
+              <span data-os="win" hidden>Open <code>chrome://extensions/shortcuts</code> in Chrome, <code>edge://extensions/shortcuts</code> in Edge, or <code>about:addons</code> → gear icon in Firefox.</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="faq" class="section">
       <div class="section-header">
         <h2>Frequently asked questions</h2>
@@ -379,6 +447,10 @@
         <details>
           <summary>What export formats are available?</summary>
           <p>Four formats: compact (minimal), standard, detailed, and forensic (maximum context). Choose based on how much information your AI agent needs.</p>
+        </details>
+        <details>
+          <summary>Why can't I scroll when annotate mode is on?</summary>
+          <p>Annotate mode freezes the page intentionally. This keeps element positions stable while you click to annotate. To scroll, exit annotate mode first (click the button or press <code>Alt+A</code> / <code>⌥A</code>), scroll to where you need, then re-enter annotate mode. Draw mode does not freeze the page.</p>
         </details>
       </div>
     </section>

@@ -1128,7 +1128,7 @@ h1 {
 
 .browser-install-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: clamp(0.75rem, 2vw, 1rem);
   min-width: 0;
 }
@@ -1136,8 +1136,8 @@ h1 {
 .browser-install-card {
   display: flex;
   flex-direction: column;
-  gap: clamp(0.75rem, 2vw, 0.875rem);
-  padding: clamp(1rem, 2.5vw, 1.25rem);
+  gap: clamp(0.5rem, 1.5vw, 0.75rem);
+  padding: clamp(0.875rem, 2vw, 1rem);
   border-radius: var(--radius-lg);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.08) 100%),
@@ -1165,14 +1165,14 @@ h1 {
 }
 
 .browser-install-card h4 {
-  font-size: clamp(1rem, 2vw, 1.1rem);
+  font-size: clamp(0.95rem, 1.8vw, 1.05rem);
   line-height: 1.2;
 }
 
 .browser-install-card p {
-  font-size: clamp(0.82rem, 1.8vw, 0.9rem);
+  font-size: clamp(0.78rem, 1.6vw, 0.85rem);
   color: var(--text-secondary);
-  line-height: 1.55;
+  line-height: 1.5;
 }
 
 .browser-install-link {
@@ -1391,8 +1391,13 @@ h1 {
   }
 }
 
+@media (max-width: 64rem) {
+  .browser-install-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 52rem) {
-  .browser-install-grid,
   .finish-grid {
     grid-template-columns: 1fr;
   }

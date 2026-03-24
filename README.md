@@ -11,6 +11,7 @@ Powered by [onLLM.dev](https://onllm.dev).
 [![Edge Stable](https://img.shields.io/badge/Browser-Edge_Stable-0A66C2?style=for-the-badge&logo=microsoftedge&logoColor=white)](https://www.microsoft.com/edge)
 [![Firefox Stable](https://img.shields.io/badge/Browser-Firefox_Stable-FF7139?style=for-the-badge&logo=firefoxbrowser&logoColor=white)](https://www.mozilla.org/firefox/)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/tushar_s)
+[![onllm-dev/onUI MCP server](https://glama.ai/mcp/servers/onllm-dev/onUI/badges/score.svg)](https://glama.ai/mcp/servers/onllm-dev/onUI)
 
 > [!NOTE]
 > `onUI` is now stable and production-ready.

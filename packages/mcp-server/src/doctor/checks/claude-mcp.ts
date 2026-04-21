@@ -2,7 +2,11 @@ import { spawnSync } from 'node:child_process';
 import type { CheckResult } from '../types.js';
 
 export async function checkClaudeMcpRegistration(): Promise<CheckResult> {
-  const exists = spawnSync('claude', ['--version'], { stdio: 'pipe', encoding: 'utf8' });
+  const exists = spawnSync('claude', ['--version'], {
+    stdio: 'pipe',
+    encoding: 'utf8',
+    shell: process.platform === 'win32',
+  });
   if (exists.status !== 0) {
     return {
       name: 'mcp.claude',
@@ -12,7 +16,11 @@ export async function checkClaudeMcpRegistration(): Promise<CheckResult> {
     };
   }
 
-  const list = spawnSync('claude', ['mcp', 'list'], { stdio: 'pipe', encoding: 'utf8' });
+  const list = spawnSync('claude', ['mcp', 'list'], {
+    stdio: 'pipe',
+    encoding: 'utf8',
+    shell: process.platform === 'win32',
+  });
   if (list.status === 0 && `${list.stdout}${list.stderr}`.includes('onui-local')) {
     return {
       name: 'mcp.claude',

@@ -68,9 +68,9 @@ export function getNativeHostDir(
       return join(configHome, browserDir, 'NativeMessagingHosts');
     }
     case 'win32':
-      return join(getDataDir(platform), 'native-host');
+      return join(getDataDir(platform), 'native-host', browser);
     default:
-      return join(getDataDir(platform), 'native-host');
+      return join(getDataDir(platform), 'native-host', browser);
   }
 }
 

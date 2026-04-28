@@ -7,7 +7,11 @@ export interface ClaudeConfigResult {
 }
 
 function commandExists(command: string): boolean {
-  const result = spawnSync(command, ['--version'], { stdio: 'pipe', encoding: 'utf8' });
+  const result = spawnSync(command, ['--version'], {
+    stdio: 'pipe',
+    encoding: 'utf8',
+    shell: process.platform === 'win32',
+  });
   return result.status === 0;
 }
 
@@ -23,6 +27,7 @@ export function configureClaudeMcp(cliPath: string): ClaudeConfigResult {
   spawnSync('claude', ['mcp', 'remove', 'onui-local', '--scope', 'user'], {
     stdio: 'pipe',
     encoding: 'utf8',
+    shell: process.platform === 'win32',
   });
 
   const add = spawnSync(
@@ -31,6 +36,7 @@ export function configureClaudeMcp(cliPath: string): ClaudeConfigResult {
     {
       stdio: 'pipe',
       encoding: 'utf8',
+      shell: process.platform === 'win32',
     }
   );
 

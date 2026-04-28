@@ -41,4 +41,29 @@ describe('path resolver', () => {
       'HKCU\\Software\\Mozilla\\NativeMessagingHosts\\com.onui.native'
     );
   });
+
+  it('resolves browser-specific win32 native host manifest paths', () => {
+    const originalAppData = process.env.APPDATA;
+    process.env.APPDATA = 'C:\\Users\\onui\\AppData\\Roaming';
+
+    try {
+      const chromePath = getNativeHostManifestPath('win32', 'chrome');
+      const edgePath = getNativeHostManifestPath('win32', 'edge');
+      const firefoxPath = getNativeHostManifestPath('win32', 'firefox');
+
+      expect(new Set([chromePath, edgePath, firefoxPath]).size).toBe(3);
+      expect(chromePath.split(/[\\/]+/)).toContain('chrome');
+      expect(edgePath.split(/[\\/]+/)).toContain('edge');
+      expect(firefoxPath.split(/[\\/]+/)).toContain('firefox');
+      expect(chromePath).toContain('com.onui.native.json');
+      expect(edgePath).toContain('com.onui.native.json');
+      expect(firefoxPath).toContain('com.onui.native.json');
+    } finally {
+      if (originalAppData === undefined) {
+        delete process.env.APPDATA;
+      } else {
+        process.env.APPDATA = originalAppData;
+      }
+    }
+  });
 });

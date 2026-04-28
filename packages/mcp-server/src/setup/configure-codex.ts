@@ -7,7 +7,11 @@ export interface CodexConfigResult {
 }
 
 function commandExists(command: string): boolean {
-  const result = spawnSync(command, ['--version'], { stdio: 'pipe', encoding: 'utf8' });
+  const result = spawnSync(command, ['--version'], {
+    stdio: 'pipe',
+    encoding: 'utf8',
+    shell: process.platform === 'win32',
+  });
   return result.status === 0;
 }
 
@@ -23,11 +27,13 @@ export function configureCodexMcp(cliPath: string): CodexConfigResult {
   spawnSync('codex', ['mcp', 'remove', 'onui-local'], {
     stdio: 'pipe',
     encoding: 'utf8',
+    shell: process.platform === 'win32',
   });
 
   const add = spawnSync('codex', ['mcp', 'add', 'onui-local', '--', 'node', cliPath, 'mcp'], {
     stdio: 'pipe',
     encoding: 'utf8',
+    shell: process.platform === 'win32',
   });
 
   if (add.status !== 0) {

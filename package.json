@@ -9,7 +9,8 @@
   },
   "scripts": {
     "dev": "pnpm --filter @onui/extension dev",
-    "build": "pnpm --filter @onui/extension build",
+    "build": "pnpm run build:all && pnpm run setup:mcp",
+    "build:extension": "pnpm --filter @onui/extension build",
     "build:all": "pnpm --filter @onui/core build && pnpm --filter @onui/mcp-server build && pnpm --filter @onui/extension build",
     "test": "pnpm test:all",
     "test:all": "pnpm --filter @onui/core build && pnpm --filter @onui/mcp-server run test && pnpm --filter @onui/extension test",
